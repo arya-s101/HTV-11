@@ -1,6 +1,6 @@
 # Toronto Rent Decisions (working title)
 
-> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../newmessage.txt` (PRD).
+> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md` (PRD).
 
 An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
 through life stages. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
