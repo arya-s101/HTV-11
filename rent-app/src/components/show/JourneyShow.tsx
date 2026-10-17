@@ -15,7 +15,7 @@ import { tailorStage } from "@/game/tailor";
 import { ProfileForm } from "../ProfileForm";
 import { consequence, money } from "@/game/outcome";
 import { buildCityQuestion, buildQuestion, type DraftQuestion } from "@/game/question";
-import { DIFFICULTY_INFO } from "@/game/score";
+import { DIFFICULTY_INFO, hagglePoints } from "@/game/score";
 import type { Character } from "@/game/sprite";
 import type { Difficulty, Field, NegotiatedTerms, Offer, PlayableStage, VerifyItemId } from "@/game/types";
 import { Negotiation } from "../Negotiation";
@@ -56,6 +56,12 @@ function answerLines(plan: RunPlan, id: string, pick: string): string[] {
 }
 /** Wording written in a past Gemini call never contains a digit; repair events count as written-request receipts. */
 const writesReceipt = (t: QuestionTemplate) => !["live-ttc", "live-rent-increase"].includes(t.content_id);
+
+/** Multiplayer hooks: report progress to the room; show the room's panel at the end. */
+export interface PartyHooks {
+  onProgress: (p: { score: number; round: string; done: boolean }) => void;
+  panel: React.ReactNode;
+}
 
 /** What a finished Base game hands to Extended, so the same player can skip what they already played. */
 export interface BaseCarry {
@@ -123,6 +129,8 @@ export function JourneyShow(props: {
   values: Record<string, string>;
   profile: Profile;
   onProfile: (p: Profile) => void;
+  /** Multiplayer: the room is told the score and round as you play, and shown on the report card instead of replay buttons. */
+  party?: PartyHooks;
   scriptedLandlord: boolean;
   onReplay: () => void;
   onQuit: () => void;
@@ -139,7 +147,7 @@ export function JourneyShow(props: {
 }
 
 function Show(props: Parameters<typeof JourneyShow>[0]) {
-  const { stage, age, character, difficulty, seed, mode, carry, plan, scriptedLandlord, onReplay, onQuit, onExtended } = props;
+  const { stage, age, character, difficulty, seed, mode, carry, plan, scriptedLandlord, onReplay, onQuit, onExtended, party } = props;
   const cfg = MODES[mode];
   const [skipPlayed, setSkipPlayed] = useState(false);
   const rounds = cfg.rounds.filter((r) => !(skipPlayed && SKIPPABLE_AFTER_BASE.includes(r)));
@@ -211,6 +219,10 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
     setShake(true);
     setTimeout(() => setShake(false), 400);
   };
+
+  useEffect(() => {
+    party?.onProgress({ score, round, done: round === "report" });
+  }, [score, round]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const offer = res.offerId ? stage.offers.find((o) => o.id === res.offerId)! : null;
   const agreedTerms: NegotiatedTerms | undefined =
@@ -380,6 +392,8 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               scripted={scriptedLandlord}
               rivalDelta={res.rivalDelta}
               onDone={(terms) => {
+                // A better deal scores (same formula in single-player and multiplayer).
+                if (terms) addPoints(hagglePoints(terms.askingCents, terms.rentCents));
                 patch({ terms });
                 after("negotiate");
               }}
@@ -452,6 +466,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               onReplay={onReplay}
               onQuit={onQuit}
               onExtended={onExtended}
+              party={party}
             />
           )}
         </div>
@@ -1331,8 +1346,9 @@ function ReportRound(props: {
   onReplay: () => void;
   onQuit: () => void;
   onExtended: (carry: BaseCarry) => void;
+  party?: PartyHooks;
 }) {
-  const { stage, character, age, offer, terms, difficulty, seed, mode, res, receipts, onReplay, onQuit, onExtended } = props;
+  const { stage, character, age, offer, terms, difficulty, seed, mode, res, receipts, onReplay, onQuit, onExtended, party } = props;
   const { plan } = useRun();
   const events = plan.events;
   const { score, lifelines, addPoints, tally } = useShow();
@@ -1495,6 +1511,9 @@ function ReportRound(props: {
         </a>
         {copied === "q" && <span className="yes">Copied!</span>}
       </div>
+      {party ? (
+        party.panel
+      ) : (
       <div className="choices">
         {!extended && (
           <button className="btn big" onClick={toExtended}>
@@ -1508,6 +1527,7 @@ function ReportRound(props: {
           Quit to title
         </button>
       </div>
+      )}
     </section>
   );
 }

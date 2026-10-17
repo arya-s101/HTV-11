@@ -1,12 +1,12 @@
 rules_version = '2';
-// Party-mode rules (PRD v4 Change 5). Must-haves: signed-in members only; only the host changes room state, questions
-// and keys; a player writes only their own player doc and one answer per question while playing; answer keys are
-// unreadable until that question is revealed. Profile data is never stored: players hold only a name and a sprite.
+// Party-mode rules (PRD v4 Change 5, single-player parity): every player plays the same seeded game on their own
+// device; the room holds settings, shared scenes and a leaderboard. Signed-in members only; only the host changes
+// room state; a player writes only their own player doc. Profile data is never stored: a name and a sprite only.
+// Hackathon limitation: scores are self-reported, so rules only let a score go up, by a bounded amount per write.
 service cloud.firestore {
   match /databases/{db}/documents {
     function signedIn() { return request.auth != null; }
-    function roomPath(code) { return /databases/$(db)/documents/rooms/$(code); }
-    function room(code) { return get(roomPath(code)).data; }
+    function room(code) { return get(/databases/$(db)/documents/rooms/$(code)).data; }
     function playerPath(code, uid) { return /databases/$(db)/documents/rooms/$(code)/players/$(uid); }
     function isMember(code) { return exists(playerPath(code, request.auth.uid)); }
     function isHost(code) { return room(code).hostUid == request.auth.uid; }
@@ -19,13 +19,12 @@ service cloud.firestore {
     function onlyKeys(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
 
     match /rooms/{code} {
-      // Joiners may read a room to see whether it's open; everything below needs membership.
+      // Joiners may read a room to see whether it's open; player docs need membership.
       allow read: if signedIn();
       allow create: if signedIn()
         && code.matches('^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$')
         && request.resource.data.hostUid == request.auth.uid
-        && request.resource.data.status == 'lobby'
-        && request.resource.data.currentQuestionIndex == -1;
+        && request.resource.data.status == 'lobby';
       allow update: if signedIn() && isMember(code) && (
         isHost(code)
         || (onlyKeys(['hostUid', 'lastActivityAt']) && request.resource.data.hostUid == request.auth.uid && hostGone(code))
@@ -35,41 +34,19 @@ service cloud.firestore {
       match /players/{uid} {
         allow read: if signedIn() && isMember(code);
         allow create: if signedIn() && uid == request.auth.uid && room(code).status == 'lobby' && fresh(code)
-          && request.resource.data.keys().hasOnly(['displayName', 'sprite', 'score', 'joinedAt', 'connected', 'lastSeen'])
+          && request.resource.data.keys().hasOnly(['displayName', 'sprite', 'score', 'round', 'done', 'joinedAt', 'connected', 'lastSeen'])
           && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 16
           && request.resource.data.score == 0;
         allow update: if signedIn() && (
-          (uid == request.auth.uid && onlyKeys(['connected', 'lastSeen']))
-          || (isHost(code) && onlyKeys(['score']) && request.resource.data.score is int)
+          // A player updates their own presence and progress; the score only goes up, by at most 1,000 at once.
+          (uid == request.auth.uid && onlyKeys(['connected', 'lastSeen', 'score', 'round', 'done'])
+            && request.resource.data.score is int
+            && request.resource.data.score >= resource.data.score
+            && request.resource.data.score <= resource.data.score + 1000)
+          // The host resets everyone for a new game in the same room.
+          || (isHost(code) && onlyKeys(['score', 'round', 'done']) && request.resource.data.score == 0 && request.resource.data.done == false)
         );
         allow delete: if false;
-      }
-
-      match /questions/{index} {
-        allow read: if signedIn() && isMember(code);
-        allow write: if signedIn() && isHost(code);
-      }
-
-      match /answerKeys/{index} {
-        allow read: if signedIn() && isMember(code) && (
-          room(code).currentQuestionIndex > int(index)
-          || (room(code).currentQuestionIndex == int(index) && room(code).status in ['reveal', 'finished'])
-        );
-        allow write: if signedIn() && isHost(code);
-      }
-
-      match /answers/{answerId} {
-        // The host sees answers as they arrive; everyone else sees them from the reveal on, and always their own.
-        allow read: if signedIn() && isMember(code) && (isHost(code) || resource.data.uid == request.auth.uid || room(code).status in ['reveal', 'finished']);
-        allow create: if signedIn() && isMember(code)
-          && room(code).status == 'playing'
-          && request.resource.data.uid == request.auth.uid
-          && request.resource.data.index == room(code).currentQuestionIndex
-          && answerId == string(room(code).currentQuestionIndex) + '_' + request.auth.uid
-          && (request.resource.data.choice == 'skip' || request.resource.data.choice is int);
-        allow update: if false;
-        // The host clears answers only to start a new game in the same room.
-        allow delete: if signedIn() && isHost(code) && room(code).status in ['finished', 'lobby'];
       }
     }
   }

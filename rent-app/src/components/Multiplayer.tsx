@@ -1,44 +1,33 @@
 "use client";
 
-// Party mode (PRD v4 Change 5): same questions at the same time on every device, host paces the reveals,
-// scoreboard between questions. Only a display name and sprite are shared; no profile data, no timers.
-import { Icon } from "@/components/icons";
+// Party mode (PRD v4 Change 5) with complete single-player parity: every player plays the real single-player game
+// (same seed, mode, difficulty and scenes, so identical listings, offers, questions, options and stat cards), at
+// their own pace (there are no timers), while a live leaderboard tracks everyone. Only a display name and sprite
+// are shared; no profile data reaches the room.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MODES } from "@/config/modes";
+import { MODES, type Mode } from "@/config/modes";
 import { STAGES } from "@/game/data";
-import { content, listingsFor } from "@/game/journey";
-import type { PlayableStage } from "@/game/types";
-import { DEMO_CHARACTER, type Appearance } from "@/game/sprite";
-import type { Difficulty } from "@/game/types";
+import { listingsFor } from "@/game/journey";
+import { planLife } from "@/game/life";
+import { planRun } from "@/game/questions";
 import { DIFFICULTY_INFO } from "@/game/score";
+import { DEMO_CHARACTER, type Character } from "@/game/sprite";
+import type { Difficulty, PlayableStage } from "@/game/types";
+import { claimHostIfNeeded, createRoom, finishGame, heartbeat, joinRoom, lastStep, leaveRoom, playAgain, reportProgress, setRoomOptions, startGame, watchPlayers, watchRoom, type Player, type Room } from "@/multiplayer/api";
 import { firebaseProjectId } from "@/multiplayer/firebase";
-import { advance, claimHostIfNeeded, lastStep, createRoom, heartbeat, joinRoom, leaveRoom, playAgain, readKey, reveal, setRoomOptions, startGame, submitAnswer, watchAnswers, watchPlayers, watchQuestion, watchRoom, type Answer, type Player, type Room } from "@/multiplayer/api";
-import { money } from "@/game/outcome";
-import { Negotiation } from "./Negotiation";
-import { hagglePoints, isCode, normalizeCode, roomQuestions, roomScenarioIds, type AnswerKey, type RoomQuestion } from "@/multiplayer/room";
-import { prefetchScenarios } from "./show/scenarios";
+import { isCode, normalizeCode } from "@/multiplayer/room";
 import { play } from "./audio";
+import { Icon } from "./icons";
 import { Sprite } from "./pixel";
-import { LISTING_CHOICES, ListingCard } from "./show/JourneyShow";
-import { Choices, Host, LinePlayer, Reveal, SHOW, TitleCard } from "./show/primitives";
+import { JourneyShow } from "./show/JourneyShow";
+import { SHOW } from "./show/primitives";
+import { batchesFor, prefetchScenarios } from "./show/scenarios";
 import { ShowSettingsProvider } from "./show/settings";
-import { StatRun } from "./show/StatCard";
 
-const POINTS = SHOW.points.answer;
-const STAGE = STAGES.find((x) => x.journey)! as PlayableStage;
-const sentences = (t: string) => t.match(/[^.!?]+[.!?]*["”']?/g)?.map((x) => x.trim()).filter(Boolean) ?? [t];
+const STAGE = STAGES.find((s) => s.journey)! as PlayableStage;
+const roundTitle = (r?: string) => (r && r !== "lobby" ? ((SHOW.rounds as Record<string, { title: string }>)[r]?.title ?? (r === "welcome" ? "Getting ready" : r)) : "In the lobby");
 
-export function Multiplayer({ sprite, name, onExit }: { sprite: Appearance; name?: string; onExit: () => void }) {
-  return (
-    <ShowSettingsProvider>
-      <StatRun>
-        <Party sprite={sprite} defaultName={name ?? ""} onExit={onExit} />
-      </StatRun>
-    </ShowSettingsProvider>
-  );
-}
-
-function Party({ sprite, defaultName, onExit }: { sprite: Appearance; defaultName: string; onExit: () => void }) {
+export function Multiplayer({ character, onExit }: { character: Character; onExit: () => void }) {
   const [code, setCode] = useState<string | null>(null);
   const [uid, setUid] = useState<string | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
@@ -57,49 +46,54 @@ function Party({ sprite, defaultName, onExit }: { sprite: Appearance; defaultNam
     prevCount.current = players.length;
     if (code && uid && room) void claimHostIfNeeded(code, uid, room, players);
   }, [players, room, code, uid]);
+  // Host: when every connected player has reached their report card, show the final scoreboard.
+  useEffect(() => {
+    if (!room || !code || room.status !== "playing" || room.hostUid !== uid) return;
+    const active = players.filter((p) => p.connected);
+    if (active.length && active.every((p) => p.done)) void finishGame(code);
+  }, [players, room, code, uid]);
 
-  if (!code || !uid) return <Entry sprite={sprite} defaultName={defaultName} onIn={(c, u) => (setCode(c), setUid(u))} onExit={onExit} />;
+  if (!code || !uid) return <Entry character={character} onIn={(c, u) => (setCode(c), setUid(u))} onExit={onExit} />;
   if (!room) return <p className="small">Connecting to room {code}…</p>;
   const isHost = room.hostUid === uid;
-  const me = players.find((p) => p.uid === uid);
   const leave = () => {
     void leaveRoom(code, uid);
     onExit();
   };
 
+  if (room.status === "playing") return <InGame room={room} players={players} uid={uid} isHost={isHost} character={character} onLeave={leave} />;
   return (
     <div className="party">
-      <div className="podium-bar">
-        <div className="podium">
-          <div className="podium-sprite">
-            <Sprite appearance={me?.sprite ?? sprite} scale={3} />
-          </div>
-          <div>
-            <div className="pixel podium-name">{me?.displayName ?? "You"}</div>
-            <div className="small muted">
-              Room {code} · {isHost ? "you're the host" : `host: ${players.find((p) => p.uid === room.hostUid)?.displayName ?? "…"}`}
-            </div>
-          </div>
-        </div>
-        <div className="score-box" aria-live="polite">
-          <span className="small muted">Score</span>
-          <span className="pixel score">{me?.score ?? 0}</span>
-        </div>
-        <div className="podium-actions">
-          <button className="btn ghost small" onClick={leave}>
-            Leave
-          </button>
-        </div>
-      </div>
-      {room.status === "lobby" && <Lobby room={room} players={players} isHost={isHost} />}
-      {(room.status === "playing" || room.status === "reveal") && <Play room={room} players={players} uid={uid} isHost={isHost} />}
-      {room.status === "finished" && <Finish room={room} players={players} uid={uid} isHost={isHost} onLeave={leave} />}
+      <RoomBar room={room} players={players} uid={uid} onLeave={leave} />
+      {room.status === "lobby" ? <Lobby room={room} players={players} isHost={isHost} /> : <Final room={room} players={players} isHost={isHost} onLeave={leave} />}
     </div>
   );
 }
 
-function Entry({ sprite, defaultName, onIn, onExit }: { sprite: Appearance; defaultName: string; onIn: (code: string, uid: string) => void; onExit: () => void }) {
-  const [name, setName] = useState(defaultName);
+function RoomBar({ room, players, uid, onLeave }: { room: Room; players: Player[]; uid: string; onLeave: () => void }) {
+  const me = players.find((p) => p.uid === uid);
+  return (
+    <div className="podium-bar">
+      <div className="podium">
+        <div className="podium-sprite">{me && <Sprite appearance={me.sprite} scale={3} />}</div>
+        <div>
+          <div className="pixel podium-name">{me?.displayName ?? "You"}</div>
+          <div className="small muted">
+            Room {room.code} · {room.hostUid === uid ? "you're the host" : `host: ${players.find((p) => p.uid === room.hostUid)?.displayName ?? "…"}`}
+          </div>
+        </div>
+      </div>
+      <div className="podium-actions">
+        <button className="btn ghost small" onClick={onLeave}>
+          Leave
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Entry({ character, onIn, onExit }: { character: Character; onIn: (code: string, uid: string) => void; onExit: () => void }) {
+  const [name, setName] = useState(character.name);
   const [join, setJoin] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -130,13 +124,13 @@ function Entry({ sprite, defaultName, onIn, onExit }: { sprite: Appearance; defa
   return (
     <section className="page party-entry">
       <h1>Multiplayer</h1>
-      <p className="lede">2–8 players, same questions, live scoreboard. Only your display name and sprite are shared.</p>
+      <p className="lede">2–8 players, the full game, a live leaderboard. Only your display name and sprite are shared.</p>
       <div className="row" style={{ alignItems: "center", gap: 12 }}>
-        <Sprite appearance={sprite} scale={5} />
+        <Sprite appearance={character.appearance} scale={5} />
         <input className="field-input" value={name} maxLength={16} placeholder="Display name" onChange={(e) => setName(e.target.value)} aria-label="Display name" />
       </div>
       <div className="row" style={{ gap: 8, marginTop: 12 }}>
-        <button className="btn big" disabled={busy} onClick={() => go(() => createRoom(name, sprite))}>
+        <button className="btn big" disabled={busy} onClick={() => go(() => createRoom(name, character.appearance))}>
           Create room
         </button>
       </div>
@@ -147,7 +141,7 @@ function Entry({ sprite, defaultName, onIn, onExit }: { sprite: Appearance; defa
           disabled={busy || !isCode(join)}
           onClick={() =>
             go(async () => {
-              const r = await joinRoom(join, name, sprite);
+              const r = await joinRoom(join, name, character.appearance);
               return r.ok ? { code: join, uid: r.uid } : { error: r.reason };
             })
           }
@@ -157,23 +151,28 @@ function Entry({ sprite, defaultName, onIn, onExit }: { sprite: Appearance; defa
       </div>
       {msg && <p className="bad-text">{msg}</p>}
       <button className="btn ghost small" onClick={onExit} style={{ marginTop: 16 }}>
-        Back
+        Back to main menu
       </button>
     </section>
   );
 }
 
-function PlayerList({ players, answered }: { players: Player[]; answered?: Set<string> }) {
+function Leaderboard({ players, uid }: { players: Player[]; uid?: string }) {
   return (
     <ul className="party-players">
-      {players.map((p) => (
-        <li key={p.uid} className={p.connected ? "" : "away"}>
-          <Sprite appearance={p.sprite ?? DEMO_CHARACTER.appearance} scale={2} />
-          <span>{p.displayName}</span>
-          <b className="pixel">{p.score}</b>
-          {answered && <span>{answered.has(p.uid) ? <Icon name="check" label="answered" /> : "…"}</span>}
-        </li>
-      ))}
+      {[...players]
+        .sort((a, b) => b.score - a.score)
+        .map((p, i) => (
+          <li key={p.uid} className={`${p.connected ? "" : "away"} ${p.uid === uid ? "me" : ""}`}>
+            <span className="pixel">{i + 1}</span>
+            <Sprite appearance={p.sprite ?? DEMO_CHARACTER.appearance} scale={2} />
+            <span>
+              {p.displayName}
+              <span className="small muted"> · {p.done ? "finished" : roundTitle(p.round)}</span>
+            </span>
+            <b className="pixel">{p.score}</b>
+          </li>
+        ))}
     </ul>
   );
 }
@@ -182,12 +181,14 @@ function Lobby({ room, players, isHost }: { room: Room; players: Player[]; isHos
   const [starting, setStarting] = useState(false);
   const start = async () => {
     setStarting(true);
-    // Generic scenarios for everyone (no profiles in rooms); the reviewed fallbacks cover any gap.
-    const ids = roomScenarioIds(room.seed, room.difficulty);
-    const got: Record<string, { scenario: string }> = {};
-    await prefetchScenarios([[...ids.listings.map((id) => ({ id, kind: (id.startsWith("s2-") ? "offer" : "listing") as "offer" | "listing" })), ...ids.questions.map((id) => ({ id, kind: "question" as const }))]], {}, (m) => Object.assign(got, m), room.code);
-    const { questions, keys } = roomQuestions(room.seed, room.difficulty, got);
-    await startGame(room.code, questions, keys);
+    // Scenes are written once for the whole room (generic: no profiles), so every player reads the same text.
+    const cfg = MODES[room.mode];
+    const plan = planRun(room.seed, room.mode);
+    const listingIds = listingsFor(STAGE, room.difficulty, room.seed, cfg.listings).map((l) => l.id);
+    const batches = batchesFor(plan, listingIds, cfg.offerIds ?? STAGE.offers.map((o) => o.id), [...cfg.rounds, ...(cfg.scamReport ? ["scamReport"] : [])]);
+    const scenes = {};
+    await Promise.race([prefetchScenarios(batches, {}, (m) => Object.assign(scenes, m), room.code), new Promise((ok) => setTimeout(ok, 8000))]);
+    await startGame(room.code, scenes);
   };
   return (
     <section className="beat">
@@ -195,268 +196,98 @@ function Lobby({ room, players, isHost }: { room: Room; players: Player[]; isHos
       <p className="big-line">
         Share the code <b className="pixel">{room.code}</b>. {players.length} of 8 players.
       </p>
-      <PlayerList players={players} />
+      <Leaderboard players={players} />
       {isHost ? (
         <>
-          <div className="seg">
+          <div className="seg" aria-label="Mode">
+            {(["base", "extended"] as Mode[]).map((m) => (
+              <button key={m} className={`choice ${room.mode === m ? "on" : ""}`} aria-pressed={room.mode === m} onClick={() => setRoomOptions(room.code, { mode: m })}>
+                {MODES[m].label}
+              </button>
+            ))}
+          </div>
+          <div className="seg" aria-label="Difficulty">
             {(["easy", "normal", "hard"] as Difficulty[]).map((d) => (
               <button key={d} className={`choice ${room.difficulty === d ? "on" : ""}`} aria-pressed={room.difficulty === d} onClick={() => setRoomOptions(room.code, { difficulty: d })}>
                 {DIFFICULTY_INFO[d].label}
               </button>
             ))}
           </div>
-          <p className="small">Mode: Base game (Extended and haggling stay single-player for now).</p>
-          <button className="btn big" disabled={starting || players.length < 1} onClick={start}>
-            {starting ? "Writing questions…" : <>Start <Icon name="chevron-right" /></>}
+          <p className="small">{MODES[room.mode].blurb} Everyone plays the same game; highest score wins.</p>
+          <button className="btn big" disabled={starting} onClick={start}>
+            {starting ? "Writing the scenes…" : "Start"} <Icon name="chevron-right" />
           </button>
         </>
       ) : (
-        <p className="small">Waiting for the host to start…</p>
+        <p className="small">
+          {MODES[room.mode].label} · {DIFFICULTY_INFO[room.difficulty].label}. Waiting for the host to start…
+        </p>
       )}
     </section>
   );
 }
 
-function Play({ room, players, uid, isHost }: { room: Room; players: Player[]; uid: string; isHost: boolean }) {
-  const index = room.currentQuestionIndex;
-  const [q, setQ] = useState<RoomQuestion | null>(null);
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [mine, setMine] = useState<number | "skip" | null>(null);
-  const [key, setKey] = useState<AnswerKey | null>(null);
-  const [board, setBoard] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [introDone, setIntroDone] = useState<string[]>([]);
-  const revealing = useRef(false);
-  // Every client rebuilds the same listings from the room seed, so the cards match the single-player game exactly.
-  const listings = useMemo(() => listingsFor(STAGE, room.difficulty, room.seed, MODES.base.listings), [room.difficulty, room.seed]);
-
-  useEffect(() => watchQuestion(room.code, index, setQ), [room.code, index]);
-  useEffect(() => {
-    setMine(null);
-    setKey(null);
-    setBoard(false);
-    setReady(false);
-    revealing.current = false;
-  }, [index]);
-  // The host watches answers live; others only once the reveal makes them readable (firestore.rules).
-  useEffect(() => (isHost || room.status === "reveal" ? watchAnswers(room.code, setAnswers) : undefined), [room.code, isHost, room.status]);
-  const current = answers.filter((a) => a.index === index);
-  const connected = players.filter((p) => p.connected);
-  // Auto-reveal once everyone connected has answered or skipped.
-  useEffect(() => {
-    if (!isHost || room.status !== "playing" || revealing.current || !connected.length) return;
-    if (connected.every((p) => current.some((a) => a.uid === p.uid))) void doReveal();
-  });
-  useEffect(() => {
-    if (room.status === "reveal") void readKey(room.code, index).then(setKey);
-  }, [room.status, room.code, index]);
-
-  async function doReveal() {
-    if (revealing.current) return;
-    revealing.current = true;
-    const keys: AnswerKey[] = [];
-    for (let i = 0; i <= index; i++) keys[i] = (await readKey(room.code, i)) ?? { accept: [], correctIndex: -1, explain: "" };
-    await reveal(room.code, index, keys, current, players, POINTS);
-  }
-  if (!q) return <p className="small">Loading question…</p>;
-
-  // A round title card, once per round, exactly like single-player.
-  const rounds = SHOW.rounds as Record<string, { title: string; intro: string[] }>;
-  if (rounds[q.round] && !introDone.includes(q.round) && room.status === "playing")
-    return <TitleCard title={rounds[q.round].title} intro={rounds[q.round].intro} onGo={() => setIntroDone([...introDone, q.round])} />;
-
-  const answer = (choice: number | "skip") => {
-    setMine(choice);
-    void submitAnswer(room.code, uid, index, choice);
-  };
-  const listing = q.listingId ? listings.find((l) => l.id === q.listingId) : undefined;
-  const haggleOffer = q.negotiateOfferId ? STAGE.offers.find((o) => o.id === q.negotiateOfferId) : undefined;
-  const answered = new Set(current.map((a) => a.uid));
-
-  if (room.status === "playing" && haggleOffer) {
-    // Haggle Time: the same negotiation as single-player (Gemini voice when available, scripted otherwise; code decides the deal).
-    return (
-      <section className="beat" key={index}>
-        <div className="beat-head">
-          <span className="pixel small">
-            Question {index + 1} of {room.count}: Haggle Time
-          </span>
-        </div>
-        {mine === null ? (
-          <Negotiation stageId={STAGE.id} offer={haggleOffer} difficulty={room.difficulty} scripted={false} onAccept={(t) => answer(t.rentCents)} onWalk={() => answer(haggleOffer.rentCents)} />
-        ) : (
-          <p className="big-line">
-            <Icon name="check" /> Deal locked in at {typeof mine === "number" ? money(mine) : "the listed rent"}. Waiting for the others…
-          </p>
-        )}
-        {isHost && (
-          <div className="host-controls">
-            <PlayerList players={players} answered={answered} />
-            <button className="btn big" onClick={doReveal}>
-              Reveal <Icon name="chevron-right" />
-            </button>
-          </div>
-        )}
-      </section>
-    );
-  }
-
-  if (room.status === "playing") {
-    const options = listing ? LISTING_CHOICES.map((c, i) => ({ ...c, id: String(i) })) : q.options.map((label, i) => ({ id: String(i), label }));
-    const ask = (
-      <>
-        {mine === null ? (
-          <Choices disabled={!ready} options={options} onPick={(id) => answer(Number(id))} onSkip={() => answer("skip")} />
-        ) : (
-          <p className="big-line">
-            <Icon name={mine === "skip" ? "next" : "check"} /> {mine === "skip" ? "Skipped." : "Locked in!"} Waiting for the others…
-          </p>
-        )}
-        {isHost && (
-          <div className="host-controls">
-            <PlayerList players={players} answered={answered} />
-            <button className="btn big" onClick={doReveal}>
-              Reveal <Icon name="chevron-right" />
-            </button>
-          </div>
-        )}
-      </>
-    );
-    return (
-      <section className="beat" key={index}>
-        <div className="beat-head">
-          <span className="pixel small">
-            Question {index + 1} of {room.count}
-            {q.title && !listing ? `: ${q.title}` : ""}
-          </span>
-          <span className="small">
-            {isHost ? current.length : mine !== null ? "You're in" : ""} {isHost ? `/ ${connected.length} answered` : ""}
-          </span>
-        </div>
-        {listing ? (
-          <ListingCard l={listing} hint={room.difficulty === "easy"} body={<LinePlayer lines={sentences(q.scenario)} onDone={() => setReady(true)} />} />
-        ) : (
-          <Host lines={[...sentences(q.scenario).slice(0, 2), q.prompt]} onDone={() => setReady(true)} />
-        )}
-        {ask}
-      </section>
-    );
-  }
-
-  // ---------- reveal (with drumroll, sounds and the stat card) → scoreboard ----------
-  if (board)
-    return (
-      <section className="beat">
-        <h2 className="round-title">Scoreboard</h2>
-        <PlayerList players={[...players].sort((a, b) => b.score - a.score)} />
-        {isHost ? (
-          <button className="btn big" onClick={() => advance(room.code, index, room.count)}>
-            {index + 1 < room.count ? "Next question" : "Final results"} <Icon name="chevron-right" />
-          </button>
-        ) : (
-          <p className="small">Waiting for the host…</p>
-        )}
-      </section>
-    );
-  if (!key) return <div className="reveal-drum pixel" aria-live="polite"><Icon name="music" /> …</div>;
-  if (key.askingCents !== undefined) {
-    const asking = key.askingCents;
-    const deals = players
-      .map((p) => ({ p, a: current.find((x) => x.uid === p.uid) }))
-      .map(({ p, a }) => ({ p, rent: a && typeof a.choice === "number" ? a.choice : null }))
-      .sort((x, y) => (x.rent ?? Infinity) - (y.rent ?? Infinity));
-    const myRent = typeof mine === "number" ? mine : null;
-    const best = deals[0];
-    return (
-      <div className="beat">
-        <Reveal
-          ok={myRent !== null && myRent < asking ? true : null}
-          headline={best?.rent !== null && best?.rent !== undefined ? `Best deal: ${best.p.displayName}, ${money(best.rent)}` : "No deals"}
-          lines={[
-            myRent === null ? "You didn't close a deal." : myRent < asking ? `You saved ${money(asking - myRent)} a month.` : "You took the listed rent.",
-            `Listed at ${money(asking)}. Every dollar saved scores points.`,
-          ]}
-          points={myRent !== null ? hagglePoints(asking, myRent) : 0}
-          onNext={() => setBoard(true)}
-          nextLabel="Scoreboard"
-        />
-        <ul className="party-players results">
-          {deals.map(({ p, rent }) => (
-            <li key={p.uid}>
-              <Sprite appearance={p.sprite ?? DEMO_CHARACTER.appearance} scale={2} />
-              <span>{p.displayName}</span>
-              <span>{rent === null ? "no deal" : money(rent)}</span>
-              <b className="pixel">+{rent === null ? 0 : hagglePoints(asking, rent)}</b>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-  const right = mine !== null && mine !== "skip" && key.accept.includes(mine);
-  const headline = listing ? (listing.answer === "scam" ? "It's a scam!" : listing.answer === "suspicious" ? "Suspicious!" : "Legit!") : q.options[key.correctIndex];
-  const teach = q.contentId && !listing ? content(q.contentId).short : null;
+/** The single-player game, unchanged, with the room's settings; progress goes to the leaderboard. */
+function InGame({ room, players, uid, isHost, character, onLeave }: { room: Room; players: Player[]; uid: string; isHost: boolean; character: Character; onLeave: () => void }) {
+  const plan = useMemo(() => planRun(room.seed, room.mode), [room.seed, room.mode]);
+  const me = players.find((p) => p.uid === uid);
+  const [lo, hi] = STAGE.ageRange;
+  const age = room.mode === "base" ? Math.min(hi, Math.max(lo, character.startAge)) : (planLife(character.startAge).playable.find((x) => x.stage.journey)?.age ?? character.startAge);
+  const values = useMemo(() => ({ work: "work", place: "" }), []);
+  const stillPlaying = players.filter((p) => p.connected && !p.done).length;
+  const panel = (
+    <section className="room-panel">
+      <h3 className="pixel">Room {room.code}</h3>
+      <Leaderboard players={players} uid={uid} />
+      <p className="small">{stillPlaying ? `${stillPlaying} still playing. The final scoreboard appears when everyone finishes.` : "Everyone's done!"}</p>
+      {isHost && stillPlaying > 0 && (
+        <button className="btn ghost small" onClick={() => finishGame(room.code)}>
+          End the game now
+        </button>
+      )}
+    </section>
+  );
   return (
-    <div className="beat">
-      <Reveal
-        ok={mine === "skip" ? null : right}
-        skipped={mine === "skip"}
-        headline={headline}
-        lines={[mine === null ? "No answer this time." : null, listing ? null : `Answer: ${q.options[key.correctIndex]}.`, key.explain || null, teach].filter((x): x is string => !!x).slice(0, 3)}
-        why={q.contentId ? [q.contentId] : undefined}
-        points={right ? POINTS : 0}
-        stat={q.stat}
-        onNext={() => setBoard(true)}
-        nextLabel="Scoreboard"
-      />
-      <ul className="party-players results">
-        {players.map((p) => {
-          const a = current.find((x) => x.uid === p.uid);
-          const ok = a && a.choice !== "skip" && key.accept.includes(a.choice);
-          return (
-            <li key={p.uid}>
-              <Sprite appearance={p.sprite ?? DEMO_CHARACTER.appearance} scale={2} />
-              <span>{p.displayName}</span>
-              <span>{!a ? "no answer" : a.choice === "skip" ? "skipped" : ok ? "right" : "wrong"}</span>
-              <Icon name={!a || a.choice === "skip" ? "next" : ok ? "check" : "close"} />
-            </li>
-          );
-        })}
-      </ul>
+    <div className="party in-game">
+      <details className="room-strip" open>
+        <summary className="pixel small">Room {room.code} · leaderboard</summary>
+        <Leaderboard players={players} uid={uid} />
+      </details>
+      <ShowSettingsProvider>
+        <JourneyShow
+          key={`${room.seed}-${room.mode}-${room.difficulty}`}
+          stage={STAGE}
+          age={age}
+          character={{ ...character, name: me?.displayName ?? character.name }}
+          difficulty={room.difficulty}
+          seed={room.seed}
+          mode={room.mode}
+          plan={plan}
+          scenarios={room.scenarios ?? {}}
+          values={values}
+          profile={{}}
+          onProfile={() => {}}
+          scriptedLandlord={false}
+          onReplay={() => {}}
+          onQuit={onLeave}
+          onExtended={() => {}}
+          party={{ onProgress: (p) => void reportProgress(room.code, uid, p), panel }}
+        />
+      </ShowSettingsProvider>
     </div>
   );
 }
 
-function Finish({ room, players, uid, isHost, onLeave }: { room: Room; players: Player[]; uid: string; isHost: boolean; onLeave: () => void }) {
-  const [mine, setMine] = useState<{ correct: number; wrong: number; skipped: number } | null>(null);
-  useEffect(() => {
-    play("report");
-    const stop = watchAnswers(room.code, async (all) => {
-      const t = { correct: 0, wrong: 0, skipped: 0 };
-      for (let i = 0; i < room.count; i++) {
-        const a = all.find((x) => x.uid === uid && x.index === i);
-        const k = await readKey(room.code, i);
-        if (!a || a.choice === "skip") t.skipped++;
-        else if (k?.askingCents !== undefined ? a.choice < k.askingCents : k?.accept.includes(a.choice)) t.correct++;
-        else t.wrong++;
-      }
-      setMine(t);
-    });
-    return stop;
-  }, [room.code, room.count, uid]);
+function Final({ room, players, isHost, onLeave }: { room: Room; players: Player[]; isHost: boolean; onLeave: () => void }) {
+  useEffect(() => play("report"), []);
   const ranked = [...players].sort((a, b) => b.score - a.score);
   return (
     <section className="beat">
       <h2 className="round-title">Final scoreboard</h2>
-      <p className="big-line"><Icon name="trophy" /> {ranked[0]?.displayName}</p>
-      <PlayerList players={ranked} />
-      {mine && (
-        <div className="tally" aria-label="Your answers">
-          <span className="good"><Icon name="check" /> {mine.correct} correct</span>
-          <span className="bad"><Icon name="close" /> {mine.wrong} wrong</span>
-          <span><Icon name="next" /> {mine.skipped} skipped</span>
-        </div>
-      )}
+      <p className="big-line">
+        <Icon name="trophy" /> {ranked[0]?.displayName} wins with {ranked[0]?.score} points!
+      </p>
+      <Leaderboard players={ranked} />
       <div className="choices">
         {isHost && (
           <button className="btn big" onClick={() => playAgain(room.code, players)}>

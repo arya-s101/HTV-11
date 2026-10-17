@@ -48,3 +48,8 @@ export function reasoningScore(s: ScoreInput): Score {
   const multiplier = DIFFICULTY_MULTIPLIER[s.difficulty];
   return { base, decodeBonus, multiplier, total: Math.round((base + decodeBonus) * multiplier), parts };
 }
+
+/** Haggle Time points, decided by code from the agreed rent: 4 points per dollar saved a month, capped at 200. Same in single-player and multiplayer. */
+export function hagglePoints(askingCents: number, agreedCents: number): number {
+  return Math.max(0, Math.min(200, Math.round((askingCents - agreedCents) / 100) * 4));
+}

@@ -517,8 +517,12 @@ a.prov:hover { filter: brightness(1.2); }
 .slider { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 8px; font-size: 0.85rem; }
 .slider input { width: 100%; min-height: 32px; }
 .party-players { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; width: min(520px, 100%); }
-.party-players li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border: 1px solid var(--line); }
+.party-players li { display: grid; grid-template-columns: auto auto 1fr auto; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border: 1px solid var(--line); }
 .party-players li.away { opacity: 0.5; }
+.party-players li.me { border-color: var(--cyan); }
+.room-strip { width: 100%; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--line); padding: 6px 10px; }
+.room-strip summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.room-panel { display: grid; gap: 8px; justify-items: center; width: 100%; margin-top: 12px; }
 .code-input { text-transform: uppercase; letter-spacing: 0.2em; font-family: var(--font-pixel), monospace; max-width: 220px; }
 .bad-text { color: var(--bad); }
 .good-text { color: var(--ok); }

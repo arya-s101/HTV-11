@@ -179,7 +179,7 @@ export default function Game() {
 
       {screen === "party" && (
         // Multiplayer is behind a feature flag (PRD v4 Change 5); single-player never depends on it.
-        <Multiplayer sprite={(saved ?? character).appearance} name={(saved ?? character).name} onExit={() => (setScreen("title"), top())} />
+        <Multiplayer character={saved ?? character} onExit={() => (setScreen("title"), top())} />
       )}
 
 
