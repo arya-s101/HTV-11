@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { stageForProfession } from "@/game/career";
 import { CATEGORY_LABEL, judgeCivic, type CivicResult } from "@/game/civic";
 import { CMHC_TABLE, evidenceFor, lever, VERIFY_ITEMS } from "@/game/data";
 import { consequence, fareFor, money } from "@/game/outcome";
@@ -46,7 +47,9 @@ export function StageView(props: {
   onComplete: (r: StageRecord) => void;
   onSkip: () => void;
 }) {
-  const { stage, age, character, difficulty, scriptedLandlord, onComplete, onSkip } = props;
+  const { age, character, difficulty, scriptedLandlord, onComplete, onSkip } = props;
+  const stage = useMemo(() => stageForProfession(props.stage, character.profession), [props.stage, character.profession]);
+  const work = character.profession.source === "preset" ? character.profession.work?.[stage.id] : undefined;
   const [step, setStep] = useState<Step>("Start");
   const [flagged, setFlagged] = useState<VerifyItemId[]>([]);
   const [decoded, setDecoded] = useState<Record<string, string>>({});
@@ -102,7 +105,8 @@ export function StageView(props: {
               </p>
             )}
             <p>
-              {stage.household}. Heading to {stage.destination.name}, {stage.commuteDaysPerMonth} days a month by TTC.
+              {stage.household}. Heading to {stage.destination.name}, {stage.commuteDaysPerMonth} days a month by TTC
+              {work ? ` (${work.schedule.toLowerCase()})` : ""}.
             </p>
             <div className="chips">
               <span className="chip">

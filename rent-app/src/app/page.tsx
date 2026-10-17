@@ -275,13 +275,26 @@ function ProfessionPicker({ character, setCharacter }: { character: Character; s
       </form>
       {msg && <p className="small">{msg}</p>}
       <ol className="path">
-        {STAGES.map((s) => (
-          <li key={s.id} className={s.enabled ? "" : "soon"}>
-            <span className="pixel">{s.title}</span> {p.path[s.id]?.title}
-          </li>
-        ))}
+        {STAGES.map((s) => {
+          const w = p.source === "preset" ? p.work?.[s.id] : undefined;
+          return (
+            <li key={s.id} className={s.enabled ? "" : "soon"}>
+              <span className="pixel">{s.title}</span> {p.path[s.id]?.title}
+              {w && (
+                <span className="small muted">
+                  {" "}
+                  · {money(w.income.amountCents)}/{w.income.period === "annual" ? "yr" : "mo"} {w.income.basis} · {w.commuteDaysPerMonth} commute days/mo
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ol>
-      <p className="note">Your job shapes the story only. Incomes, offers and scores stay the same for everyone, so choices stay comparable.</p>
+      <p className="note">
+        {p.source === "preset"
+          ? "Each preset job sets its own illustrative income and commute days. Offers, evidence and scoring stay the same for everyone."
+          : "A custom job shapes the story only: it uses the stage's default income and commute days, because AI never sets numbers."}
+      </p>
     </div>
   );
 }

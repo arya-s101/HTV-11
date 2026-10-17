@@ -57,6 +57,20 @@ export interface CivicCard {
   standard?: StandardKey;
 }
 
+export interface Income {
+  amountCents: number;
+  period: "annual" | "monthly";
+  basis: "gross" | "net";
+  description: string;
+}
+
+/** A preset profession's illustrative pay and schedule for one stage. Never produced by an LLM. */
+export interface WorkDetails {
+  income: Income;
+  commuteDaysPerMonth: number;
+  schedule: string;
+}
+
 export interface Stage {
   id: string;
   order: number;
@@ -67,7 +81,7 @@ export interface Stage {
   housingNeed: string;
   household?: string;
   destination?: { id: string; name: string };
-  income?: { amountCents: number; period: "annual" | "monthly"; basis: "gross" | "net"; description: string };
+  income?: Income;
   commuteDaysPerMonth?: number;
   fareOptions?: ("adult-payg" | "post-secondary-pass")[];
   leverId: string;

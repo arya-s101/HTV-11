@@ -56,7 +56,8 @@ A stage is playable only if it is enabled, has offers and civic cards, **and** i
 
 ### 4.3 Character and profession
 
-- Appearance and profession are **cosmetic/story only**. They never change income, offers, outcomes or score (tested).
+- Appearance is **cosmetic only**; it never changes a number (tested).
+- Each **preset profession** sets its own illustrative income (with gross/net basis) and commute days per playable stage (`work` in `professions.json`). Software keeps the hero values (§4.7) and is the demo preset. Income and trips flow into burden, fare and commute hours. Offers, evidence, civic cards and score stay identical for everyone.
 - Profession: 7 presets (nursing, software, trades, teaching, hospitality, arts, retail), each with a job title per stage. A custom profession goes to `/api/career`: Gemini writes story text per stage. The output is validated (no numbers or money talk; blocked words), and a template is used on failure or when there is no key.
 
 ### 4.4 Stage flow
@@ -109,7 +110,7 @@ B costs $150 more and saves 20 h/month, with **no fare savings**. Either prefere
 - Never imply a councillor can personally change a route or lower market rent, or that the City sets rents.
 - CMHC survey-zone averages are not live asking rents; suppressed cells stay null.
 - No scraping or unlicensed listing feeds.
-- Appearance, profession and difficulty never change a number, offer or score.
+- Appearance and difficulty never change a number, offer or score. A profession changes only income and commute days, and only from handwritten preset data; custom (LLM/template) professions use the stage defaults.
 - A stage ships only when its civic lever has an official source.
 - LLM output is always validated; the LLM never gives legal advice; API keys and negotiation configs stay server-side.
 

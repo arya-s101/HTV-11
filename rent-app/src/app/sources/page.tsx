@@ -95,7 +95,7 @@ export default function Sources() {
         <ul>
           <li>People, incomes, offers, rents, utilities, commute minutes, landlords and job paths are illustrative.</li>
           <li>Gemini may write the landlord&apos;s lines and job paths for custom professions. Code validates both and decides every number.</li>
-          <li>A profession is story only: it never changes an income, offer or score.</li>
+          <li>A preset profession sets its own illustrative income and commute days (handwritten, not AI). A custom profession is story only. Neither changes offers, evidence or score.</li>
         </ul>
       </section>
     </div>

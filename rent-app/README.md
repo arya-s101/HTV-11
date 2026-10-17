@@ -15,7 +15,8 @@ costs in listing text. Hard uses lease-style fine print, route legs instead of m
 score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 
 **Starting profession:** choose a preset (handwritten job path) or type your own. Gemini writes a story-only path via `/api/career`,
-with a template fallback; any number or money talk is rejected. A profession never changes an income, offer or score.
+with a template fallback; any number or money talk is rejected. Each preset also sets its own illustrative income and commute days
+per stage (`work` in `professions.json`; software keeps the hero values). Custom professions use the stage defaults. Offers and score never change.
 
 **Site structure:** shared navbar and footer, a neon-grid background, and pages `/` (game), `/how-it-works` and `/sources`
 (rendered from the same data files the game uses).

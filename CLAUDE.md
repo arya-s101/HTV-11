@@ -6,7 +6,7 @@ A hackathon entry for the **2026 School of Cities challenge** at [Hack the Valle
 
 The product is a short 8-bit browser game. The player builds a pixel character and makes a Toronto rental choice at each playable life stage. Each choice reveals the cash/commute tradeoff and the unknowns they missed, backed by real Toronto evidence. The player then separates what they can verify themselves from what the City controls, and leaves with **one sourced, nonpartisan question to ask a municipal candidate**.
 
-**Current state:** two playable stages, **Student** (ages 16–21) and **First job** (22–25), both using the TTC-service lever. Stages 3–6 (New job, Partner, Kids, Retirement) are placeholders in `stages.json` (`enabled: false`, no offers) and show as "coming soon", so starting ages 26+ can't be played. Also built: difficulty (Easy/Normal/Hard), optional landlord negotiation (Gemini voice, code-decided deal), and a profession picker (story text only).
+**Current state:** two playable stages, **Student** (ages 16–21) and **First job** (22–25), both using the TTC-service lever. Stages 3–6 (New job, Partner, Kids, Retirement) are placeholders in `stages.json` (`enabled: false`, no offers) and show as "coming soon", so starting ages 26+ can't be played. Also built: difficulty (Easy/Normal/Hard), optional landlord negotiation (Gemini voice, code-decided deal), and a profession picker (presets set income and commute days; custom ones are story text only).
 
 The payoff is the civic turn (tradeoff → correct municipal lever → candidate question). The game wrapper, character creator and LLM features exist to serve it, not replace it. If a change makes the product read as "compare rent and commute", it has drifted.
 
@@ -20,7 +20,7 @@ The full list is PRD §5. The ones most easily broken while coding:
 - All figures are computed deterministically in code, in integer cents. LLMs (Gemini) only write words — landlord dialogue and profession story text — and their output is validated by code.
 - Time is never converted to money. No invented fare savings from a shorter commute.
 - Fictional offers/personas (`stages.json`) stay separate from real observations (`evidence.json`). Offers are labelled "Illustrative scenario, not an available listing."
-- Appearance, profession and difficulty never change a number, offer or score.
+- Appearance and difficulty never change a number, offer or score. A preset profession sets only income and commute days (handwritten in `professions.json`); custom/LLM professions use stage defaults.
 - No candidate endorsement, voting advice, legal advice, policy-impact predictions, or "first/only" claims.
 - A life stage ships only when its civic lever has an official source.
 - API keys and negotiation configs stay server-side.
