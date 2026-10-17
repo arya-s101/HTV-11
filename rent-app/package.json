@@ -10,13 +10,14 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "import:sources": "tsx scripts/import-sources.ts",
-    "scenario": "tsx scripts/scenario.ts",
-    "build:check": "NEXT_DIST_DIR=.next-check next build"
+    "build:check": "NEXT_DIST_DIR=.next-check next build",
+    "build:evidence": "tsx scripts/build-game-evidence.ts"
   },
   "dependencies": {
     "next": "15.5.28",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

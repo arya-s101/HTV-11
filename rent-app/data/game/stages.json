@@ -1,0 +1,438 @@
+{
+  "_note": "FICTIONAL scenario data. Every persona, offer, rent, utility amount and commute minute here is illustrative (status: illustrative) and is never mixed with real observations, which live in evidence.json. Figures are in 2026 dollars; nothing is projected.",
+  "verifyItems": [
+    {
+      "id": "utilities",
+      "label": "What utilities will actually cost"
+    },
+    {
+      "id": "commute-timing",
+      "label": "The commute at my real travel times"
+    },
+    {
+      "id": "rent-control",
+      "label": "Whether the unit is covered by rent control"
+    },
+    {
+      "id": "fees",
+      "label": "Extra fees (laundry, parking, deposits)"
+    }
+  ],
+  "stages": [
+    {
+      "id": "student",
+      "order": 1,
+      "title": "Student",
+      "defaultAge": 20,
+      "ageRange": [
+        16,
+        21
+      ],
+      "enabled": true,
+      "housingNeed": "A room or shared unit near campus",
+      "household": "Just you, sharing with housemates",
+      "destination": {
+        "id": "utsc",
+        "name": "University of Toronto Scarborough"
+      },
+      "income": {
+        "amountCents": 160000,
+        "period": "monthly",
+        "basis": "net",
+        "description": "part-time job plus student aid"
+      },
+      "commuteDaysPerMonth": 16,
+      "fareOptions": [
+        "adult-payg",
+        "post-secondary-pass"
+      ],
+      "leverId": "ttc-service",
+      "offers": [
+        {
+          "id": "s1-a",
+          "title": "Room in a shared house",
+          "neighbourhoodId": 134,
+          "unitType": "room",
+          "cmhcBedroom": "studio",
+          "rentCents": 95000,
+          "utilities": {
+            "status": "unknown",
+            "note": "Split between four housemates; the ad doesn't say how much"
+          },
+          "commuteMinutes": 15,
+          "unknowns": [
+            "utilities",
+            "fees"
+          ],
+          "reveal": {
+            "id": "utilities",
+            "headline": "Utilities weren't in the ad",
+            "text": "The housemates split hydro and internet. In this scenario your share works out to $70 a month, on top of rent.",
+            "extraMonthlyCents": 7000
+          },
+          "presentation": {
+            "listingText": "Furnished room in a 4-bedroom house, steps from the bus to campus. $950/month, utilities split with your housemates. Shared kitchen and coin laundry.",
+            "finePrint": "Rm in 4BR hse. $950/mo + 1/4 util. (hydro, gas, internet), amt TBD. Shrd kit. Lndry: coin-op.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 4
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to campus",
+                "minutes": 11
+              }
+            ]
+          }
+        },
+        {
+          "id": "s1-b",
+          "title": "Room in a shared apartment",
+          "neighbourhoodId": 126,
+          "unitType": "room",
+          "cmhcBedroom": "studio",
+          "rentCents": 75000,
+          "utilities": {
+            "status": "illustrative",
+            "includedInRent": true,
+            "note": "Utilities included"
+          },
+          "commuteMinutes": 40,
+          "unknowns": [
+            "commute-timing"
+          ],
+          "reveal": {
+            "id": "commute-timing",
+            "headline": "Your schedule isn't the morning peak",
+            "text": "The 40-minute figure is for a weekday morning. In this scenario two of your weekly classes end at 9 p.m., and the illustrative trip home then takes 55 minutes.",
+            "extraMonthlyCents": 0
+          },
+          "presentation": {
+            "listingText": "Private room in a 3-bedroom apartment. $750/month all-inclusive. The morning bus to campus takes about 40 minutes.",
+            "finePrint": "Pvt rm, 3BR apt. $750/mo all-incl. Transit est. for AM peak only.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 5
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to transfer",
+                "minutes": 16
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to campus",
+                "minutes": 15
+              },
+              {
+                "mode": "walk",
+                "label": "Walk to class",
+                "minutes": 4
+              }
+            ]
+          }
+        },
+        {
+          "id": "s1-c",
+          "title": "Basement studio",
+          "neighbourhoodId": 142,
+          "unitType": "studio",
+          "cmhcBedroom": "studio",
+          "rentCents": 125000,
+          "utilities": {
+            "status": "unknown",
+            "note": "Hydro is separately metered; amount not stated"
+          },
+          "commuteMinutes": 25,
+          "unknowns": [
+            "utilities",
+            "rent-control"
+          ],
+          "reveal": {
+            "id": "rent-control",
+            "headline": "This unit may not be rent-controlled",
+            "text": "In this scenario the basement unit was first rented out in 2021. Ontario says units first occupied for residential purposes after November 15, 2018 are exempt from rent control, so next year's increase isn't capped by the guideline.",
+            "extraMonthlyCents": 0
+          },
+          "presentation": {
+            "listingText": "Renovated basement studio with a private entrance. $1,250/month plus hydro, which is separately metered. Newly converted unit.",
+            "finePrint": "Bsmt bach., sep. ent. $1,250/mo + hyd. (sep. meter, T pays). Unit 1st occ. 2021.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 7
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to campus",
+                "minutes": 18
+              }
+            ]
+          }
+        }
+      ],
+      "civicCards": [
+        {
+          "id": "s1-personal",
+          "text": "Ask the housemates what last winter's hydro bills were before signing",
+          "correct": "personal",
+          "leverId": null
+        },
+        {
+          "id": "s1-municipal",
+          "text": "How often buses to campus run in the morning peak",
+          "correct": "municipal",
+          "leverId": "ttc-service",
+          "standard": "frequency"
+        },
+        {
+          "id": "s1-provincial",
+          "text": "How much the rent on this unit can go up next year",
+          "correct": "non-municipal",
+          "leverId": "rent-guideline"
+        }
+      ]
+    },
+    {
+      "id": "first-job",
+      "order": 2,
+      "title": "First job",
+      "defaultAge": 23,
+      "ageRange": [
+        22,
+        25
+      ],
+      "enabled": true,
+      "housingNeed": "Your first solo rental",
+      "household": "Just you",
+      "destination": {
+        "id": "union",
+        "name": "an office near Union Station"
+      },
+      "income": {
+        "amountCents": 5500000,
+        "period": "annual",
+        "basis": "gross",
+        "description": "first full-time job"
+      },
+      "commuteDaysPerMonth": 20,
+      "fareOptions": [
+        "adult-payg"
+      ],
+      "leverId": "ttc-service",
+      "offers": [
+        {
+          "id": "s2-a",
+          "title": "1-bedroom apartment",
+          "neighbourhoodId": 24,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 160000,
+          "utilities": {
+            "status": "unknown",
+            "note": "The ad says \"hydro extra\"; no amount given"
+          },
+          "commuteMinutes": 60,
+          "unknowns": [
+            "utilities",
+            "rent-control"
+          ],
+          "reveal": {
+            "id": "utilities",
+            "headline": "\"Hydro extra\" has a price",
+            "text": "In this scenario the landlord says hydro for the unit has averaged $95 a month, on top of rent.",
+            "extraMonthlyCents": 9500
+          },
+          "presentation": {
+            "listingText": "Spacious 1-bed in a 1970s high-rise. $1,600/month, hydro extra. About an hour to downtown by bus and subway.",
+            "finePrint": "1BR, HR bldg (1974). $1,600/mo; hyd. extra (T acct). Prkg n/a.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 9
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to station",
+                "minutes": 8
+              },
+              {
+                "mode": "subway",
+                "label": "Subway to Union",
+                "minutes": 43
+              }
+            ]
+          }
+        },
+        {
+          "id": "s2-b",
+          "title": "1-bedroom apartment",
+          "neighbourhoodId": 162,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 175000,
+          "utilities": {
+            "status": "illustrative",
+            "includedInRent": true,
+            "note": "Utilities included"
+          },
+          "commuteMinutes": 30,
+          "unknowns": [
+            "rent-control",
+            "fees"
+          ],
+          "reveal": {
+            "id": "rent-control",
+            "headline": "Newer building, no rent control",
+            "text": "In this scenario the building opened in 2020. Ontario says units first occupied for residential purposes after November 15, 2018 are exempt from rent control, so the 2026 guideline cap doesn't apply to your next increase.",
+            "extraMonthlyCents": 0
+          },
+          "presentation": {
+            "listingText": "Bright 1-bed in a newer mid-rise, utilities included. $1,750/month. In-suite laundry available.",
+            "finePrint": "1BR, mid-rise, 1st occ. 2020. $1,750/mo all-incl. Ensuite lndry avail. (addl chg).",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 4
+              },
+              {
+                "mode": "streetcar",
+                "label": "Streetcar downtown",
+                "minutes": 20
+              },
+              {
+                "mode": "walk",
+                "label": "Walk to office",
+                "minutes": 6
+              }
+            ]
+          }
+        },
+        {
+          "id": "s2-c",
+          "title": "1-bedroom condo",
+          "neighbourhoodId": 56,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 210000,
+          "utilities": {
+            "status": "unknown",
+            "note": "Hydro is sub-metered; amount not stated"
+          },
+          "commuteMinutes": 42,
+          "unknowns": [
+            "utilities",
+            "rent-control"
+          ],
+          "reveal": {
+            "id": "utilities",
+            "headline": "The sub-metered hydro bill",
+            "text": "In this scenario the condo's sub-metered hydro has averaged $85 a month, on top of rent.",
+            "extraMonthlyCents": 8500
+          },
+          "presentation": {
+            "listingText": "Luxury 1-bed condo with gym and concierge. $2,100/month plus hydro. Building completed 2022.",
+            "finePrint": "1BR condo, bldg reg. 2022. $2,100/mo + hyd. (sub-meter). Amenities incl.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to stop",
+                "minutes": 6
+              },
+              {
+                "mode": "bus",
+                "label": "Bus to station",
+                "minutes": 14
+              },
+              {
+                "mode": "subway",
+                "label": "Subway to Union",
+                "minutes": 22
+              }
+            ]
+          }
+        }
+      ],
+      "civicCards": [
+        {
+          "id": "s2-personal",
+          "text": "Ride the route at 8 a.m. on a weekday before signing",
+          "correct": "personal",
+          "leverId": null
+        },
+        {
+          "id": "s2-municipal",
+          "text": "Whether buses on your route leave on time",
+          "correct": "municipal",
+          "leverId": "ttc-service",
+          "standard": "reliability"
+        },
+        {
+          "id": "s2-provincial",
+          "text": "Whether this unit is covered by rent control",
+          "correct": "non-municipal",
+          "leverId": "rent-guideline"
+        }
+      ]
+    },
+    {
+      "id": "new-job",
+      "order": 3,
+      "title": "New job",
+      "defaultAge": 27,
+      "ageRange": [
+        26,
+        29
+      ],
+      "enabled": false,
+      "housingNeed": "Move for a new workplace",
+      "leverId": "planning-near-transit"
+    },
+    {
+      "id": "partner",
+      "order": 4,
+      "title": "Moving in with a partner",
+      "defaultAge": 30,
+      "ageRange": [
+        30,
+        32
+      ],
+      "enabled": false,
+      "housingNeed": "A larger unit for two",
+      "leverId": "affordable-rental-delivery"
+    },
+    {
+      "id": "kids",
+      "order": 5,
+      "title": "Kids",
+      "defaultAge": 34,
+      "ageRange": [
+        33,
+        64
+      ],
+      "enabled": false,
+      "housingNeed": "A family-sized unit",
+      "leverId": "family-sized-units"
+    },
+    {
+      "id": "retirement",
+      "order": 6,
+      "title": "Retirement",
+      "defaultAge": 66,
+      "ageRange": [
+        65,
+        120
+      ],
+      "enabled": false,
+      "housingNeed": "An accessible or downsized home",
+      "leverId": "seniors-housing"
+    }
+  ]
+}

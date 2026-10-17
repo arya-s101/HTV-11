@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter } from "next/font/google";
+import { IBM_Plex_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", weight: ["500", "700", "800"] });
-const body = Inter({ subsets: ["latin"], variable: "--font-body" });
+const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel" });
+// Body/number font must have unambiguous digits; the pixel font is for headings only.
+const body = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-body" });
 
 export const metadata: Metadata = {
-  // Working name; final branding pending.
-  title: "Toronto Rent Hunt",
-  description: "A game: find the best apartment for each renter, using real Toronto rents and TTC commute times.",
+  // Working title; rename after the core loop works (PRD).
+  title: "Toronto Rent Decisions",
+  description: "An 8-bit life sim about Toronto rental tradeoffs, which public levers shape them, and one sourced question to ask municipal candidates.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`${pixel.variable} ${body.variable}`}>
       <body>{children}</body>
     </html>
   );

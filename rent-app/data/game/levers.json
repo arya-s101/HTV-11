@@ -1,0 +1,70 @@
+{
+  "_note": "Civic levers. A lever is 'sourced' only when every claim below is backed by the listed official page, checked on the retrievedOn date. Stages whose lever is not sourced stay disabled.",
+  "levers": [
+    {
+      "id": "ttc-service",
+      "name": "TTC service standards",
+      "jurisdiction": "municipal",
+      "sourced": true,
+      "summary": "The TTC is a City of Toronto service agency, governed by a Board with decision-making authority delegated by City Council. Its Board-approved service standards guide how often routes run, how crowded vehicles get, and what counts as an on-time departure.",
+      "standards": {
+        "frequency": "During the weekday morning peak, the minimum service level for local bus routes is every 30 minutes or better.",
+        "reliability": "A surface vehicle counts as an on-time departure if it leaves its origin timepoint between 1 minute early and 5 minutes late.",
+        "review": "The TTC is reviewing its service standards, with a report back to its Board scheduled for Q4 2026."
+      },
+      "sources": [
+        {
+          "title": "City of Toronto: Agencies (TTC listed as a Service Agency)",
+          "url": "https://www.toronto.ca/city-government/accountability-operations-customer-service/city-administration/city-managers-office/agencies-corporations/agencies/",
+          "retrievedOn": "2026-10-17",
+          "supports": "TTC manages and operates the City's subways, streetcars, buses and Wheel-Trans; service agencies are governed by a Board with delegated decision-making authority from City Council (page modified 2025-12-04)."
+        },
+        {
+          "title": "TTC report: Overview of TTC Service Standards (Strategic Planning Committee, September 4, 2025)",
+          "url": "https://www.toronto.ca/legdocs/mmis/2025/tts/bgrd/backgroundfile-258031.pdf",
+          "retrievedOn": "2026-10-17",
+          "supports": "Board-approved service standards are applied at every level of TTC service planning; example standards for peak frequency, vehicle crowding and on-time departures; review to report back in Q4 2026."
+        }
+      ]
+    },
+    {
+      "id": "rent-guideline",
+      "name": "Ontario rent increase guideline",
+      "jurisdiction": "provincial",
+      "sourced": true,
+      "summary": "How much most tenants' rent can rise each year is set by the Province of Ontario's rent increase guideline (2.1% for 2026), not by City Council. Units first occupied for residential purposes after November 15, 2018 are exempt from rent control.",
+      "sources": [
+        {
+          "title": "Government of Ontario: Residential rent increases",
+          "url": "https://www.ontario.ca/page/residential-rent-increases",
+          "retrievedOn": "2026-10-17",
+          "supports": "2026 guideline 2.1%; maximum most tenants' rent can rise without Landlord and Tenant Board approval; post-November 15, 2018 units exempt (page updated 2026-06-23)."
+        }
+      ]
+    },
+    { "id": "planning-near-transit", "name": "Housing near transit (planning)", "jurisdiction": "municipal", "sourced": false, "summary": "To verify.", "sources": [] },
+    {
+      "id": "affordable-rental-delivery",
+      "name": "Affordable rental delivery",
+      "jurisdiction": "shared",
+      "sourced": false,
+      "summary": "Partially sourced: the City housing plan exists, but which parts are municipal vs. provincial/federal is not yet verified.",
+      "sources": [{ "title": "City of Toronto housing plan (background file)", "url": "https://www.toronto.ca/legdocs/mmis/2023/ex/bgrd/backgroundfile-234815.pdf", "retrievedOn": "2026-10-17", "supports": "URL reachable (HTTP 200); content not yet reviewed for this lever." }]
+    },
+    { "id": "family-sized-units", "name": "Family-sized units in planning", "jurisdiction": "shared", "sourced": false, "summary": "To verify.", "sources": [] },
+    { "id": "seniors-housing", "name": "Seniors' housing and accessibility", "jurisdiction": "shared", "sourced": false, "summary": "To verify.", "sources": [] }
+  ],
+  "fares": {
+    "adultFareCents": 330,
+    "monthlyCapPaidTrips": 47,
+    "postSecondaryMonthlyPassCents": 12815,
+    "transferWindowMinutes": 120,
+    "referencePeriod": "September 2026 fares",
+    "sources": [
+      { "title": "TTC: Back to school on the TTC (September 4, 2026)", "url": "https://www.ttc.ca/news/2026/September/Back-to-school-on-the-TTC", "retrievedOn": "2026-10-17", "supports": "$3.30 adult PRESTO/debit/credit; $128.15 post-secondary monthly pass with TTC Post-Secondary Student Photo ID; 47-paid-trip monthly cap with the same payment method." },
+      { "title": "TTC: Monthly fare capping", "url": "https://www.ttc.ca/riding-the-ttc/Updates/Monthly-fare-capping-coming-to-the-TTC", "retrievedOn": "2026-10-17", "supports": "Fare-capping page reachable (HTTP 200)." },
+      { "title": "TTC: Fares and passes", "url": "https://www.ttc.ca/Fares-and-passes", "retrievedOn": "2026-10-16", "supports": "Two-hour transfer; 47-fare cap; capping began August 31, 2026." }
+    ]
+  },
+  "electionHub": { "title": "City of Toronto Elections (municipal election Monday, October 26, 2026)", "url": "https://www.toronto.ca/city-government/elections/", "retrievedOn": "2026-10-17" }
+}

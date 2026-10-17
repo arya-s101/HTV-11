@@ -1,498 +1,518 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import type { Failure, Listing, PickResult, POINTS, Scenario } from "@/lib/game/engine";
-import { BuildingArt, HeroArt, Icon } from "./art";
+import { useState } from "react";
+import { Legend, Sprite, TitleScene } from "@/components/pixel";
+import { ScoreBox, StageView, type StageRecord } from "@/components/StageView";
+import { ELECTION_HUB, STAGES } from "@/game/data";
+import { money } from "@/game/outcome";
+import { DEFAULT_AGE, MAX_AGE, MIN_AGE, planLife, stageForAge, type LifePlan } from "@/game/life";
+import { DIFFICULTY_INFO } from "@/game/score";
+import type { Difficulty } from "@/game/types";
+import {
+  ACCESSORIES,
+  DEMO_CHARACTER,
+  HAIR_COLOR,
+  HAIR_STYLES,
+  OUTFIT_COLOR,
+  OUTFITS,
+  SKIN,
+  type Appearance,
+  type Character,
+} from "@/game/sprite";
 
-interface PublicRound {
-  seed: string;
-  round: number;
-  totalRounds: number;
-  points: typeof POINTS;
-  scenario: Scenario;
-  listings: Listing[];
-}
-
-const BEST_KEY = "rentgame.best";
-const ROUNDS = 5;
-const BEDROOMS: Record<string, string> = { studio: "Studio", "1br": "1 bed", "2br": "2 bed", "3br+": "3+ bed" };
-const money = (cents: number) => `$${Math.round(cents / 100).toLocaleString("en-CA")}`;
-
-function readBest(): number {
-  try {
-    return Number(localStorage.getItem(BEST_KEY) ?? 0) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function writeBest(n: number) {
-  try {
-    localStorage.setItem(BEST_KEY, String(n));
-  } catch {
-    // storage unavailable (private mode etc.): best score just isn't remembered
-  }
-}
-
-/** crypto.randomUUID only exists on secure origins; plain-http LAN URLs need a fallback. */
-function newSeed(): string {
-  const bytes = new Uint8Array(6);
-  if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
-  else bytes.forEach((_, i) => (bytes[i] = Math.floor(Math.random() * 256)));
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function maxScore(p: typeof POINTS, rounds: number) {
-  let total = 0;
-  for (let i = 0; i < rounds; i++) total += p.optimal + p.streakBonus * i;
-  return total;
-}
-
-function rankFor(score: number, max: number) {
-  const r = score / max;
-  if (r >= 0.85) return "Lease Legend";
-  if (r >= 0.55) return "Savvy Renter";
-  if (r >= 0.25) return "Apartment Apprentice";
-  return "Rental Rookie";
-}
-
-const outcome = (r: PickResult) => (r.correct ? "best" : r.valid ? "valid" : "invalid");
+type Screen = "title" | "create" | "stage" | "between" | "end";
 
 export default function Game() {
-  const [seed, setSeed] = useState<string | null>(null);
-  const [roundNo, setRoundNo] = useState(1);
-  const [round, setRound] = useState<PublicRound | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [result, setResult] = useState<PickResult | null>(null);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [history, setHistory] = useState<PickResult[]>([]);
-  const [best, setBest] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [points, setPoints] = useState<typeof POINTS | null>(null);
-  const [finished, setFinished] = useState(false);
+  const [screen, setScreen] = useState<Screen>("title");
+  const [character, setCharacter] = useState<Character>({ ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE });
+  const [plan, setPlan] = useState<LifePlan | null>(null);
+  const [index, setIndex] = useState(0);
+  const [records, setRecords] = useState<StageRecord[]>([]);
+  const [skipped, setSkipped] = useState<string[]>([]);
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [demo, setDemo] = useState(false);
 
-  useEffect(() => setBest(readBest()), []);
+  const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  const loadRound = useCallback(async (s: string, n: number) => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/game/round?seed=${s}&round=${n}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not load round");
-      setRound(data);
-      setPoints(data.points);
-      setSelected(null);
-      setResult(null);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load round");
-    } finally {
-      setBusy(false);
-    }
-  }, []);
-
-  function start() {
-    const s = newSeed();
-    setSeed(s);
-    setRoundNo(1);
-    setScore(0);
-    setStreak(0);
-    setHistory([]);
-    setFinished(false);
-    loadRound(s, 1);
+  function begin(c: Character, isDemo = false) {
+    setDemo(isDemo);
+    if (isDemo) setDifficulty("easy");
+    const p = planLife(c.startAge);
+    setCharacter(c);
+    setPlan(p);
+    setIndex(0);
+    setRecords([]);
+    setSkipped([]);
+    setScreen(p.playable.length ? "stage" : "end");
+    top();
   }
 
-  async function lockIn() {
-    if (!seed || !selected) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/game/answer", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ seed, round: roundNo, listingId: selected, streak }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not check answer");
-      setResult(data);
-      setScore((s) => s + data.points);
-      setStreak(data.newStreak);
-      setHistory((h) => [...h, data]);
-      requestAnimationFrame(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not check answer");
-    } finally {
-      setBusy(false);
+  function advance() {
+    if (!plan) return;
+    if (index + 1 < plan.playable.length) {
+      setIndex(index + 1);
+      setScreen("stage");
+    } else {
+      setScreen("end");
     }
+    top();
   }
 
-  function next() {
-    if (!seed) return;
-    if (roundNo >= ROUNDS) {
-      if (score > best) {
-        setBest(score);
-        writeBest(score);
-      }
-      setFinished(true);
-      setRound(null);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    setRoundNo(roundNo + 1);
-    loadRound(seed, roundNo + 1);
-  }
-
-  const playing = seed !== null && !finished;
-  const selectedListing = round?.listings.find((l) => l.id === selected);
+  const current = plan?.playable[index];
 
   return (
-    <>
-      <div className="topbar">
-        <div className="topbar-inner">
-          <Link href="/" className="brand" onClick={() => setSeed(null)}>
-            <span className="brand-mark">
-              <Icon name="home" size={20} />
-            </span>
-            <span className="brand-text">Rent Hunt</span>
-          </Link>
-          {playing && (
-            <div className="hud">
-              <div className="progress" aria-label={`Round ${roundNo} of ${ROUNDS}`}>
-                {Array.from({ length: ROUNDS }).map((_, i) => (
-                  <span key={i} className={history[i] ? outcome(history[i]) : i === roundNo - 1 ? "current" : ""} />
-                ))}
-              </div>
-              <span className="pill round">
-                <span className="label">Round</span> {roundNo}/{ROUNDS}
-              </span>
-              <span className="pill" key={`score-${score}`}>
-                <span className="label">Score</span> <span className="bump">{score}</span>
-              </span>
-              <span className={`pill streak ${streak > 0 ? "hot" : ""}`}>
-                <Icon name="flame" size={16} /> {streak}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <main>
-        {!seed && <Intro best={best} onStart={start} />}
-        {error && (
-          <p className="error">
-            {error}{" "}
-            <button className="btn secondary" onClick={() => (seed ? loadRound(seed, roundNo) : start())}>
-              Try again
-            </button>
-          </p>
-        )}
-
-        {playing && round && (
-          <>
-            <RenterCard s={round.scenario} roundNo={roundNo} />
-            <div className="section-head">
-              <h2>Which listing should {round.scenario.personName} take?</h2>
-              <span className="muted small">{result ? "Answers revealed" : "Tap a listing, then lock it in"}</span>
-            </div>
-            <div className="listings">
-              {round.listings.map((l) => (
-                <ListingCard
-                  key={l.id}
-                  l={l}
-                  s={round.scenario}
-                  selected={selected === l.id}
-                  verdict={result?.breakdown.find((b) => b.listingId === l.id)}
-                  yours={result?.pickedId === l.id}
-                  disabled={!!result || busy}
-                  onSelect={() => setSelected(l.id)}
-                />
-              ))}
-            </div>
-            {result && <ResultPanel r={result} onNext={next} last={roundNo >= ROUNDS} />}
-          </>
-        )}
-
-        {finished && points && <Final score={score} best={Math.max(best, score)} max={maxScore(points, ROUNDS)} history={history} onRestart={start} />}
-
-        <footer className="site">
-          Listings, names and streets are fictional. Rents are drawn near CMHC&apos;s October 2025 average rent for each
-          neighbourhood&apos;s rental survey zone. Commute times are real scheduled TTC trips (weekday morning, from the TTC
-          timetable). <Link href="/explore">Explore the real area data →</Link>
-        </footer>
-      </main>
-
-      {playing && round && !result && (
-        <div className="lockbar">
-          <div className="lockbar-inner">
-            <span className="sel">{selectedListing ? `Selected: ${selectedListing.title}` : <span className="muted">No listing selected</span>}</span>
-            <button className="btn" disabled={!selected || busy} onClick={lockIn}>
-              {busy ? "Checking…" : "Lock it in"}
-            </button>
-          </div>
+    <main>
+      {screen !== "title" && (
+        <div className="spread" style={{ marginBottom: 6 }}>
+          <span className="pixel" style={{ fontSize: "0.7rem", color: "var(--yellow)" }}>
+            Toronto Rent Decisions
+          </span>
+          <button className="btn ghost small" onClick={() => setScreen("title")}>
+            Quit to title
+          </button>
         </div>
       )}
-    </>
-  );
-}
 
-function Intro({ best, onStart }: { best: number; onStart: () => void }) {
-  return (
-    <>
-      <section className="hero">
-        <div>
-          <h1>
-            Can you find the <em>best apartment</em> in Toronto?
-          </h1>
-          <p className="lede">
-            Each round, a renter needs a place. Six listings, one right answer. Real rents, real TTC commutes, and a few traps.
-          </p>
-          <button className="btn big" onClick={onStart}>
-            Start game
-          </button>
-          {best > 0 && (
-            <p className="muted small">
-              <Icon name="trophy" size={14} /> Your best: {best}
-            </p>
+      {screen === "title" && (
+        <TitleScreen
+          onNew={() => {
+            setCharacter({ ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE });
+            setScreen("create");
+            top();
+          }}
+          onDemo={() => begin(DEMO_CHARACTER, true)}
+        />
+      )}
+
+      {screen === "create" && (
+        <Creator
+          character={character}
+          setCharacter={setCharacter}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          onStart={() => begin({ ...character, name: character.name.trim() || "Player" })}
+        />
+      )}
+
+      {(screen === "stage" || screen === "between") && plan && current && (
+        <>
+          <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} />
+          {screen === "stage" && (
+            <StageView
+              key={current.stage.id}
+              stage={current.stage}
+              age={current.age}
+              character={character}
+              difficulty={difficulty}
+              scriptedLandlord={demo}
+              onComplete={(r) => {
+                setRecords([...records, r]);
+                setScreen("between");
+                top();
+              }}
+              onSkip={() => {
+                setSkipped([...skipped, current.stage.id]);
+                advance();
+              }}
+            />
           )}
-        </div>
-        <div className="hero-art">
-          <HeroArt />
-        </div>
-      </section>
+          {screen === "between" && (
+            <Between character={character} records={records} plan={plan} index={index} difficulty={difficulty} setDifficulty={setDifficulty} onNext={advance} />
+          )}
+        </>
+      )}
 
-      <section className="rules">
-        <div className="rule">
-          <div className="rule-icon">
-            <Icon name="wallet" size={22} />
-          </div>
-          <h3>Fits the budget</h3>
-          <p>Rent plus utilities can&apos;t exceed 30% of the renter&apos;s gross income. Watch out for utilities that aren&apos;t included.</p>
-        </div>
-        <div className="rule">
-          <div className="rule-icon">
-            <Icon name="train" size={22} />
-          </div>
-          <h3>Commute in time</h3>
-          <p>The transit trip to work has to be within their limit. A cheap place two hours away doesn&apos;t count.</p>
-        </div>
-        <div className="rule">
-          <div className="rule-icon">
-            <Icon name="bed" size={22} />
-          </div>
-          <h3>Enough bedrooms</h3>
-          <p>At least as many bedrooms as they need. Of the listings that pass, pick the cheapest, or the fastest if time matters most.</p>
-        </div>
-      </section>
+      {screen === "end" && plan && <EndScreen character={character} plan={plan} records={records} skipped={skipped} onRestart={() => setScreen("title")} />}
 
-      <div className="scoring">
-        <span className="score-chip best">
-          <Icon name="star" size={16} /> Best pick +100
-        </span>
-        <span className="score-chip streak">
-          <Icon name="flame" size={16} /> +20 per streak
-        </span>
-        <span className="score-chip valid">Valid, not best +40</span>
-        <span className="score-chip invalid">Breaks a rule +0</span>
-      </div>
-    </>
+      {screen !== "title" && (
+        <div style={{ marginTop: 20 }}>
+          <Legend />
+        </div>
+      )}
+      <footer className="site">
+        Offers, people and incomes are fictional (labelled illustrative). Real data: City of Toronto Open Data (Open Government Licence – Toronto), CMHC
+        Rental Market Survey (adapted; not endorsed by CMHC), TTC fares, Province of Ontario. Nonpartisan: this game doesn&apos;t endorse candidates or
+        predict policy outcomes. <a href={ELECTION_HUB.url}>Toronto municipal election: Monday, October 26, 2026</a>.
+      </footer>
+    </main>
   );
 }
 
-function RenterCard({ s, roundNo }: { s: Scenario; roundNo: number }) {
-  const hue = (s.personName.charCodeAt(0) * 37) % 360;
+function TitleScreen({ onNew, onDemo }: { onNew: () => void; onDemo: () => void }) {
   return (
-    <section className="renter reveal" key={`${roundNo}-${s.personName}`}>
-      <div className="avatar" style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 75% 45%))` }}>
-        {s.personName[0]}
+    <section className="title-screen">
+      <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+        <TitleScene />
       </div>
-      <div>
-        <div className="eyebrow">
-          Round {roundNo} of {ROUNDS} · Your renter
-        </div>
-        <h2>{s.personName}</h2>
-        <p className="story">
-          Earns {money(s.annualGrossIncomeCents)} a year (before tax), works at {s.workName}, and commutes {s.commuteDaysPerMonth} days a month by TTC.
+      <div className="title-card">
+        <h1>Toronto Rent Decisions</h1>
+        <p className="tag">
+          Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem
+          your next city council can actually change. You&apos;ll leave with one sourced question for municipal candidates.
         </p>
-        <div className="constraints">
-          <div className="constraint">
-            <Icon name="wallet" size={20} />
-            <div>
-              <div className="k">Max rent + utilities</div>
-              <div className="v">{money(s.housingBudgetCents)}/mo</div>
-            </div>
-          </div>
-          <div className="constraint">
-            <Icon name="train" size={20} />
-            <div>
-              <div className="k">Max commute</div>
-              <div className="v">{s.commuteLimitMinutes} min</div>
-            </div>
-          </div>
-          <div className="constraint">
-            <Icon name="bed" size={20} />
-            <div>
-              <div className="k">Needs at least</div>
-              <div className="v">{BEDROOMS[s.bedroomsNeeded]}</div>
-            </div>
-          </div>
-          <div className="constraint priority">
-            <Icon name={s.priority === "money" ? "wallet" : "clock"} size={20} />
-            <div>
-              <div className="k">Cares most about</div>
-              <div className="v">{s.priority === "money" ? "Lowest cost" : "Shortest commute"}</div>
-            </div>
-          </div>
+        <div className="row" style={{ justifyContent: "center" }}>
+          <button className="btn" onClick={onNew}>
+            ▶ New game
+          </button>
+          <button className="btn blue" onClick={onDemo}>
+            Demo preset
+          </button>
+        </div>
+        <p className="pixel blink" style={{ fontSize: "0.6rem", marginTop: 18, color: "#cfc8de" }}>
+          Election day · Oct 26, 2026
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function DifficultyPicker({ value, onChange }: { value: Difficulty; onChange: (d: Difficulty) => void }) {
+  return (
+    <div>
+      <h3>Difficulty</h3>
+      <div className="row" style={{ gap: 4 }}>
+        {(["easy", "normal", "hard"] as Difficulty[]).map((d) => (
+          <button key={d} className={`choice ${d === value ? "on" : ""}`} onClick={() => onChange(d)} aria-pressed={d === value}>
+            {DIFFICULTY_INFO[d].label}
+          </button>
+        ))}
+      </div>
+      <p className="small">
+        {DIFFICULTY_INFO[value].blurb} Difficulty changes how information is shown, never what is true, and multiplies your reasoning score.
+      </p>
+    </div>
+  );
+}
+
+function Creator(props: {
+  character: Character;
+  setCharacter: (c: Character) => void;
+  difficulty: Difficulty;
+  setDifficulty: (d: Difficulty) => void;
+  onStart: () => void;
+}) {
+  const { character, setCharacter, difficulty, setDifficulty, onStart } = props;
+  const a = character.appearance;
+  const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
+  const plan = planLife(character.startAge);
+  const start = stageForAge(character.startAge);
+  const randomize = () =>
+    setA({
+      skin: Math.floor(Math.random() * SKIN.length),
+      hairStyle: HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)],
+      hairColor: Math.floor(Math.random() * HAIR_COLOR.length),
+      outfit: OUTFITS[Math.floor(Math.random() * OUTFITS.length)],
+      outfitColor: Math.floor(Math.random() * OUTFIT_COLOR.length),
+      accessory: ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)],
+    });
+
+  return (
+    <section className="creator">
+      <div className="paper stage-preview">
+        <span className="eyebrow">Character</span>
+        <div className="sprite-frame">
+          <Sprite appearance={a} scale={10} />
+        </div>
+        <div className="pixel" style={{ fontSize: "0.7rem" }}>
+          {character.name.trim() || "Player"}, {character.startAge}
+        </div>
+        <button className="btn ghost small" onClick={randomize}>
+          🎲 Randomize look
+        </button>
+        <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
+      </div>
+
+      <div className="paper options">
+        <div>
+          <h3>Name</h3>
+          <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
+        </div>
+        <div>
+          <h3>Starting age: {character.startAge}</h3>
+          <input
+            type="range"
+            min={MIN_AGE}
+            max={MAX_AGE}
+            value={character.startAge}
+            onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })}
+            aria-label="Starting age"
+          />
+          <p className="small">
+            Starts at stage {start.order}: <b>{start.title}</b>.{" "}
+            {plan.playable.length > 0
+              ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
+              : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
+          </p>
+        </div>
+        <DifficultyPicker value={difficulty} onChange={setDifficulty} />
+        <Swatches label="Skin tone" colors={SKIN} value={a.skin} onPick={(i) => setA({ skin: i })} />
+        <Choices label="Hair style" options={HAIR_STYLES} value={a.hairStyle} onPick={(v) => setA({ hairStyle: v })} />
+        <Swatches label="Hair colour" colors={HAIR_COLOR} value={a.hairColor} onPick={(i) => setA({ hairColor: i })} />
+        <Choices label="Outfit" options={OUTFITS} value={a.outfit} onPick={(v) => setA({ outfit: v })} />
+        <Swatches label="Outfit colour" colors={OUTFIT_COLOR} value={a.outfitColor} onPick={(i) => setA({ outfitColor: i })} />
+        <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
+        <div>
+          <button className="btn" disabled={plan.playable.length === 0} onClick={onStart}>
+            ▶ Start life
+          </button>
         </div>
       </div>
     </section>
   );
 }
 
-interface Verdict {
-  valid: boolean;
-  optimal: boolean;
-  failures: Failure[];
-}
-
-function ListingCard(props: {
-  l: Listing;
-  s: Scenario;
-  selected: boolean;
-  verdict?: Verdict;
-  yours: boolean;
-  disabled: boolean;
-  onSelect: () => void;
-}) {
-  const { l, s, selected, verdict, yours, disabled, onSelect } = props;
-  const total = l.rentCents + l.utilitiesCents;
-  const state = verdict ? (verdict.optimal ? "is-best" : verdict.valid ? "is-valid" : "is-invalid") : "";
-  const fails = new Set(verdict?.failures ?? []);
+function Swatches({ label, colors, value, onPick }: { label: string; colors: readonly string[]; value: number; onPick: (i: number) => void }) {
   return (
-    <button className={`listing ${selected ? "selected" : ""} ${state}`} disabled={disabled} onClick={onSelect} aria-pressed={selected}>
-      <span className="photo">
-        <BuildingArt seed={`${l.neighbourhoodId}-${l.title}`} hue={(l.neighbourhoodId * 47) % 360} />
-        <span className="fict">Fictional listing</span>
-        {verdict ? (
-          <span className={`ribbon ${verdict.optimal ? "best" : verdict.valid ? "valid" : "invalid"}`}>
-            {verdict.optimal ? "★ Best" : verdict.valid ? "Valid" : "Breaks rules"}
-          </span>
-        ) : (
-          <span className="check">
-            <Icon name="check" size={16} />
-          </span>
-        )}
-        {yours && <span className="ribbon yours">Your pick</span>}
-      </span>
-      <span className="listing-body">
-        <span className="price">
-          {money(l.rentCents)}
-          <small> /mo</small>
-        </span>
-        <span className={`utils ${l.utilitiesIncluded ? "inc" : "extra"}`}>
-          {l.utilitiesIncluded ? "Utilities included" : `+ ${money(l.utilitiesCents)}/mo utilities`}
-        </span>
-        <span className="listing-title">{l.title}</span>
-        <span className="where">
-          <Icon name="pin" size={14} /> {l.neighbourhoodName}
-        </span>
-        <span className="meta">
-          <span>
-            <Icon name="bed" size={14} /> {BEDROOMS[l.bedrooms]}
-          </span>
-          <span>
-            <Icon name="train" size={14} /> {l.commuteMinutes} min
-          </span>
-        </span>
-        {verdict && (
-          <ul className="checks reveal">
-            <li className={fails.has("budget") ? "bad" : "ok"}>
-              <Icon name={fails.has("budget") ? "x" : "check"} size={14} /> {money(total)} total vs {money(s.housingBudgetCents)} budget
-            </li>
-            <li className={fails.has("commute") ? "bad" : "ok"}>
-              <Icon name={fails.has("commute") ? "x" : "check"} size={14} /> {l.commuteMinutes} min vs {s.commuteLimitMinutes} min limit
-            </li>
-            <li className={fails.has("bedrooms") ? "bad" : "ok"}>
-              <Icon name={fails.has("bedrooms") ? "x" : "check"} size={14} /> {BEDROOMS[l.bedrooms]}, needs {BEDROOMS[s.bedroomsNeeded].toLowerCase()}
-            </li>
-          </ul>
-        )}
-      </span>
-    </button>
+    <div>
+      <h3>{label}</h3>
+      <div className="row" style={{ gap: 12, paddingLeft: 4 }}>
+        {colors.map((c, i) => (
+          <button key={c} className={`swatch ${i === value ? "on" : ""}`} style={{ background: c }} onClick={() => onPick(i)} aria-label={`${label} ${i + 1}`} aria-pressed={i === value} />
+        ))}
+      </div>
+    </div>
   );
 }
 
-function ResultPanel({ r, onNext, last }: { r: PickResult; onNext: () => void; last: boolean }) {
-  const tone = r.correct ? "win" : r.valid ? "close" : "lose";
-  const kicker = r.correct ? "Nailed it" : r.valid ? "So close" : "Not quite";
+function Choices<T extends string>({ label, options, value, onPick }: { label: string; options: readonly T[]; value: T; onPick: (v: T) => void }) {
   return (
-    <section id="result" className={`result ${tone} reveal`}>
-      <div className="result-banner">
-        <div>
-          <div className="kicker">{kicker}</div>
-          <h2>{r.headline}</h2>
+    <div>
+      <h3>{label}</h3>
+      <div className="row" style={{ gap: 4 }}>
+        {options.map((o) => (
+          <button key={o} className={`choice ${o === value ? "on" : ""}`} onClick={() => onPick(o)} aria-pressed={o === value}>
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Timeline({ plan, index, records, skipped, between }: { plan: LifePlan; index: number; records: StageRecord[]; skipped: string[]; between: boolean }) {
+  const currentId = plan.playable[index]?.stage.id;
+  const doneIds = new Set([...records.map((r) => r.stageId), ...skipped]);
+  return (
+    <nav className="timeline" aria-label="Life stages">
+      {STAGES.map((s, i) => {
+        const soon = plan.comingSoon.some((x) => x.id === s.id) || s.order < plan.start.order;
+        const cls = doneIds.has(s.id) ? "done" : s.id === currentId && !between ? "current" : soon ? "soon" : "";
+        return (
+          <div key={s.id} style={{ display: "contents" }}>
+            {i > 0 && <div className="tl-line" />}
+            <div className={`tl-node ${cls}`} title={plan.comingSoon.some((x) => x.id === s.id) ? "Coming soon: civic lever not yet sourced" : undefined}>
+              <span className="dot" />
+              <span className="lbl">
+                {s.title}
+                <br />
+                {plan.comingSoon.some((x) => x.id === s.id) ? "coming soon" : `age ${plan.playable.find((p) => p.stage.id === s.id)?.age ?? s.defaultAge}`}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+function TrackerTable({ records }: { records: StageRecord[] }) {
+  return (
+    <table className="tracker">
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Home</th>
+          <th>Unknowns flagged before choosing</th>
+          <th>Revealed unknown flagged?</th>
+          <th>Lever attributed correctly?</th>
+          <th>Difficulty</th>
+          <th>Reasoning score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {records.map((r) => {
+          const hit = r.unknowns.filter((u) => r.flagged.includes(u)).length;
+          return (
+            <tr key={r.stageId}>
+              <td>
+                {r.stageTitle} (age {r.age})
+              </td>
+              <td>
+                {r.offerTitle}, {r.neighbourhood}
+                {r.negotiated && (
+                  <span className="note">
+                    Negotiated {money(r.negotiated.fromCents)} → {money(r.negotiated.toCents)}
+                    {r.negotiated.extras.length ? ` + ${r.negotiated.extras.join(", ").toLowerCase()}` : ""} (illustrative)
+                  </span>
+                )}
+              </td>
+              <td>
+                {hit} of {r.unknowns.length}
+              </td>
+              <td className={r.flaggedRevealed ? "yes" : "no"}>{r.flaggedRevealed ? "Yes" : "No"}</td>
+              <td className={r.leverCorrect ? "yes" : "no"}>
+                {r.leverCorrect ? "Yes" : "No"} ({r.civicCorrect}/{r.civicTotal} sorted)
+              </td>
+              <td>{DIFFICULTY_INFO[r.difficulty].label}</td>
+              <td>
+                <b>{r.score.total}</b>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+function Between(props: {
+  character: Character;
+  records: StageRecord[];
+  plan: LifePlan;
+  index: number;
+  difficulty: Difficulty;
+  setDifficulty: (d: Difficulty) => void;
+  onNext: () => void;
+}) {
+  const { character, records, plan, index, difficulty, setDifficulty, onNext } = props;
+  const next = plan.playable[index + 1];
+  return (
+    <div className="paper">
+      <div className="scene">
+        <div className="sprite-frame">
+          <Sprite appearance={character.appearance} scale={6} />
         </div>
-        <div className="gain">
-          +{r.points}
-          {r.streakBonus > 0 && <small>incl. +{r.streakBonus} streak</small>}
+        <div>
+          <span className="eyebrow">Saved to your civic notebook</span>
+          <h2>{next ? `Time passes… ${character.name} is now ${next.age}.` : "That's every playable stage."}</h2>
+          <p className="muted">Your reasoning so far. This tracks how you reason, not what you spent or where you lived.</p>
         </div>
       </div>
-      <div className={`result-body ${r.whyPickWrong.length ? "" : "single"}`}>
-        {r.whyPickWrong.length > 0 && (
-          <div>
-            <h3>Why your pick loses</h3>
+      <TrackerTable records={records} />
+      <ScoreBox score={records[records.length - 1].score} />
+      {next && <DifficultyPicker value={difficulty} onChange={setDifficulty} />}
+      <button className="btn green" style={{ marginTop: 14 }} onClick={onNext}>
+        {next ? `Next stage: ${next.stage.title} ▶` : "Finish life ▶"}
+      </button>
+    </div>
+  );
+}
+
+function EndScreen({ character, plan, records, skipped, onRestart }: { character: Character; plan: LifePlan; records: StageRecord[]; skipped: string[]; onRestart: () => void }) {
+  const [pick, setPick] = useState(records.length ? records[records.length - 1].stageId : "");
+  const [copied, setCopied] = useState<"" | "ok" | "fail">("");
+  const chosen = records.find((r) => r.stageId === pick);
+
+  async function copy() {
+    if (!chosen) return;
+    const text = `${chosen.question.text}\n\nSources:\n${chosen.question.citations.map((c) => `- ${c.label}${c.url ? `: ${c.url}` : ""}`).join("\n")}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied("ok");
+    } catch {
+      // Clipboard API is unavailable on insecure origins; fall back to a hidden textarea.
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      setCopied(ok ? "ok" : "fail");
+    }
+  }
+
+  const trend =
+    records.length >= 2
+      ? (() => {
+          const first = records[0];
+          const last = records[records.length - 1];
+          const score = (r: StageRecord) => Number(r.flaggedRevealed) + Number(r.leverCorrect);
+          return score(last) > score(first) ? "Your reasoning improved between stages." : score(last) === score(first) ? "Your reasoning held steady across stages." : "Your later stage was harder: look back at what you missed.";
+        })()
+      : null;
+
+  return (
+    <section className="stack">
+      <div className="paper scene">
+        <div className="sprite-frame">
+          <Sprite appearance={character.appearance} scale={8} />
+        </div>
+        <div>
+          <span className="eyebrow">Life summary</span>
+          <h2>{character.name}&apos;s Toronto homes</h2>
+          {records.length === 0 ? (
+            <p>
+              {plan.playable.length === 0
+                ? `Starting at age ${character.startAge} lands in a stage that isn't playable yet: its civic lever still needs an official source.`
+                : "You skipped every stage, so there's nothing in your notebook yet."}
+            </p>
+          ) : (
             <ul>
-              {r.whyPickWrong.map((l, i) => (
-                <li key={i}>{l}</li>
+              {records.map((r) => (
+                <li key={r.stageId}>
+                  Age {r.age}, {r.stageTitle}: {r.offerTitle} in {r.neighbourhood}
+                </li>
               ))}
             </ul>
-          </div>
-        )}
-        <div>
-          <h3>{r.correct ? "Why it's the best" : "Why the best listing wins"}</h3>
-          <ul>
-            {r.whyOptimal.map((l, i) => (
-              <li key={i}>{l}</li>
-            ))}
-          </ul>
+          )}
+          {skipped.length > 0 && <p className="small muted">Skipped: {skipped.join(", ")}</p>}
+          {plan.comingSoon.length > 0 && (
+            <p className="small muted">Coming soon: {plan.comingSoon.map((s) => s.title).join(", ")} (their civic levers still need official sources).</p>
+          )}
         </div>
       </div>
-      <div className="result-foot">
-        <span className="muted small">{r.notes.join(" ")}</span>
-        <button className="btn" onClick={onNext}>
-          {last ? "See final score" : "Next round →"}
+
+      {records.length > 0 && (
+        <>
+          <div className="paper">
+            <span className="eyebrow">Reasoning tracker</span>
+            {trend && <h2>{trend}</h2>}
+            <p>
+              Total reasoning score: <b>{records.reduce((a, r) => a + r.score.total, 0)}</b>
+            </p>
+            <TrackerTable records={records} />
+          </div>
+
+          <div className="paper">
+            <span className="eyebrow">Civic notebook</span>
+            <h2>Pick one question to ask a candidate</h2>
+            <div className="notebook">
+              {records.map((r) => (
+                <label key={r.stageId} className={pick === r.stageId ? "on" : ""}>
+                  <input type="radio" name="q" checked={pick === r.stageId} onChange={() => setPick(r.stageId)} />
+                  <span>
+                    <span className="draft-tag">
+                      {r.stageTitle} · draft
+                    </span>
+                    <br />
+                    {r.question.text}
+                    {r.personalAction && <span className="note">Personal step: {r.personalAction}</span>}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="row" style={{ marginTop: 14 }}>
+              <button className="btn green" onClick={copy} disabled={!chosen}>
+                📋 Copy question + sources
+              </button>
+              <a className="btn blue" href={ELECTION_HUB.url} target="_blank" rel="noreferrer">
+                City election hub ↗
+              </a>
+              {copied === "ok" && <span className="yes">Copied!</span>}
+              {copied === "fail" && <span className="no">Couldn&apos;t copy. Select the text above instead.</span>}
+            </div>
+            <p className="small muted" style={{ marginTop: 10 }}>
+              Draft questions are a starting point, not an endorsement of any candidate or a prediction of any outcome.
+            </p>
+          </div>
+        </>
+      )}
+
+      <div>
+        <button className="btn" onClick={onRestart}>
+          ▶ Play again
         </button>
       </div>
-    </section>
-  );
-}
-
-function Final(props: { score: number; best: number; max: number; history: PickResult[]; onRestart: () => void }) {
-  const { score, best, max, history, onRestart } = props;
-  const correct = history.filter((h) => h.correct).length;
-  return (
-    <section className="final reveal">
-      <span className="rank">{rankFor(score, max)}</span>
-      <p className="big">{score}</p>
-      <p className="of">
-        out of {max} · {correct}/{history.length} best picks · your best {best}
-      </p>
-      <ol className="rounds">
-        {history.map((h, i) => (
-          <li key={i} className={outcome(h) === "best" ? "pass" : outcome(h) === "valid" ? "warn" : "fail"}>
-            <span>
-              Round {i + 1}: {h.correct ? "Best pick" : h.valid ? "Valid, not best" : "Broke a rule"}
-            </span>
-            <span>+{h.points}</span>
-          </li>
-        ))}
-      </ol>
-      <button className="btn big" onClick={onRestart}>
-        Play again
-      </button>
     </section>
   );
 }

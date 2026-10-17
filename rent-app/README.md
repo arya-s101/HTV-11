@@ -1,27 +1,25 @@
-# Toronto Rent Hunt (working name)
+# Toronto Rent Decisions (working title)
 
-A game. Each round gives you a renter (income, workplace, bedrooms needed, commute limit, priority) and six **fictional**
-listings. Pick the best one. If you're right, the game breaks down why it wins. If you're wrong, it explains why your
-pick loses and why the correct listing is correct. Points: 100 for the best pick, +20 for each correct answer in a row
-before it, 40 for a valid but not best pick, 0 for a pick that breaks a rule. A game is 5 rounds.
+> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../newmessage.txt` (PRD).
 
-**Rules** (`src/lib/game/engine.ts`): a listing is valid if rent + utilities ≤ 30% of gross monthly income, the TTC commute is
-within the limit, and it has at least the bedrooms needed. The best listing is the valid one with the lowest rent + utilities
-(or the shortest commute when the renter's priority is time). TTC fares are identical for every listing, so they never decide a round.
+An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
+through life stages. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
+the civic turn: you sort what you can verify yourself from what the City (or another government) controls. Each stage ends with a sourced,
+nonpartisan question for municipal candidates. The end screen collects your questions, shows a reasoning tracker, and lets you copy one question.
 
-**What's real:** listing rents are drawn within -18%/+15% of the CMHC October 2025 vacant-unit mean for that neighbourhood's
-survey zone. Commute minutes are real scheduled TTC times from that neighbourhood (see below). Names, streets and listings are made up and
-labelled as such.
+**Tier 1 is built:** character creator (6 layers, age picker, demo preset), Stage 1 Student, Stage 2 First job, and the end screen.
+Stages 3–6 show "coming soon" because their civic levers don't have an official source yet (PRD §5).
 
-**How rounds work** (`src/lib/game/generate.ts`): rounds are deterministic from `(seed, round)`. The generator keeps sampling until
-a round has one clear winner (≥$40 or ≥4 min ahead), at least two different kinds of rule-breaking, and a "lure" that
-looks better at first glance. The server re-derives the answer, so the browser never sees it before you pick.
-`GET /api/game/round?seed=&round=` returns the round, and `POST /api/game/answer {seed, round, listingId, streak}` returns
-the judgement.
+**Difficulty (Easy / Normal / Hard)** changes how information is shown, never what is true. Easy shows plain line items. Normal hides
+costs in listing text. Hard uses lease-style fine print, route legs instead of minutes, and a raw CMHC table the player reads. The reasoning
+score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 
-The original area screener is still available at `/explore` (`POST /api/recommend`).
+**Optional landlord negotiation:** code decides the deal (`src/game/negotiate.ts`). Gemini only writes the landlord's words and is
+validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`, and always for the demo preset,
+a scripted landlord is used. Copy `.env.example` to `.env.local` to enable Gemini (optional).
+Starting at age 26 or older therefore can't be played yet, and the creator explains why.
 
-## Run it (Node 20+; no Java, Python or API keys needed)
+## Run it (Node 20+; no Java, Python or API keys needed; Gemini key optional)
 
 ```bash
 cd rent-app
@@ -32,29 +30,35 @@ npm run dev          # http://localhost:3000
 Checks (all verified passing 2026-10-17). Don't run plain `npm run build` while `npm run dev` is running: both write to `.next/`, and the dev page breaks (404s on JS/CSS).
 
 ```bash
-npm test             # vitest unit tests: 28 pass
+npm test             # vitest unit tests: 40 pass
 npm run typecheck    # tsc --noEmit
 npm run lint
 npm run build:check  # production build into .next-check/; safe while `npm run dev` is running
-npm run scenario     # prints real-data scenarios (no-match, cap change, limit change)
+npm run build:evidence  # rebuild data/game/evidence.json from raw downloads (maintainers)
 ```
 
 ## How it works
 
-- `data/snapshots/*.json`: normalized source snapshots, committed. The app reads only these.
-- `src/lib/calc.ts`: pure money and time functions (integer cents, income basis, burden, TTC fare cap, gaps).
-- `src/lib/recommend.ts`: validates input and screens all 158 neighbourhoods. Each one is classified as feasible, misses-housing, misses-commute, misses-both, or unknown. Unknown can never pass.
-- `src/lib/explain.ts`: a deterministic plain-language summary built only from computed numbers. It is also the future fallback if Gemini fails.
-- `POST /api/recommend` takes the input and returns the result. `GET /api/recommend` lists the destinations and the departure window.
+| Path | What |
+|---|---|
+| `data/game/stages.json` | **Fictional** personas, offers, rents, utilities, commutes, reveals and civic cards (all `illustrative`) |
+| `data/game/evidence.json` | **Real** observations per neighbourhood (CMHC zone rent, 2021 Census tenant burden and median shelter cost), each a `Field` with unit, geography, reference period, source URL, status and source cell. Generated by `scripts/build-game-evidence.ts`; never edit it by hand. |
+| `data/game/levers.json` | Civic levers with jurisdiction and official sources; fare rule; election hub. A stage only ships if its lever is `sourced`. |
+| `data/SOURCES.md` | Every URL, the fields used and the retrieval date |
+| `src/game/calc.ts` | Pure maths: monthly income, burden, fare with the 47-trip cap and post-secondary pass, commute hours. Integer cents; time is never converted to money. |
+| `src/game/outcome.ts` | Consequence numbers, each with a status. Takes the character as input, and tests prove appearance changes nothing. |
+| `src/game/civic.ts` | Sorting feedback with jurisdiction explanations and source links |
+| `src/game/question.ts` | Deterministic draft question from your choice, the lever and the evidence. No AI. |
+| `src/game/sprite.ts` | Original 16×24 layered pixel sprite |
+| `src/game/life.ts` | Starting age → stage; ages at later stages |
+| `src/game/score.ts` | Reasoning score; difficulty multiplier |
+| `src/game/negotiate.ts` | Deterministic negotiation engine, scripted landlord lines, validation of LLM output |
+| `data/game/negotiation.json`, `src/server/negotiation.ts`, `src/app/api/negotiate/route.ts` | **Server-only** hidden landlord configs, the Gemini call (key never sent to the browser), and the API route that replays the player's messages |
+| `src/components/`, `src/app/page.tsx` | UI (client); the only server code is the negotiation route |
 
-### Data and what each number means
-
-| Snapshot | Source | Caveat |
-|---|---|---|
-| `cmhc-rents-2025.json` | CMHC Rental Market Survey, Toronto 2025, Table 1.1.9. Vacant and occupied private-apartment mean rents by zone and bedroom count, October 2025. Each value keeps its quality grade and source cell. | These are survey-zone means, not neighbourhood prices or current listings. `**` (suppressed) is kept as `null`, never zero. Rents may include some utilities, depending on the lease. |
-| `neighbourhoods.json` | City of Toronto Neighbourhoods (158), assigned to a CMHC survey zone by largest area overlap. | **Provisional:** the zone polygons are CMHC's 2026 geography layer, but the 2025 tables use 2021 census zone definitions. 153/158 neighbourhoods are ≥90% inside one zone. The other 5 straddle zones and are flagged in the UI. |
-| `travel-times.json` | r5py 1.1.7 (Conveyal R5) on the TTC GTFS (feed valid 2026-09-30 to 10-31) plus the OpenStreetMap walk network. Trips leave from each neighbourhood's representative point to 5 preset destinations. Departures are every minute from Wed 2026-10-21 07:30 for 60 min; the snapshot stores p25, p50 and p75. | Scheduled service only: no delays or disruptions. One origin point per neighbourhood. Only the preset destinations are supported. |
-| TTC fares (`calc.ts`) | ttc.ca/Fares-and-passes, checked 2026-10-16: $3.30 adult PRESTO or contactless, free transfers within 2 hours, 47-fare monthly cap. | Assumes one payment method. Every area gets the same fare, so a shorter trip saves time, not dollars. |
+Older pipeline (kept for provenance): `scripts/import-sources.ts` builds `data/snapshots/` (CMHC zones and rents, neighbourhood→zone
+assignment), and `scripts/routing/precompute_travel_times.py` (r5py) builds `travel-times.json`. Those times are only a cross-check;
+the game labels commutes illustrative.
 
 ### Refreshing source data (optional, maintainers only)
 
@@ -67,7 +71,8 @@ curl -L -o cmhc-toronto-2025.xlsx "https://assets.cmhc-schl.gc.ca/sites/cmhc/pro
 curl -L -o zones-all.geojson "https://geospatial.cmhc-schl.gc.ca/server/rest/services/CMHC_APPS/HMIP_CURRENT_CAWD/FeatureServer/2/query?where=metropolitan_major_area_cde%3D%272270%27&outFields=*&outSR=4326&f=geojson"
 mv zones-all.geojson cmhc-toronto-zones.geojson
 curl -L -o ttc-gtfs.zip "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7795b45e-e65a-4465-81fc-c36b9dfff169/resource/cfb6b2b8-6191-41e3-bda1-b175c51148cb/download/opendata_ttc_schedules.zip"
-cd ../.. && npm run import:sources
+curl -L -o nbhd-profiles-2021.xlsx "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/6e19a90f-971c-46b3-852c-0c48c436d1fc/resource/19d4a806-7385-4889-acf2-256f1e079060/download/nbhd_2021_census_profile_full_158model.xlsx"
+cd ../.. && npm run import:sources && npm run build:evidence
 ```
 
 To recompute travel times (one machine only), you need Java 21 (`brew install openjdk@21`), Python 3.12 with `r5py`, and an

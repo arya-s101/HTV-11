@@ -1,0 +1,58 @@
+{
+  "_note": "SERVER-ONLY hidden negotiation config (imported only by the API route and tests, never by client code). Landlords, concessions and personalities are fictional. Floors and steps come from difficulty rules in src/game/negotiate.ts; code decides every deal.",
+  "offers": {
+    "s1-a": {
+      "landlord": "Dev, the head tenant",
+      "persona": "A friendly grad student who manages the house lease and wants a reliable housemate.",
+      "concessions": [
+        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false },
+        { "id": "furnished-desk", "label": "A desk and chair left in the room", "monetary": false }
+      ]
+    },
+    "s1-b": {
+      "landlord": "Ms. Okafor",
+      "persona": "A practical owner who rents rooms in her apartment and values quiet, tidy tenants.",
+      "concessions": [
+        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false },
+        { "id": "storage", "label": "A storage locker", "monetary": false }
+      ]
+    },
+    "s1-c": {
+      "landlord": "Mr. Tran",
+      "persona": "A homeowner renting out a newly finished basement for the first time; careful and a little nervous.",
+      "concessions": [
+        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
+        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false }
+      ]
+    },
+    "s2-a": {
+      "landlord": "Northgate Property Management",
+      "persona": "A busy rental office for a large older building; polite, procedural and short on time.",
+      "concessions": [
+        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
+        { "id": "fresh-paint", "label": "Fresh paint before move-in", "monetary": false }
+      ]
+    },
+    "s2-b": {
+      "landlord": "Priya, the owner",
+      "persona": "An owner of a few units in a newer mid-rise who likes long-term tenants and dislikes vacancies.",
+      "concessions": [
+        { "id": "laundry-waived", "label": "In-suite laundry at no extra charge", "monetary": false },
+        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false }
+      ]
+    },
+    "s2-c": {
+      "landlord": "Marco, the condo owner",
+      "persona": "An investor-owner of one condo unit who watches the market closely and wants it rented fast.",
+      "concessions": [
+        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
+        { "id": "parking", "label": "A parking spot", "monetary": false }
+      ]
+    }
+  },
+  "legalHelp": {
+    "title": "Government of Ontario: Renting in Ontario: your rights",
+    "url": "https://www.ontario.ca/page/renting-ontario-your-rights",
+    "retrievedOn": "2026-10-17"
+  }
+}
