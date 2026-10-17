@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import statsJson from "../../data/stats.json";
 import { MODES } from "../config/modes";
-import { DEMO_SEED, eventsFor, J } from "./journey";
+import { DEMO_SEED, J } from "./journey";
+import { planRun, TEMPLATES } from "./questions";
 import { formatStat, statFor, STATS } from "./stats";
 
 describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
@@ -35,7 +36,7 @@ describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
     expect(statFor("no-such-question", [])).toBeNull();
   });
   it("every Base question with a sourced stat has a card", () => {
-    const base = ["listing:legit", "listing:scam", "verify", ...MODES.base.offerIds!.map((o) => `choose:${o}`), "movein", ...eventsFor(MODES.base.events, DEMO_SEED).flatMap((e) => [`event:${e.id}:action`, `event:${e.id}:level`])];
+    const base = ["listing:legit", "listing:scam", "verify", ...MODES.base.offerIds!.map((o) => `choose:${o}`), "movein", ...planRun(DEMO_SEED, "base").events.flatMap((id) => [`event:${id}:action`, `event:${id}:level`])];
     for (const q of base) expect(statFor(q, []), q).not.toBeNull();
   });
   it("cards point at questions that exist", () => {
@@ -48,7 +49,7 @@ describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
       "apply:rival",
       "movein",
       ...J.lease.clauses.map((c) => `lease:${c.id}`),
-      ...J.events.flatMap((e) => [`event:${e.id}:action`, `event:${e.id}:level`]),
+      ...TEMPLATES.filter((t) => t.round === "live").flatMap((t) => [`event:${t.id}:action`, `event:${t.id}:level`]),
       ...["s1-a", "s1-b", "s1-c", "s2-a", "s2-b", "s2-c"].map((o) => `choose:${o}`),
     ]);
     for (const c of STATS) expect(known, c.question_id).toContain(c.question_id);

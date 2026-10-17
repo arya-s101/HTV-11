@@ -1,31 +1,40 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Icon } from "@/components/icons";
+import { useEffect, useRef, useState } from "react";
 import { Legend, Sprite, TitleScene } from "@/components/pixel";
+import { play } from "@/components/audio";
+import { Multiplayer } from "@/components/Multiplayer";
+import { multiplayerEnabled } from "@/multiplayer/firebase";
 import { JourneyShow, type BaseCarry } from "@/components/show/JourneyShow";
 import { ShowSettingsProvider } from "@/components/show/settings";
 import { ScoreBox, StageView, type StageRecord } from "@/components/StageView";
 import { MODES, type Mode } from "@/config/modes";
-import { DEMO_SEED, newSeed } from "@/game/journey";
-import { PRESETS, presetProfession } from "@/game/career";
+import { prefetchScenarios, batchesFor } from "@/components/show/scenarios";
+import { DEMO_SEED, listingsFor, newSeed } from "@/game/journey";
+import Link from "next/link";
+import { loadCharacter, loadDifficulty } from "@/game/character-store";
+import { DifficultyPicker } from "@/components/CharacterCreator";
+import { loadProfile, saveProfile, scenarioProfile, WORKPLACES, type Profile } from "@/game/profile";
+import { loadRecent, planIds, planRun, rememberGame, type RunPlan, type ScenarioMap } from "@/game/questions";
 import { ELECTION_HUB, STAGES } from "@/game/data";
 import { money } from "@/game/outcome";
-import { DEFAULT_AGE, MAX_AGE, MIN_AGE, planLife, stageForAge, type LifePlan } from "@/game/life";
+import { DEFAULT_AGE, planLife, type LifePlan } from "@/game/life";
 import { DIFFICULTY_INFO } from "@/game/score";
-import type { Difficulty } from "@/game/types";
-import {
-  ACCESSORIES,
-  DEMO_CHARACTER,
-  HAIR_COLOR,
-  HAIR_STYLES,
-  OUTFIT_COLOR,
-  OUTFITS,
-  SKIN,
-  type Appearance,
-  type Character,
-} from "@/game/sprite";
+import type { Difficulty, PlayableStage } from "@/game/types";
+import { DEMO_CHARACTER, type Character } from "@/game/sprite";
 
-type Screen = "title" | "create" | "stage" | "between" | "end";
+type Screen = "title" | "create" | "stage" | "between" | "end" | "party";
+
+const JOURNEY_STAGE = STAGES.find((s) => s.journey)! as PlayableStage;
+
+/** Code-owned values for scenario placeholders: only what the player chose to tell us. */
+function scenarioValues(p: Profile): Record<string, string> {
+  return {
+    work: p.workplace ? WORKPLACES.find((w) => w.id === p.workplace)!.label.replace(/ \(.*\)$/, "") : "work",
+    place: p.nearbyOther ?? p.nearby?.[0]?.replace(/^A |^My /, "").toLowerCase() ?? "",
+  };
+}
 
 export default function Game() {
   const [screen, setScreen] = useState<Screen>("title");
@@ -39,17 +48,96 @@ export default function Game() {
   const [seed, setSeed] = useState(DEMO_SEED);
   const [mode, setMode] = useState<Mode>("base");
   const [carry, setCarry] = useState<BaseCarry | undefined>(undefined);
+  // This game's questions (PRD v4 Change 2): planned by code from the seed; scenarios arrive in the background.
+  const [run, setRun] = useState<RunPlan>(() => planRun(DEMO_SEED, "base"));
+  const [scenarios, setScenarios] = useState<ScenarioMap>({});
+  const [profile, setProfile] = useState<Profile>({});
+  const runToken = useRef(0);
+  const fetchedFor = useRef("");
+  // The character is made on /character and shared by single-player and multiplayer games.
+  const [saved, setSaved] = useState<Character | null>(null);
+  useEffect(() => {
+    const c = loadCharacter();
+    const p = loadProfile();
+    setSaved(c);
+    setProfile(p);
+    setDifficulty(loadDifficulty());
+    if (c) setCharacter(c);
+    const s = newSeed();
+    setSeed(s);
+    // Coming back from the character page with "Play", "Extended" or "Multiplayer"; otherwise plan the next Base
+    // game now, so its scenes are ready by round 1.
+    const next = new URLSearchParams(window.location.search).get("play");
+    if (c && (next === "base" || next === "extended" || next === "party")) {
+      window.history.replaceState(null, "", "/");
+      startGame(next, c, s, p);
+    } else prepare("base", s, { character: c ?? character, profile: p });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Starts a game with the saved character; without one, the character page comes first. */
+  function startGame(choice: Mode | "party", c: Character | null = saved, s0?: number, p: Profile = profile) {
+    if (!c) {
+      window.location.href = "/character";
+      return;
+    }
+    if (choice === "party") {
+      setScreen("party");
+      top();
+      return;
+    }
+    // Reuse the plan already being prefetched when it matches; otherwise plan this mode now.
+    const s = s0 ?? (choice === "base" && run.seed === seed ? seed : newSeed());
+    setSeed(s);
+    const r = s0 === undefined && choice === "base" && s === run.seed ? run : prepare(choice, s, { character: c, profile: p });
+    rememberGame(planIds(r));
+    begin(c, false, choice);
+  }
 
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  /** Plans a game for (mode, seed) and, unless it's the demo, starts fetching fresh scenarios for it. */
+  function prepare(m: Mode, s: number, opts: { demo?: boolean; exclude?: string[]; character?: Character; profile?: Profile } = {}) {
+    const p = opts.profile ?? profile;
+    const r = planRun(s, m, opts.demo ? [] : loadRecent(), opts.exclude, opts.demo ? {} : { newcomer: p.background === "newcomer" || p.background === "international-student" });
+    runToken.current++;
+    fetchedFor.current = "";
+    setRun(r);
+    setScenarios({});
+    if (!opts.demo) fetchScenarios(r, m, opts.character ?? character, opts.profile ?? profile);
+    return r;
+  }
+  /** One request per round; skipped when the same plan and profile were already requested. Fallbacks cover any gap. */
+  function fetchScenarios(r: RunPlan, m: Mode, c: Character, p: Profile) {
+    const key = `${runToken.current}|${c.profession.id}|${JSON.stringify(p)}`;
+    if (fetchedFor.current === key) return;
+    fetchedFor.current = key;
+    const cfg = MODES[m];
+    const listingIds = listingsFor(JOURNEY_STAGE, difficulty, r.seed, cfg.listings).map((l) => l.id);
+    const offerIds = cfg.offerIds ?? JOURNEY_STAGE.offers.map((o) => o.id);
+    const batches = batchesFor(r, listingIds, offerIds, [...cfg.rounds, ...(cfg.scamReport ? ["scamReport"] : [])]);
+    const token = runToken.current;
+    void prefetchScenarios(batches, scenarioProfile(c.profession.label, p), (items) => {
+      if (runToken.current === token) setScenarios((prev) => ({ ...prev, ...items }));
+    });
+  }
 
   function begin(c: Character, isDemo = false, m: Mode = mode, from?: BaseCarry) {
     setDemo(isDemo);
     setMode(m);
     setCarry(from);
-    setSeed(isDemo ? DEMO_SEED : from ? seed : newSeed());
-    if (isDemo) setDifficulty("easy");
+    if (isDemo) {
+      // The demo preset is reproducible: fixed seed, reviewed fallback scenarios only, no API calls.
+      setSeed(DEMO_SEED);
+      prepare("base", DEMO_SEED, { demo: true });
+      setDifficulty("easy");
+    } else if (from) {
+      // Extended after Base: same character and seed, new questions for the rounds already played.
+      prepare("extended", seed, { exclude: from.played, character: c });
+    }
     // The Base game is Stage 2 (First job) only; Extended follows the age-based life plan.
-    const full = planLife(m === "base" ? DEFAULT_AGE : c.startAge);
+    const [lo, hi] = JOURNEY_STAGE.ageRange;
+    const full = planLife(m === "base" ? Math.min(hi, Math.max(lo, c.startAge)) : c.startAge);
     const p = m === "base" ? { ...full, playable: full.playable.filter((x) => x.stage.journey).slice(0, 1) } : full;
     setCharacter(c);
     setPlan(p);
@@ -74,35 +162,26 @@ export default function Game() {
   const current = plan?.playable[index];
 
   return (
-    <div className="game">
+    // Every button in the game gives a subtle tap sound (PRD v4 Change 1); answers add their own effect on top.
+    <div className="game" onClickCapture={(e) => (e.target as HTMLElement).closest("button:not(:disabled)") && play("tap")}>
       {(screen === "stage" || screen === "between" || screen === "end") && plan && !current?.stage.journey && (
         <Hud character={character} age={current?.age ?? character.startAge} stageTitle={screen === "end" ? "Life summary" : current?.stage.title ?? ""} stageId={current?.stage.id} difficulty={difficulty} onQuit={() => { setScreen("title"); top(); }} />
       )}
 
       {screen === "title" && (
         <TitleScreen
-          onNew={(m) => {
-            setMode(m);
-            setCharacter({ ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE });
-            setScreen("create");
-            top();
-          }}
+          character={saved}
+          onNew={startGame}
           onDemo={() => begin(DEMO_CHARACTER, true, "base")}
+          onParty={multiplayerEnabled() ? () => startGame("party") : undefined}
         />
       )}
 
-      {screen === "create" && (
-        <Creator
-          mode={mode}
-          setMode={setMode}
-          character={character}
-          setCharacter={setCharacter}
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          onBack={() => { setScreen("title"); top(); }}
-          onStart={() => begin({ ...character, name: character.name.trim() || "Player" })}
-        />
+      {screen === "party" && (
+        // Multiplayer is behind a feature flag (PRD v4 Change 5); single-player never depends on it.
+        <Multiplayer sprite={(saved ?? character).appearance} name={(saved ?? character).name} onExit={() => (setScreen("title"), top())} />
       )}
+
 
       {(screen === "stage" || screen === "between") && plan && current && (
         <>
@@ -114,6 +193,14 @@ export default function Game() {
                 key={`${current.stage.id}-${seed}-${mode}`}
                 mode={mode}
                 carry={carry}
+                plan={run}
+                scenarios={scenarios}
+                values={scenarioValues(profile)}
+                profile={demo ? {} : profile}
+                onProfile={(p) => {
+                  setProfile(p);
+                  saveProfile(p);
+                }}
                 onExtended={(from) => begin(character, false, "extended", from)}
                 stage={current.stage}
                 age={current.age}
@@ -122,8 +209,11 @@ export default function Game() {
                 seed={seed}
                 scriptedLandlord={demo}
                 onReplay={() => {
+                  const s = demo ? DEMO_SEED + Math.floor(Math.random() * 1000) + 1 : newSeed();
                   setCarry(undefined);
-                  setSeed(newSeed());
+                  setSeed(s);
+                  const r = prepare(mode, s, { demo });
+                  if (!demo) rememberGame(planIds(r));
                   top();
                 }}
                 onQuit={() => {
@@ -160,7 +250,7 @@ export default function Game() {
 
       {screen === "end" && plan && <EndScreen character={character} plan={plan} records={records} skipped={skipped} onRestart={() => { setScreen("title"); top(); }} />}
 
-      {screen !== "title" && !(screen === "stage" && current?.stage.journey) && (
+      {screen !== "title" && screen !== "party" && !(screen === "stage" && current?.stage.journey) && (
         <div className="panel legend-bar">
           <Legend />
         </div>
@@ -196,7 +286,7 @@ function Hud(props: { character: Character; age: number; stageTitle: string; sta
   );
 }
 
-function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () => void }) {
+function TitleScreen({ character, onNew, onDemo, onParty }: { character: Character | null; onNew: (m: Mode) => void; onDemo: () => void; onParty?: () => void }) {
   const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
   return (
     <div className="home">
@@ -212,7 +302,7 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
           </p>
           <div className="row">
             <button className="btn big" onClick={() => onNew("base")}>
-              ▶ Play
+              <Icon name="play" /> Play
             </button>
             <button className="btn blue big" onClick={() => onNew("extended")}>
               Extended game
@@ -220,6 +310,11 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
             <button className="btn ghost" onClick={onDemo}>
               Demo preset
             </button>
+            {onParty && (
+              <button className="btn ghost" onClick={onParty}>
+                <Icon name="users" /> Multiplayer
+              </button>
+            )}
           </div>
           <p className="small on-dark">
             Play: {MODES.base.blurb} Extended: {MODES.extended.blurb} No sign-up · nonpartisan
@@ -228,6 +323,23 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
         <div className="hero-art">
           <TitleScene />
           <p className="pixel blink press">Press start</p>
+        <div className="char-card">
+          {character ? (
+            <>
+              <Sprite appearance={character.appearance} scale={3} />
+              <span>
+                Playing as <b>{character.name || "Player"}</b>, {character.startAge}
+              </span>
+              <Link className="btn ghost small" href="/character">
+                Edit character
+              </Link>
+            </>
+          ) : (
+            <Link className="btn ghost small" href="/character">
+              <Icon name="user" /> Create your character first
+            </Link>
+          )}
+        </div>
         </div>
       </section>
 
@@ -254,258 +366,6 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
           <p>Every stage ends with a neutral, sourced question for municipal candidates, built from your own choices.</p>
         </article>
       </section>
-    </div>
-  );
-}
-
-function DifficultyPicker({ value, onChange }: { value: Difficulty; onChange: (d: Difficulty) => void }) {
-  return (
-    <div className="field">
-      <h3>Difficulty</h3>
-      <div className="seg">
-        {(["easy", "normal", "hard"] as Difficulty[]).map((d) => (
-          <button key={d} className={`choice ${d === value ? "on" : ""}`} onClick={() => onChange(d)} aria-pressed={d === value}>
-            {DIFFICULTY_INFO[d].label}
-          </button>
-        ))}
-      </div>
-      <p className="small muted">{DIFFICULTY_INFO[value].blurb} It changes how information is shown, never what is true.</p>
-    </div>
-  );
-}
-
-const NAMES = ["Sam", "Priya", "Jordan", "Mei", "Alex", "Tariq", "Riley", "Ana", "Kofi", "Noor"];
-
-type SetCharacter = React.Dispatch<React.SetStateAction<Character>>;
-
-/** `llm` false (Base game): handwritten paths only, no API call. */
-function ProfessionPicker({ character, setCharacter, llm }: { character: Character; setCharacter: SetCharacter; llm: boolean }) {
-  const [custom, setCustom] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const latest = useRef(0);
-  const p = character.profession;
-
-  /** Asks the server for a fresh path; only the most recent request may update the character. */
-  async function request(body: { presetId: string } | { profession: string }) {
-    const ticket = ++latest.current;
-    setBusy(true);
-    setMsg("Writing a job path…");
-    try {
-      const res = await fetch("/api/career", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      const data = await res.json();
-      if (ticket !== latest.current) return;
-      if (!res.ok) throw new Error(data.error ?? "Couldn't build a job path");
-      setCharacter((c) => ({ ...c, profession: data.profession }));
-      setMsg(
-        data.profession.source === "llm"
-          ? "Job path written by Gemini (story only)."
-          : data.profession.source === "preset"
-            ? `Using the handwritten path (${data.fallbackReason}).`
-            : `Used a simple template (${data.fallbackReason}).`,
-      );
-    } catch (e) {
-      if (ticket === latest.current) setMsg(e instanceof Error ? e.message : "Couldn't build a job path");
-    } finally {
-      if (ticket === latest.current) setBusy(false);
-    }
-  }
-
-  function pickPreset(id: string) {
-    // Show the handwritten path at once, then let Gemini replace it with a fresh one.
-    setCharacter((c) => ({ ...c, profession: presetProfession(id) }));
-    if (llm) request({ presetId: id });
-  }
-
-  return (
-    <div className="field">
-      <h3>Starting profession</h3>
-      <div className="row" style={{ gap: 4 }}>
-        {PRESETS.map((x) => (
-          <button key={x.id} className={`choice ${p.id === x.id ? "on" : ""}`} onClick={() => pickPreset(x.id)} aria-pressed={p.id === x.id}>
-            {x.label}
-          </button>
-        ))}
-      </div>
-      {llm && (
-        <form
-          className="row"
-          style={{ marginTop: 8 }}
-          onSubmit={(e) => {
-            e.preventDefault();
-            request({ profession: custom });
-          }}
-        >
-          <input className="field-input" value={custom} maxLength={40} placeholder="Other: e.g. pharmacist" onChange={(e) => setCustom(e.target.value)} aria-label="Custom profession" />
-          <button className="btn blue small" disabled={busy || custom.trim().length < 2}>
-            {busy ? "Writing…" : "Generate job path"}
-          </button>
-        </form>
-      )}
-      {msg && <p className="small">{msg}</p>}
-      <ol className="path">
-        {STAGES.map((s) => {
-          const w = p.source === "preset" ? p.work?.[s.id] : undefined;
-          return (
-            <li key={s.id} className={s.enabled ? "" : "soon"}>
-              <span className="pixel">{s.title}</span> {p.path[s.id]?.title}
-              {w && (
-                <span className="small muted">
-                  {" "}
-                  · {money(w.income.amountCents)}/{w.income.period === "annual" ? "yr" : "mo"} {w.income.basis} · {w.commuteDaysPerMonth} commute days/mo
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-      <p className="note">
-        {p.source === "preset"
-          ? "Each preset job sets its own illustrative income and commute days. Offers, evidence and scoring stay the same for everyone."
-          : "A custom job shapes the story only: it uses the stage's default income and commute days, because AI never sets numbers."}
-      </p>
-    </div>
-  );
-}
-
-function Creator(props: {
-  mode: Mode;
-  setMode: (m: Mode) => void;
-  character: Character;
-  setCharacter: SetCharacter;
-  difficulty: Difficulty;
-  setDifficulty: (d: Difficulty) => void;
-  onBack: () => void;
-  onStart: () => void;
-}) {
-  const { mode, setMode, character, setCharacter, difficulty, setDifficulty, onBack, onStart } = props;
-  const base = mode === "base";
-  const a = character.appearance;
-  const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
-  const plan = planLife(character.startAge);
-  const start = stageForAge(character.startAge);
-  const randomize = () =>
-    setCharacter({
-      ...character,
-      name: character.name || NAMES[Math.floor(Math.random() * NAMES.length)],
-      appearance: {
-        ...a,
-      skin: Math.floor(Math.random() * SKIN.length),
-      hairStyle: HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)],
-      hairColor: Math.floor(Math.random() * HAIR_COLOR.length),
-      outfit: OUTFITS[Math.floor(Math.random() * OUTFITS.length)],
-      outfitColor: Math.floor(Math.random() * OUTFIT_COLOR.length),
-      accessory: ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)],
-      },
-    });
-
-  return (
-    <div className="page">
-      <header className="page-head">
-        <span className="eyebrow">New game · {MODES[mode].label}</span>
-        <h1>{base ? "Quick character" : "Create your character"}</h1>
-        <div className="row quick-start">
-          <button className="btn big" disabled={plan.playable.length === 0 && !base} onClick={onStart}>
-            ▶ Start
-          </button>
-          <button className="btn ghost" onClick={randomize}>
-            🎲 Randomize
-          </button>
-          <button className="btn ghost small" onClick={() => setMode(base ? "extended" : "base")}>
-            Switch to {base ? MODES.extended.label : MODES.base.label}
-          </button>
-        </div>
-        {base && <p className="small">Everything below is optional. The Base game makes no AI or API calls.</p>}
-      </header>
-      <section className="creator">
-        <aside className="paper stage-preview">
-          <div className="sprite-frame">
-            <Sprite appearance={a} scale={10} />
-          </div>
-          <div className="pixel" style={{ fontSize: "0.7rem" }}>
-            {character.name.trim() || "Player"}, {character.startAge}
-          </div>
-          <div className="small">{character.profession.path[start.id]?.title ?? character.profession.label}</div>
-          <button className="btn ghost small" onClick={randomize}>
-            🎲 Randomize
-          </button>
-          <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
-          <div className="preview-actions">
-            <button className="btn big" disabled={plan.playable.length === 0 && !base} onClick={onStart}>
-              ▶ Start
-            </button>
-            <button className="btn ghost small" onClick={onBack}>
-              Back
-            </button>
-          </div>
-        </aside>
-
-        <div className="options">
-          <fieldset className="paper group">
-            <legend>Who you are</legend>
-            <div className="field">
-              <h3>Name</h3>
-              <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
-            </div>
-            {!base && (
-              <div className="field">
-                <h3>Starting age: {character.startAge}</h3>
-                <input type="range" min={MIN_AGE} max={MAX_AGE} value={character.startAge} onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })} aria-label="Starting age" />
-                <p className="small">
-                  Starts at stage {start.order}: <b>{start.title}</b>.{" "}
-                  {plan.playable.length > 0
-                    ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
-                    : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
-                </p>
-              </div>
-            )}
-            <ProfessionPicker character={character} setCharacter={setCharacter} llm={MODES[mode].apiCalls} />
-          </fieldset>
-
-          <fieldset className="paper group">
-            <legend>Look</legend>
-            <Swatches label="Skin tone" colors={SKIN} value={a.skin} onPick={(i) => setA({ skin: i })} />
-            <Choices label="Hair style" options={HAIR_STYLES} value={a.hairStyle} onPick={(v) => setA({ hairStyle: v })} />
-            <Swatches label="Hair colour" colors={HAIR_COLOR} value={a.hairColor} onPick={(i) => setA({ hairColor: i })} />
-            <Choices label="Outfit" options={OUTFITS} value={a.outfit} onPick={(v) => setA({ outfit: v })} />
-            <Swatches label="Outfit colour" colors={OUTFIT_COLOR} value={a.outfitColor} onPick={(i) => setA({ outfitColor: i })} />
-            <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
-          </fieldset>
-
-          <fieldset className="paper group">
-            <legend>Game</legend>
-            <DifficultyPicker value={difficulty} onChange={setDifficulty} />
-          </fieldset>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function Swatches({ label, colors, value, onPick }: { label: string; colors: readonly string[]; value: number; onPick: (i: number) => void }) {
-  return (
-    <div>
-      <h3>{label}</h3>
-      <div className="row" style={{ gap: 12, paddingLeft: 4 }}>
-        {colors.map((c, i) => (
-          <button key={c} className={`swatch ${i === value ? "on" : ""}`} style={{ background: c }} onClick={() => onPick(i)} aria-label={`${label} ${i + 1}`} aria-pressed={i === value} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Choices<T extends string>({ label, options, value, onPick }: { label: string; options: readonly T[]; value: T; onPick: (v: T) => void }) {
-  return (
-    <div>
-      <h3>{label}</h3>
-      <div className="row" style={{ gap: 4 }}>
-        {options.map((o) => (
-          <button key={o} className={`choice ${o === value ? "on" : ""}`} onClick={() => onPick(o)} aria-pressed={o === value}>
-            {o}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
@@ -615,7 +475,7 @@ function Between(props: {
       <ScoreBox score={records[records.length - 1].score} />
       {next && <DifficultyPicker value={difficulty} onChange={setDifficulty} />}
       <button className="btn green" style={{ marginTop: 14 }} onClick={onNext}>
-        {next ? `Next stage: ${next.stage.title} ▶` : "Finish life ▶"}
+        {next ? `Next stage: ${next.stage.title}` : "Finish life"} <Icon name="chevron-right" />
       </button>
     </div>
   );
@@ -716,10 +576,10 @@ function EndScreen({ character, plan, records, skipped, onRestart }: { character
             </div>
             <div className="row" style={{ marginTop: 14 }}>
               <button className="btn green" onClick={copy} disabled={!chosen}>
-                📋 Copy question + sources
+                <Icon name="clipboard" /> Copy question + sources
               </button>
               <a className="btn blue" href={ELECTION_HUB.url} target="_blank" rel="noreferrer">
-                City election hub ↗
+                City election hub <Icon name="external-link" />
               </a>
               {copied === "ok" && <span className="yes">Copied!</span>}
               {copied === "fail" && <span className="no">Couldn&apos;t copy. Select the text above instead.</span>}
@@ -733,7 +593,7 @@ function EndScreen({ character, plan, records, skipped, onRestart }: { character
 
       <div>
         <button className="btn" onClick={onRestart}>
-          ▶ Play again
+          <Icon name="play" /> Play again
         </button>
       </div>
     </section>

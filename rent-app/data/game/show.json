@@ -41,7 +41,7 @@
     "lease": {
       "title": "Read the Fine Print",
       "intro": [
-        "No clock this round.",
+        "Take your time.",
         "Is each clause fine, or a problem?"
       ]
     },
@@ -98,20 +98,14 @@
     {
       "id": "hint",
       "name": "Ask Mustafa",
-      "icon": "💡",
+      "icon": "lightbulb",
       "help": "A hint for this question."
     },
     {
       "id": "magnify",
       "name": "Magnifier",
-      "icon": "🔍",
+      "icon": "zoom-in",
       "help": "Decodes one piece of fine print."
-    },
-    {
-      "id": "pass",
-      "name": "Free Pass",
-      "icon": "⏭",
-      "help": "Skip one question, no penalty."
     }
   ]
 }

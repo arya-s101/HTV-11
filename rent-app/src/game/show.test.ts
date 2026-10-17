@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import showJson from "../../data/game/show.json";
 import { evidenceFor, STAGES } from "./data";
 import { CONTENT, J, listingsFor } from "./journey";
+import { TEMPLATES } from "./questions";
 import { consequence } from "./outcome";
 import { buildCityQuestion, buildQuestion } from "./question";
 import { DEMO_CHARACTER } from "./sprite";
@@ -27,12 +28,12 @@ describe("game-show text rules (PRD v2 §5.10): ≤3 lines of ≤15 words outsid
   it("listings on Easy and Normal (Hard fine print is the deliberate exception)", () => {
     for (const d of ["easy", "normal"] as const) for (const l of listingsFor(firstJob, d, 1).concat(listingsFor(firstJob, d, 2))) ok(sentences(l.text), `${d} ${l.id}`);
   });
-  it("events, feedback and levels", () => {
-    for (const e of J.events) {
-      ok([e.text, "What do you do?"], e.id);
-      for (const a of e.actions) ok([a.label], `${e.id} action`);
-      for (const fb of Object.values(e.feedback as unknown as Record<string, string[]>)) ok(fb, `${e.id} feedback`);
-      ok([e.levelWhy], `${e.id} level`);
+  it("question templates: every fallback scenario fits with its prompt; options and reasons are one short line", () => {
+    for (const t of TEMPLATES) {
+      for (const f of t.fallback_scenarios) ok([...sentences(f), t.prompt], `${t.id} fallback`);
+      for (const o of [...t.correct_variants, ...t.distractors]) ok([o], `${t.id} option`);
+      if (t.level_why) ok([t.level_why], `${t.id} level`);
+      if (t.photos_matter) ok([t.photos_matter.with, t.photos_matter.without], `${t.id} photos`);
     }
   });
   it("apply, lease and move-out lines", () => {
@@ -40,7 +41,6 @@ describe("game-show text rules (PRD v2 §5.10): ≤3 lines of ≤15 words outsid
     for (const o of J.apply.rival.options) ok(o.outcome as unknown as string[], o.id);
     for (const d of J.apply.docs) ok([d.label], d.id);
     for (const c of J.lease.clauses) ok([c.plain, ...((c as { why?: string }).why ? [(c as { why?: string }).why!] : [])], c.id);
-    for (const fb of Object.values(J.moveOut.feedback as unknown as Record<string, string[]>)) ok(fb, "moveout");
   });
   it("move-in surprises and candidate-question asks", () => {
     for (const o of firstJob.offers) ok(o.reveal.lines, `${o.id} reveal`);
@@ -51,5 +51,17 @@ describe("game-show text rules (PRD v2 §5.10): ≤3 lines of ≤15 words outsid
   it("uses no real TV game-show names", () => {
     const all = JSON.stringify(showJson).toLowerCase();
     for (const banned of ["jeopardy", "wheel of fortune", "price is right", "let's make a deal", "family feud", "who wants to be a millionaire", "deal or no deal", "phone a friend"]) expect(all).not.toContain(banned);
+  });
+});
+
+describe("PRD v4 Change 3: no timers, unlimited skip", () => {
+  it("has no timer data or timer code left in the game", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const files = ["src/components/show", "src/game", "src/config"].flatMap((d) => readdirSync(d).filter((f) => /\.tsx?$/.test(f) && !f.endsWith(".test.ts")).map((f) => `${d}/${f}`));
+    for (const f of files) expect(readFileSync(f, "utf8"), f).not.toMatch(/useCountdown|TimerBadge|LISTING_SECONDS|timeout"/);
+    expect(JSON.stringify(J)).not.toMatch(/"seconds"/);
+  });
+  it("the limited Free Pass lifeline is gone; Skip replaces it", () => {
+    expect(showJson.lifelines.map((l) => l.id)).toEqual(["hint", "magnify"]);
   });
 });

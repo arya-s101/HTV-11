@@ -5,17 +5,14 @@ import {
   content,
   CONTENT,
   DEMO_SEED,
-  eventsFor,
   J,
   judgeListing,
   leaseFor,
-  levelCorrect,
   listingsFor,
-  photoOutcome,
   reportCard,
-  viewingQuestionsFor,
   type JourneyResult,
 } from "./journey";
+import { planRun, TEMPLATES } from "./questions";
 import { MODES } from "../config/modes";
 import { buildCityQuestion } from "./question";
 import type { PlayableStage } from "./types";
@@ -35,14 +32,12 @@ describe("content (PRD v2 §8): nothing ships without an official source", () =>
   it("every content id the journey uses exists", () => {
     const ids = [
       ...J.listings.flatMap((l) => l.redFlags),
-      ...J.viewing.questions.map((q) => q.contentId),
+      ...TEMPLATES.flatMap((t) => [t.content_id, ...(t.extra_content_ids ?? [])]),
       ...J.apply.docs.map((d) => d.contentId),
       J.apply.infoContentId,
       ...J.lease.clauses.map((c) => c.contentId).filter(Boolean),
       J.moveIn.contentId,
       J.moveIn.insuranceContentId,
-      ...J.events.flatMap((e) => [e.contentId, ...((e as { extraContentIds?: string[] }).extraContentIds ?? [])]),
-      J.moveOut.contentId,
       J.moveOut.depositContentId,
       "scam-report",
     ] as string[];
@@ -89,46 +84,38 @@ describe("phase 1: search", () => {
 });
 
 describe("phase 2 and 6: question rounds replace damage spotting (PRD v3 Change 2)", () => {
-  it("viewing questions have exactly one right answer, short feedback and a sourced teaching point", () => {
-    for (const q of J.viewing.questions) {
-      expect(q.options.filter((o) => (o as { correct?: boolean }).correct)).toHaveLength(1);
-      expect(q.options.length).toBeGreaterThanOrEqual(3);
-      expect(() => content(q.contentId)).not.toThrow();
-    }
-    expect(viewingQuestionsFor(DEMO_SEED, MODES.extended.viewingQuestions)).toHaveLength(MODES.extended.viewingQuestions);
-  });
-  it("the move-in question has one right answer (photograph everything) and feedback for every option", () => {
-    const q = J.moveIn.question;
-    expect(q.options.filter((o) => (o as { correct?: boolean }).correct).map((o) => o.id)).toEqual(["photos"]);
-    expect(Object.keys(q.feedback).sort()).toEqual(q.options.map((o) => o.id).sort());
+  it("Extended asks its viewing checks and Base its move-in question as multiple choice", () => {
+    const ext = planRun(DEMO_SEED, "extended");
+    expect(ext.viewing).toHaveLength(MODES.extended.viewingQuestions);
+    expect(planRun(DEMO_SEED, "base").viewing).toHaveLength(0);
+    expect(TEMPLATES.find((t) => t.id === ext.movein)!.receipt).toBe("photos");
   });
   it("no data is left for click-to-find mechanics", () => {
-    const j = J as unknown as Record<string, Record<string, unknown>>;
-    expect(j.viewing.issues).toBeUndefined();
-    expect(j.viewing.seconds).toBeUndefined();
+    const j = J as unknown as Record<string, unknown>;
+    expect(j.viewing).toBeUndefined();
+    expect(JSON.stringify(J)).not.toMatch(/issuesPerUnit|"seconds"/);
   });
 });
 
 describe("phase 7: events", () => {
-  it("Base plays one fixed event; Extended draws from the pool without repeats", () => {
-    expect(eventsFor(MODES.base.events, DEMO_SEED).map((e) => e.id)).toEqual(["leak"]);
-    const ext = eventsFor(MODES.extended.events, DEMO_SEED).map((e) => e.id);
-    expect(ext).toHaveLength(MODES.extended.events as number);
-    expect(new Set(ext).size).toBe(ext.length);
-    expect(eventsFor(MODES.extended.events, DEMO_SEED, ["leak"]).map((e) => e.id)).not.toContain("leak");
+  it("Base plays one repair event where move-in photos matter; Extended draws more, without repeats", () => {
+    for (const seed of [1, 2, 3, DEMO_SEED]) {
+      const base = planRun(seed, "base").events;
+      expect(base).toHaveLength(MODES.base.events);
+      expect(TEMPLATES.find((t) => t.id === base[0])!.photos_matter).toBeTruthy();
+      const ext = planRun(seed, "extended").events;
+      expect(ext).toHaveLength(MODES.extended.events);
+      expect(new Set(ext).size).toBe(ext.length);
+      expect(planRun(seed, "extended", [], base).events).not.toContain(base[0]);
+    }
   });
-  it("the Base event ends differently with and without move-in photos", () => {
-    const leak = J.events.find((e) => e.id === "leak")!;
-    expect(photoOutcome(leak, true)).toBeTruthy();
-    expect(photoOutcome(leak, false)).toBeTruthy();
-    expect(photoOutcome(leak, true)).not.toEqual(photoOutcome(leak, false));
+  it("the photos receipt changes how a damage event ends", () => {
+    for (const t of TEMPLATES.filter((x) => x.photos_matter)) expect(t.photos_matter!.with).not.toEqual(t.photos_matter!.without);
   });
-  it("every event asks who to contact and which level, with a source", () => {
-    for (const e of J.events) {
-      expect(e.actions.filter((a) => (a as { best?: boolean }).best)).toHaveLength(1);
-      expect(Object.keys(J.levels)).toContain(e.level);
-      expect(levelCorrect(e, e.level as never)).toBe(true);
-      expect(Object.keys(e.feedback).sort()).toEqual(e.actions.map((a) => a.id).sort());
+  it("every event names a level of government with a reason", () => {
+    for (const t of TEMPLATES.filter((x) => x.round === "live")) {
+      expect(Object.keys(J.levels)).toContain(t.level);
+      expect(t.level_why).toBeTruthy();
     }
   });
 });
@@ -147,7 +134,7 @@ describe("phase 5: lease", () => {
 describe("seeds", () => {
   it("are reproducible, and a new seed changes the run", () => {
     expect(listingsFor(firstJob, "easy", 7).map((l) => l.id)).toEqual(listingsFor(firstJob, "easy", 7).map((l) => l.id));
-    const run = (s: number) => JSON.stringify([viewingQuestionsFor(s, 3).map((q) => q.id), eventsFor(3, s).map((e) => e.id), leaseFor("s2-b", s, 1, "easy").map((c) => c.id)]);
+    const run = (s: number) => JSON.stringify([planRun(s, "extended"), leaseFor("s2-b", s, 1, "easy").map((c) => c.id)]);
     expect(run(7)).toEqual(run(7));
     const differs = [1, 2, 3, 4, 5].some((s) => run(s) !== run(99));
     expect(differs).toBe(true);

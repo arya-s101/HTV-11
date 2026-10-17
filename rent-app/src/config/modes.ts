@@ -18,25 +18,26 @@ export interface ModeConfig {
   revealIn: "viewing" | "movein";
   /** Ask about contents insurance at move-in. */
   insurance: boolean;
-  /** Events in Something Breaks: fixed ids, or a seeded draw of this many. */
-  events: string[] | number;
-  /** The Base game never calls an API (no LLM landlord, no generated job path). */
+  /** Events in Something Breaks / Life Happens. Base draws from the repair events where move-in photos matter. */
+  events: number;
+  /** Calls that need an LLM besides scenario variety: the haggling landlord and generated job paths (PRD v4: Base may vary scenarios but must work with zero calls). */
   apiCalls: boolean;
 }
 
 export const MODES: Record<Mode, ModeConfig> = {
   base: {
     label: "Base game",
-    blurb: "About 3 minutes. The vital lessons.",
-    rounds: ["search", "viewing", "movein", "live", "report"],
+    blurb: "About 4 minutes. The vital lessons, plus haggling.",
+    // Haggling is the flagship feature, so Base includes it; the first-month numbers follow the deal (move-in).
+    rounds: ["search", "viewing", "negotiate", "movein", "live", "report"],
     listings: { legit: 2, bad: 1, scamsOnly: true },
     offerIds: ["s2-a", "s2-b"],
     scamReport: false,
     viewingQuestions: 0,
-    revealIn: "viewing",
+    revealIn: "movein",
     insurance: false,
-    events: ["leak"],
-    apiCalls: false,
+    events: 1,
+    apiCalls: true, // the haggling landlord may use Gemini; a scripted landlord covers no key and the demo
   },
   extended: {
     label: "Extended game",

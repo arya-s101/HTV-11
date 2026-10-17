@@ -1,4 +1,5 @@
 // Small presentational pieces: the character sprite, number-with-status badges, and the title scene.
+import { Icon } from "@/components/icons";
 import { money } from "@/game/outcome";
 import { composeSprite, H, W, type Appearance } from "@/game/sprite";
 import type { Field, Status } from "@/game/types";
@@ -12,13 +13,13 @@ export function Sprite({ appearance, scale = 8, label }: { appearance: Appearanc
   );
 }
 
-const STATUS_TEXT: Record<Status, string> = { measured: "measured", derived: "derived", illustrative: "illustrative", unknown: "unknown" };
+const STATUS_TEXT: Record<Status, string> = { measured: "measured", derived: "derived", illustrative: "illustrative", unknown: "unknown", player_input: "your input" };
 
 export function Badge({ f }: { f: Pick<Field<unknown>, "status" | "geography" | "reference_period" | "source_url" | "source_ref"> }) {
   const title = [STATUS_TEXT[f.status], f.geography, f.reference_period, f.source_ref].filter(Boolean).join(" · ");
   return f.source_url ? (
     <a className={`badge ${f.status}`} href={f.source_url} target="_blank" rel="noreferrer" title={`${title} (open source)`}>
-      {STATUS_TEXT[f.status]} ↗
+      {STATUS_TEXT[f.status]} <Icon name="external-link" />
     </a>
   ) : (
     <span className={`badge ${f.status}`} title={title}>

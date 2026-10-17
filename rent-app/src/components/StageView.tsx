@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/icons";
 import { useMemo, useState } from "react";
 import { stageForProfession } from "@/game/career";
 import { CATEGORY_LABEL, judgeCivic, type CivicResult } from "@/game/civic";
@@ -120,7 +121,7 @@ export function StageView(props: {
             </div>
             <div className="row" style={{ marginTop: 16 }}>
               <button className="btn" onClick={() => go("Choose")}>
-                See the offers ▶
+                See the offers <Icon name="chevron-right" />
               </button>
               <button className="btn ghost small" onClick={onSkip}>
                 Skip this stage
@@ -254,12 +255,12 @@ export function StageView(props: {
             <ul className="plain">
               {chosen.unknowns.map((u) => (
                 <li key={u} className={flagged.includes(u) ? "yes" : "no"}>
-                  {flagged.includes(u) ? "✓ Flagged" : "✗ Missed"}: {VERIFY_ITEMS.find((v) => v.id === u)!.label.toLowerCase()}
+                  <Icon name={flagged.includes(u) ? "check" : "close"} /> {flagged.includes(u) ? "Flagged" : "Missed"}: {VERIFY_ITEMS.find((v) => v.id === u)!.label.toLowerCase()}
                 </li>
               ))}
               {difficulty === "hard" && (
                 <li className={commuteDecoded ? "yes" : "no"}>
-                  {commuteDecoded ? "✓ Decoded" : "✗ Not decoded"}: commute from route legs (you wrote {decoded[chosen.id] ? `${decoded[chosen.id]} min` : "nothing"}; the legs add up to{" "}
+                  <Icon name={commuteDecoded ? "check" : "close"} /> {commuteDecoded ? "Decoded" : "Not decoded"}: commute from route legs (you wrote {decoded[chosen.id] ? `${decoded[chosen.id]} min` : "nothing"}; the legs add up to{" "}
                   {chosen.commuteMinutes} min)
                 </li>
               )}
@@ -268,7 +269,7 @@ export function StageView(props: {
 
           {!revealed ? (
             <button className="btn blue" onClick={() => setRevealed(true)}>
-              Reveal something you didn&apos;t know ▶
+              Reveal something you didn&apos;t know <Icon name="chevron-right" />
             </button>
           ) : (
             <div className="reveal-box">
@@ -279,7 +280,7 @@ export function StageView(props: {
                   : c.offer.reveal.text}
               </p>
               <p className="small">
-                {flagged.includes(c.offer.reveal.id) ? "✓ You flagged this before choosing. Good instinct." : "✗ You didn't flag this before choosing. Now you know to ask."}{" "}
+                <Icon name={flagged.includes(c.offer.reveal.id) ? "check" : "close"} /> {flagged.includes(c.offer.reveal.id) ? "You flagged this before choosing. Good instinct." : "You didn't flag this before choosing. Now you know to ask."}{" "}
                 <Badge f={ILLUS} />
               </p>
               {c.offer.reveal.id === "rent-control" && (
@@ -289,7 +290,7 @@ export function StageView(props: {
                 </p>
               )}
               <button className="btn" onClick={() => go("Evidence")}>
-                See the Toronto evidence ▶
+                See the Toronto evidence <Icon name="chevron-right" />
               </button>
             </div>
           )}
@@ -339,7 +340,7 @@ export function StageView(props: {
               </div>
               {tablePick && (
                 <p className={tableRead ? "yes" : "no"}>
-                  {tableRead ? "✓ Right cell." : `✗ Not quite: it's the ${Number(ev.zone.code)} row, ${BED_WORD[chosen.cmhcBedroom]} column (highlighted).`}
+                  <Icon name={tableRead ? "check" : "close"} /> {tableRead ? "Right cell." : `Not quite: it's the ${Number(ev.zone.code)} row, ${BED_WORD[chosen.cmhcBedroom]} column (highlighted).`}
                 </p>
               )}
             </div>
@@ -366,7 +367,7 @@ export function StageView(props: {
             </div>
           )}
           <button className="btn" disabled={difficulty === "hard" && !tablePick} onClick={() => go("Civic turn")}>
-            Who can change this? ▶
+            Who can change this? <Icon name="chevron-right" />
           </button>
         </div>
       )}
@@ -398,7 +399,7 @@ export function StageView(props: {
                 </div>
                 {fb && (
                   <div className={`verdict ${fb.correct ? "ok" : "bad"}`}>
-                    <b>{fb.correct ? "✓ " : `✗ It's “${CATEGORY_LABEL[fb.card.correct]}”. `}</b>
+                    <b><Icon name={fb.correct ? "check" : "close"} /> {fb.correct ? "" : `It's “${CATEGORY_LABEL[fb.card.correct]}”. `}</b>
                     {fb.text}
                     {fb.sources.length > 0 && (
                       <div className="src">
@@ -424,7 +425,7 @@ export function StageView(props: {
             </button>
           ) : (
             <button className="btn" onClick={() => go("Question")}>
-              Draft my question ▶
+              Draft my question <Icon name="chevron-right" />
             </button>
           )}
         </div>
@@ -482,7 +483,7 @@ export function OfferCard(props: { o: Offer; letter: string; difficulty: Difficu
         Offer {letter}: {o.title}
       </h3>
       <div className="where">
-        📍 {e.name}
+        <Icon name="map-pin" /> {e.name}
         <span className="note">
           CMHC survey zone: {e.zone.label}
           <Badge f={{ status: "derived", geography: e.zone.assignment, reference_period: "provisional", source_url: null }} />
@@ -580,7 +581,7 @@ function QuestionStep(props: { question: DraftQuestion; civic: CivicResult; offe
       )}
       <ScoreBox score={score} />
       <button className="btn green" onClick={() => onSave(score)}>
-        Save to civic notebook ▶
+        Save to civic notebook <Icon name="chevron-right" />
       </button>
     </div>
   );

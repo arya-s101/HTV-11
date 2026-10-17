@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Icon } from "@/components/icons";
 import Link from "next/link";
 import { Legend } from "@/components/pixel";
 import { STAGES } from "@/game/data";
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: "How it works · Toronto Rent Decisio
 
 const LOOP = [
   ["Search", "Flag listings as legit, suspicious or a scam. Rent far below the CMHC area average is a red flag."],
-  ["Viewing", "Compare the offers, then hunt for problems in a pixel apartment against the clock."],
+  ["Viewing", "Compare the offers, then answer quick viewing questions: water damage, smoke alarms, locks, pests, what's included."],
   ["Apply", "Bring the right documents, refuse the risky asks, and decide what to do when someone outbids you."],
   ["Negotiate", "Optional. Haggle with a fictional landlord; game code decides the deal."],
   ["Read the lease", "Flag clauses that Ontario's rules make void, like no-pet bans or damage deposits."],
@@ -119,7 +120,7 @@ export default function HowItWorks() {
 
       <div className="row">
         <Link className="btn" href="/">
-          ▶ Play
+          <Icon name="play" /> Play
         </Link>
         <Link className="btn ghost" href="/sources">
           See the sources

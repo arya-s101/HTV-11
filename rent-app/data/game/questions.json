@@ -1,0 +1,723 @@
+{
+  "_note": "Reviewed question templates (PRD v4 Change 2). Code picks templates, answer options and the correct answer from here; Gemini may only rewrite the scenario framing and a host line, with {placeholders} and no digits. Fallback scenarios are used whenever Gemini is unavailable or its output fails validation, and always for the demo preset.",
+  "placeholders": [
+    "rent",
+    "benchmark",
+    "fare",
+    "hours",
+    "place",
+    "work"
+  ],
+  "questions": [
+    {
+      "id": "view-water",
+      "round": "viewing",
+      "content_id": "view-water-damage",
+      "prompt": "What's worth checking closely?",
+      "scenario_brief": "The player is at an apartment viewing and notices something about a wall, ceiling or the smell of the place. Describe it; don't say what it means.",
+      "correct_variants": [
+        "Stains, musty smells or rotting wood",
+        "Signs of water damage or mould"
+      ],
+      "distractors": [
+        "Whether you like the paint colour",
+        "Whether the neighbours are home",
+        "The brand of the fridge",
+        "Whether the blinds match the floors",
+        "How shiny the taps are"
+      ],
+      "fallback_scenarios": [
+        "The agent hurries you past the bathroom. A faint musty smell lingers.",
+        "Fresh paint everywhere, except one corner of the ceiling looks oddly darker.",
+        "The closet door sticks, and the air inside smells damp."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "view-smoke",
+      "round": "viewing",
+      "content_id": "view-smoke",
+      "prompt": "No smoke alarm. Whose job is it to install one?",
+      "scenario_brief": "At a viewing the player looks up and notices there is no smoke alarm on the ceiling. Set the scene.",
+      "correct_variants": [
+        "The landlord's",
+        "The landlord must install it and keep it working"
+      ],
+      "distractors": [
+        "Yours, once you move in",
+        "Nobody's, it's optional",
+        "The other tenants'",
+        "Your roommate's",
+        "Whoever complains first"
+      ],
+      "fallback_scenarios": [
+        "You glance up in the hallway. There's an empty bracket where an alarm should be.",
+        "The kitchen looks great. The ceiling above it is bare: no alarm in sight.",
+        "You check every room twice. Not one smoke alarm."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "view-locks",
+      "round": "viewing",
+      "content_id": "view-locks",
+      "prompt": "A lock is broken. What do you do?",
+      "scenario_brief": "At a viewing the player finds that a window or door lock doesn't work properly. Set the scene.",
+      "correct_variants": [
+        "Ask the landlord to fix it before move-in, at their cost",
+        "Ask the landlord to replace it before you move in, at their expense"
+      ],
+      "distractors": [
+        "Buy and fit a lock yourself",
+        "Ignore it",
+        "Tape it shut and move on",
+        "Wait until something goes missing",
+        "Pay a locksmith and say nothing"
+      ],
+      "fallback_scenarios": [
+        "The bedroom window slides open, but the latch just spins.",
+        "The back door closes, yet the lock won't catch.",
+        "You test the balcony door. The lock is loose and wobbly."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "view-pests",
+      "round": "viewing",
+      "content_id": "view-pests",
+      "prompt": "You spot signs of pests. What now?",
+      "scenario_brief": "At a viewing the player spots signs of pests, like droppings or tiny bugs, somewhere in the unit. Set the scene without naming a fix.",
+      "correct_variants": [
+        "Raise it with the landlord in writing",
+        "Tell the landlord in writing before you sign"
+      ],
+      "distractors": [
+        "Say nothing and buy traps later",
+        "Assume it's old and forget it",
+        "Mention it in passing at move-out",
+        "Post about it online instead",
+        "Spray it yourself and hope"
+      ],
+      "fallback_scenarios": [
+        "Under the sink: a few tiny droppings near the pipes.",
+        "A small bug scurries behind the stove as you open the oven.",
+        "The pantry shelf has a little pile of crumbs and droppings."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "view-included",
+      "round": "viewing",
+      "content_id": "view-ask-included",
+      "prompt": "Before applying, what's worth asking?",
+      "scenario_brief": "The player likes the place and is about to apply. The listing was vague about bills. Set the scene.",
+      "correct_variants": [
+        "What's included: heat, hydro, water, internet, laundry",
+        "Which utilities and extras cost more each month"
+      ],
+      "distractors": [
+        "Who the other tenants are",
+        "Nothing, the ad says enough",
+        "What colour the hallway is",
+        "Whether the furniture is new",
+        "How many floors the building has"
+      ],
+      "fallback_scenarios": [
+        "You love the light in here. The ad just said 'some utilities extra'.",
+        "The laundry room is downstairs. Nobody mentioned whether it costs anything.",
+        "The landlord says 'bills are easy'. That's all they say."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "newcomer-credit",
+      "round": "viewing",
+      "content_id": "apply-no-credit",
+      "prompt": "No Canadian credit history yet. Should that count against you?",
+      "scenario_brief": "The player, who is new to Canada, is about to apply for an apartment and worries about having no Canadian credit or rental history. Set the scene.",
+      "correct_variants": [
+        "No: a lack of credit history shouldn't count against you",
+        "It shouldn't; missing history isn't a fair reason to refuse you"
+      ],
+      "distractors": [
+        "Yes, you can't rent without it",
+        "Only if you're under a certain age",
+        "Yes, unless you pay a full year up front",
+        "Only landlords with condos can check",
+        "Yes, so don't apply yet"
+      ],
+      "fallback_scenarios": [
+        "You've just arrived. The application asks for Canadian credit history.",
+        "New city, new country. Your credit file here is empty.",
+        "The landlord's form has a big box for rental history in Canada."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "profile_flag": "newcomer"
+    },
+    {
+      "id": "movein-photos",
+      "round": "movein",
+      "content_id": "movein-document",
+      "prompt": "Before you unpack, what do you do?",
+      "scenario_brief": "Moving day: the player arrives at their new apartment with boxes, and a couple of small existing problems are visible, like scuffs or a chipped counter. Set the scene; don't suggest what to do.",
+      "correct_variants": [
+        "Photograph every room and any damage, and keep a copy",
+        "Take photos of each room and back them up",
+        "Walk through with the landlord and photograph any problems"
+      ],
+      "distractors": [
+        "Unpack first, it can wait",
+        "Mention the damage to the landlord in passing",
+        "Clean everything first",
+        "Fix the small damage yourself",
+        "Assume the landlord already knows"
+      ],
+      "fallback_scenarios": [
+        "Keys in hand! The floor has a deep scratch, and the counter is chipped.",
+        "Boxes everywhere. You notice a stain on the carpet and a cracked tile.",
+        "The movers are gone. One cupboard door hangs crooked; the wall has scuffs."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "receipt": "photos"
+    },
+    {
+      "id": "scam-report",
+      "round": "search",
+      "content_id": "scam-report",
+      "prompt": "Who do you report a rental scam to?",
+      "scenario_brief": "The player has just spotted a fake rental listing that asked for money up front. Set the scene in one or two sentences.",
+      "correct_variants": [
+        "The Canadian Anti-Fraud Centre or police",
+        "Police, or the Canadian Anti-Fraud Centre"
+      ],
+      "distractors": [
+        "311 (City of Toronto)",
+        "The Landlord and Tenant Board",
+        "Nobody, it's not worth it",
+        "Your city councillor",
+        "The landlord's other tenants"
+      ],
+      "fallback_scenarios": [
+        "That 'too good to be true' listing? Definitely fake.",
+        "The fake landlord just asked again for an e-transfer.",
+        "The listing vanished, but the scammer's messages haven't."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "repair-writing",
+      "round": "live",
+      "content_id": "live-written-requests",
+      "prompt": "What do you do?",
+      "scenario_brief": "Something in the player's apartment breaks or stops working (for example a tap, the fridge, the oven, a window or a cupboard). Describe what happened; don't suggest a fix.",
+      "correct_variants": [
+        "Tell the landlord in writing it needs fixing, and keep a copy",
+        "Email the landlord about the repair and save a copy"
+      ],
+      "distractors": [
+        "Fix it yourself and deduct the cost from rent",
+        "Stop paying rent until it's fixed",
+        "Wait and hope it fixes itself",
+        "Say nothing until you move out",
+        "Post about it online instead of telling the landlord"
+      ],
+      "fallback_scenarios": [
+        "The kitchen tap won't stop dripping, and now the cabinet below is warped.",
+        "The fridge died overnight. Everything inside is warm.",
+        "A cupboard door came off in your hand, hinge and all."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Something breaks",
+      "level": "city",
+      "also_level": "province",
+      "level_why": "The City handles property standards via 311; the Province's tribunal handles maintenance disputes.",
+      "extra_content_ids": [
+        "live-repairs-ltb"
+      ],
+      "civic": "repairs",
+      "base": true,
+      "photos_matter": {
+        "with": "Your move-in photos show the unit on day one. The blame doesn't stick.",
+        "without": "No move-in photos: the landlord says you caused it. Your word vs. theirs."
+      }
+    },
+    {
+      "id": "repair-leak",
+      "round": "live",
+      "content_id": "live-written-requests",
+      "prompt": "What do you do?",
+      "scenario_brief": "Water is leaking into the player's apartment from the ceiling or a pipe, and some of their things are getting wet. Describe it; don't suggest a fix.",
+      "correct_variants": [
+        "Tell the landlord in writing it's urgent, and keep a copy",
+        "Report the leak to the landlord in writing as urgent"
+      ],
+      "distractors": [
+        "Put a bucket under it and wait",
+        "Patch it yourself and deduct it from rent",
+        "Stop paying rent until it's dry",
+        "Say nothing until you move out",
+        "Ask a neighbour to fix it"
+      ],
+      "fallback_scenarios": [
+        "Water drips from the ceiling, right onto your laptop bag.",
+        "A pipe under the sink bursts. The floor is soaked.",
+        "There's a growing wet patch on the ceiling, and it's dripping now."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Water leak",
+      "level": "city",
+      "also_level": "province",
+      "level_why": "The City handles property standards via 311; the Province's tribunal handles maintenance disputes.",
+      "extra_content_ids": [
+        "live-repairs-ltb",
+        "lease-insurance"
+      ],
+      "civic": "repairs",
+      "base": true,
+      "photos_matter": {
+        "with": "Your move-in photos show the unit on day one. The blame doesn't stick.",
+        "without": "No move-in photos: the landlord says you caused it. Your word vs. theirs."
+      },
+      "insurance": true
+    },
+    {
+      "id": "heat",
+      "round": "live",
+      "content_id": "live-heat",
+      "prompt": "What do you do?",
+      "scenario_brief": "It's the cold season and the heat in the player's apartment isn't working properly. The landlord pays for heat. Describe it.",
+      "correct_variants": [
+        "Tell the landlord in writing; if it isn't fixed, call 311",
+        "Report it to the landlord in writing, then 311 if needed"
+      ],
+      "distractors": [
+        "Stop paying rent until it's warm",
+        "Buy a space heater and say nothing",
+        "Wait for spring",
+        "Call the police",
+        "Move out without notice"
+      ],
+      "fallback_scenarios": [
+        "It's freezing inside, and the radiators are stone cold.",
+        "You can see your breath in the kitchen. The heat's been off since yesterday.",
+        "The thermostat does nothing. You're wearing your coat indoors."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "No heat",
+      "level": "city",
+      "level_why": "A City bylaw sets minimum indoor temperatures, enforced through 311.",
+      "civic": "heat"
+    },
+    {
+      "id": "smoke",
+      "round": "live",
+      "content_id": "live-smoke",
+      "prompt": "What do you do?",
+      "scenario_brief": "The player realizes the smoke alarm in their apartment isn't working. Describe the moment.",
+      "correct_variants": [
+        "Tell the landlord right away; if not fixed, call 311",
+        "Report it to the landlord now, and 311 if they don't act"
+      ],
+      "distractors": [
+        "Ignore it, alarms are annoying",
+        "Take the batteries out for good",
+        "Wait for an inspection",
+        "Cover it so it stops beeping",
+        "Tell nobody and hope"
+      ],
+      "fallback_scenarios": [
+        "You burn the toast. The smoke alarm stays silent.",
+        "You press the alarm's test button. Nothing.",
+        "The alarm has been chirping for days, then it just stops."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Smoke alarm",
+      "level": "city",
+      "level_why": "Toronto requires working smoke alarms; 311 refers you to Toronto Fire Services.",
+      "civic": "repairs"
+    },
+    {
+      "id": "pests",
+      "round": "live",
+      "content_id": "live-written-requests",
+      "prompt": "What do you do?",
+      "scenario_brief": "The player finds signs of pests, like mice or cockroaches, in their apartment. Describe it.",
+      "correct_variants": [
+        "Tell the landlord in writing and keep a copy",
+        "Report the pests to the landlord in writing"
+      ],
+      "distractors": [
+        "Deal with it yourself and stay quiet",
+        "Stop paying rent",
+        "Move out without notice",
+        "Wait to see if they leave",
+        "Post about it online instead"
+      ],
+      "fallback_scenarios": [
+        "A mouse darts across the kitchen floor.",
+        "Cockroaches scatter when you flip on the bathroom light.",
+        "Something has been chewing through your cereal boxes."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Pests",
+      "level": "city",
+      "also_level": "province",
+      "level_why": "The City handles property standards via 311; the Province's tribunal handles maintenance disputes.",
+      "extra_content_ids": [
+        "view-pests",
+        "live-repairs-ltb"
+      ],
+      "civic": "repairs"
+    },
+    {
+      "id": "lock",
+      "round": "live",
+      "content_id": "view-locks",
+      "prompt": "What do you do?",
+      "scenario_brief": "A lock on the player's apartment door or window stops working. Describe it.",
+      "correct_variants": [
+        "Ask the landlord in writing to fix it",
+        "Tell the landlord in writing the lock needs repair"
+      ],
+      "distractors": [
+        "Tape it shut",
+        "Fix it and deduct the cost from rent",
+        "Ignore it",
+        "Change the locks without telling anyone",
+        "Wait until something goes missing"
+      ],
+      "fallback_scenarios": [
+        "The window lock was broken from day one. Ground floor, too.",
+        "Your door lock jams. Twice it didn't lock at all.",
+        "The balcony door won't latch anymore."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Broken lock",
+      "level": "province",
+      "level_why": "Maintenance disputes go to the Landlord and Tenant Board, a provincial tribunal."
+    },
+    {
+      "id": "rent-increase",
+      "round": "live",
+      "content_id": "live-rent-increase",
+      "prompt": "What do you do?",
+      "scenario_brief": "A note from the landlord arrives saying the player's rent is going up soon. Describe how it arrives; don't state any amount.",
+      "correct_variants": [
+        "Check it: 12 months apart, 90 days' written notice, within the guideline",
+        "Check the timing, the written notice and the guideline first"
+      ],
+      "distractors": [
+        "Pay whatever it says",
+        "Call 311 to cancel it",
+        "Stop paying rent in protest",
+        "Ignore it entirely",
+        "Move out the same day"
+      ],
+      "fallback_scenarios": [
+        "A note under your door: your rent goes up next month.",
+        "Your landlord texts: rent is going up soon.",
+        "An envelope taped to your door announces a rent increase."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Rent increase",
+      "level": "province",
+      "level_why": "Ontario sets the rent increase guideline and notice rules."
+    },
+    {
+      "id": "ttc",
+      "round": "live",
+      "content_id": "live-ttc",
+      "prompt": "What do you do?",
+      "scenario_brief": "The player's bus or streetcar to work has been late or packed lately. Describe a frustrating commute.",
+      "correct_variants": [
+        "Raise it with the City: the TTC is a City agency",
+        "Ask City candidates about TTC service standards"
+      ],
+      "distractors": [
+        "Complain to your landlord",
+        "Nothing can be done",
+        "Write to the federal government",
+        "Blame the other riders",
+        "Ask the Landlord and Tenant Board"
+      ],
+      "fallback_scenarios": [
+        "Your bus was badly late three days this week.",
+        "Two packed streetcars sailed past your stop this morning.",
+        "You waited so long at the stop that you missed a meeting."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "Late bus",
+      "level": "city",
+      "level_why": "The TTC is a City agency; its Board sets service standards.",
+      "civic": "ttc"
+    },
+    {
+      "id": "moveout-notice",
+      "round": "moveout",
+      "content_id": "moveout-notice",
+      "prompt": "How do you give notice?",
+      "scenario_brief": "The player has decided to move out of their apartment for a good reason (a new job, more space, closer to family). Describe the moment.",
+      "correct_variants": [
+        "Written notice (Form N9), 60+ days before the end of a rental month",
+        "Use Form N9, at least 60 days ahead, ending on a month's last day"
+      ],
+      "distractors": [
+        "Text the landlord two weeks before you leave",
+        "Just move out and leave the keys",
+        "Tell the landlord in person the week before",
+        "Stop paying rent and leave",
+        "Mail the keys back after you've gone"
+      ],
+      "fallback_scenarios": [
+        "A new job across town! Time to move on.",
+        "You've found a bigger place. Time to tell your landlord.",
+        "You're moving closer to family. The lease is monthly now."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    {
+      "id": "landlord-asks",
+      "round": "live",
+      "content_id": "apply-discrimination",
+      "prompt": "What do you do?",
+      "scenario_brief": "While applying for an apartment, the landlord asks the player a question they shouldn't, such as whether they plan to have kids or whether they receive public assistance. Describe the moment; don't explain any rules.",
+      "correct_variants": [
+        "Keep a note of it, and get advice from the Human Rights Legal Support Centre",
+        "Write down what was asked, and contact the Human Rights Legal Support Centre"
+      ],
+      "distractors": [
+        "Assume it's normal and answer anything",
+        "Offer extra rent to make up for it",
+        "Report it to the TTC",
+        "Call 311 to cancel the listing",
+        "Ask the landlord to email the answer to you"
+      ],
+      "fallback_scenarios": [
+        "The landlord leans in: 'Planning on having kids soon?'",
+        "Mid-showing, the landlord asks if you're on public assistance.",
+        "The application asks where your family is from, and why."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch",
+      "title": "An unfair question",
+      "level": "province",
+      "level_why": "The Human Rights Tribunal of Ontario hears housing discrimination complaints.",
+      "disclaimer": "General information, not legal advice."
+    }
+  ],
+  "listings": {
+    "scam-overseas": {
+      "content_ids": [
+        "scam-below-market",
+        "scam-no-viewing",
+        "scam-deposit-first"
+      ],
+      "scenario_brief": "A rental ad for a one-bedroom priced at {rent} a month. The owner says they are abroad and can't show it; they want a deposit sent before any viewing.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "abroad",
+          "keywords": [
+            "abroad",
+            "overseas",
+            "out of the country",
+            "away",
+            "travelling",
+            "traveling"
+          ]
+        },
+        {
+          "id": "deposit-first",
+          "keywords": [
+            "deposit",
+            "e-transfer",
+            "transfer",
+            "send",
+            "pay first",
+            "wire"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Gorgeous one-bedroom, {rent}/month! I'm overseas, so no viewings. E-transfer the first month and I'll mail the keys.",
+        "Bright one-bedroom, {rent}/month, utilities included. Owner is abroad. Keys couriered once your deposit clears.",
+        "Stunning suite for {rent}/month. I'm away for work, so send the deposit and I'll ship the keys."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    "scam-portal": {
+      "content_ids": [
+        "scam-below-market",
+        "scam-personal-info"
+      ],
+      "scenario_brief": "A rental ad for a condo priced at {rent} a month that sends people to an online form demanding banking details before they can book a viewing.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "personal-info",
+          "keywords": [
+            "banking",
+            "bank",
+            "id",
+            "verification",
+            "verify",
+            "sin",
+            "personal"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Luxury condo, only {rent}/month! Book a viewing through our online form. Banking details required first.",
+        "Condo one-bedroom, {rent}/month. Our pre-approval form unlocks viewing times. Banking info required.",
+        "Modern condo for {rent}/month. Verify your ID and bank login online before we share showing times."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    "sus-holding-fee": {
+      "content_ids": [
+        "scam-deposit-first"
+      ],
+      "scenario_brief": "A rental ad for a one-bedroom at {rent} a month with a viewing on the weekend, but it asks for a small holding fee by e-transfer first.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "fee-first",
+          "keywords": [
+            "holding fee",
+            "fee",
+            "e-transfer",
+            "deposit"
+          ]
+        },
+        {
+          "id": "viewing",
+          "keywords": [
+            "viewing",
+            "showing",
+            "see it",
+            "visit",
+            "tour"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "One-bedroom, {rent}/month. Viewing on Saturday. Send a holding fee by e-transfer first.",
+        "One-bedroom, {rent}/month. Saturday viewings. A small e-transfer holding fee secures your slot.",
+        "Cozy one-bedroom for {rent}/month. Weekend showings; a holding fee confirms your spot."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    }
+  },
+  "offers": {
+    "s2-a": {
+      "scenario_brief": "A rental ad for a spacious one-bedroom in an older high-rise at {rent} a month. Hydro is extra and the amount isn't stated. Viewings are offered.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "hydro-extra",
+          "keywords": [
+            "hydro extra",
+            "plus hydro",
+            "hydro not included",
+            "electricity extra",
+            "hydro is extra"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Spacious one-bedroom in an older high-rise. {rent}/month, hydro extra. Viewings any evening.",
+        "Big one-bedroom with a view. {rent}/month plus hydro. Come see it this week.",
+        "Roomy one-bedroom in a classic tower. {rent}/month; hydro is extra. Evening viewings."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    "s2-b": {
+      "scenario_brief": "A rental ad for a bright one-bedroom in a newer mid-rise at {rent} a month with utilities included. Viewings are offered.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "included",
+          "keywords": [
+            "utilities included",
+            "all-inclusive",
+            "all inclusive",
+            "bills included",
+            "everything included"
+          ]
+        },
+        {
+          "id": "newer",
+          "keywords": [
+            "newer",
+            "new",
+            "recent",
+            "modern"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Bright one-bedroom in a newer mid-rise, utilities included. {rent}/month. Viewings this weekend.",
+        "Modern one-bedroom, all-inclusive at {rent}/month. Newer building, easy to visit.",
+        "Sunny one-bedroom in a new mid-rise. {rent}/month, utilities included. Book a viewing."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    "s2-c": {
+      "scenario_brief": "A rental ad for a luxury one-bedroom condo in a new building with a gym, at {rent} a month plus hydro. Viewings are offered.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "hydro-extra",
+          "keywords": [
+            "plus hydro",
+            "hydro extra",
+            "hydro not included",
+            "hydro is extra",
+            "sub-metered"
+          ]
+        },
+        {
+          "id": "condo",
+          "keywords": [
+            "condo"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Luxury one-bedroom condo with gym and concierge. {rent}/month plus hydro.",
+        "Brand-new condo one-bedroom. {rent}/month, hydro extra. Gym on site.",
+        "Sleek condo living for {rent}/month plus hydro. Concierge and gym."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    }
+  }
+}

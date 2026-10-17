@@ -11,6 +11,7 @@ export interface GeminiRequest {
   contents: { role: "user" | "model"; text: string }[];
   schema: Record<string, unknown>;
   temperature?: number;
+  timeoutMs?: number;
 }
 
 /** Returns the parsed JSON object the model produced. Throws on no key, HTTP error, timeout or bad JSON. */
@@ -19,7 +20,7 @@ export async function geminiJson(req: GeminiRequest): Promise<unknown> {
   if (!key) throw new Error("no key");
   const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), req.timeoutMs ?? TIMEOUT_MS);
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",

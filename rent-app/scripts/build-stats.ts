@@ -153,8 +153,10 @@ const period = `Latest evaluation per building, ${dates[0].slice(0, 4)}–${date
 const units = scored.reduce((a, f) => a + (Number(f[iUnits]) || 0), 0);
 const under80 = scored.filter((f) => Number(f[iScore]) < 80).length;
 const rentsafe = (value: number, unit: string, status: Status, ref: string): Field => ({ value, unit, geography: "City of Toronto, buildings with 3+ storeys and 10+ units", reference_period: period, source_url: RENTSAFE_URL, status, source_ref: ref });
-const repairs = ["event:heat:action", "event:pests:action", "event:leak:action", "event:smoke:action"];
-const repairLevels = ["event:heat:level", "event:pests:level", "event:leak:level", "event:smoke:level"];
+// Event question ids are the reviewed templates in data/game/questions.json.
+const REPAIR_EVENTS = ["repair-writing", "repair-leak", "heat", "pests", "smoke"];
+const repairs = REPAIR_EVENTS.map((id) => `event:${id}:action`);
+const repairLevels = REPAIR_EVENTS.map((id) => `event:${id}:level`);
 add(repairs, { group: "rentsafe-units", label: "Rental units in buildings the City inspects (RentSafeTO)", stat: rentsafe(units, "units", "derived", `Sum of CONFIRMED UNITS over ${scored.length} buildings' latest evaluation`) });
 add(repairLevels, { group: "rentsafe-under-80", label: "Inspected buildings scoring under 80 out of 100", stat: rentsafe(under80, "buildings", "derived", `Count of latest CURRENT BUILDING EVAL SCORE < 80`), compare_to: rentsafe(scored.length, "buildings", "derived", "Buildings with a latest evaluation score"), compare_label: "All evaluated", stat_label: "Under 80" });
 

@@ -5,6 +5,7 @@ import { MusicToggle } from "./MusicToggle";
 
 const NAV = [
   { href: "/", label: "Play" },
+  { href: "/character", label: "Character" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/sources", label: "Data & sources" },
 ];

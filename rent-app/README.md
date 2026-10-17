@@ -1,5 +1,12 @@
 # Toronto Rent Decisions (working title)
 
+> **PRD v4 (overhaul.txt):** sound is on by default (music and effects channels; music ducks under effects; every button taps), no timers
+> anywhere and a Skip button (or S) on every question, fresh questions each game (code picks reviewed templates, answers and distractors from
+> `data/game/questions.json`; Gemini only rewrites the scene via `/api/scenarios`, validated, with reviewed fallbacks and none in the demo),
+> an optional "Tell us more" profile kept on the device (workplace → real routed commute, schedule, income band as `player_input`, pets,
+> newcomer, wants nearby, interests; identity fields never change numbers), and party-mode multiplayer behind `NEXT_PUBLIC_MULTIPLAYER`
+> (Firebase anonymous auth + room codes; rules in `firestore.rules`; scores computed by the host client, a known hackathon limitation).
+>
 > **Game-show presentation (gameshow.txt, PRD v2 §5.10):** after character creation, the journey runs as "The Lease You Can Do", hosted by
 > the original 8-bit cartoon host Mustafa. Each phase is a round with a title card. Lines type in one at a time (tap finishes, then advances), there are at most
 > 3 lines of 15 words per screen, and details sit behind "Why? · Source". Big choice buttons, animated number counters with provenance chips, a podium with

@@ -322,6 +322,18 @@
       "retrieved": "2026-10-17",
       "verified_by": "AI (Claude); needs teammate check",
       "short": "Your rent deposit covers your last month, plus yearly interest; it's not a damage deposit."
+    },
+    {
+      "id": "apply-discrimination",
+      "phase": 3,
+      "claim": "You cannot be refused an apartment because of grounds including family status, receipt of public assistance, place of origin, citizenship, religious beliefs, disability, age, sex or sexual orientation. Human rights complaints go to the Human Rights Tribunal of Ontario; the Human Rights Legal Support Centre can help.",
+      "short": "You can't be refused a home over family status, public assistance and more.",
+      "jurisdiction": "province",
+      "contact": "Human Rights Legal Support Centre",
+      "source_title": "Ontario Human Rights Commission: Human rights for tenants",
+      "source_url": "https://www.ohrc.on.ca/en/human-rights-tenants-brochure",
+      "retrieved": "2026-10-17",
+      "verified_by": "Claude (AI), quotes checked against the page 2026-10-17; team to verify"
     }
   ]
 }

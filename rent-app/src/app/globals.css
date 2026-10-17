@@ -343,8 +343,6 @@ ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
 
 /* ---------- journey ---------- */
 .journey { display: grid; gap: 12px; }
-.timer { font: 1rem var(--font-pixel), monospace; padding: 8px 12px; background: var(--surface-3); box-shadow: 0 0 0 1px var(--line); }
-.timer.low { color: var(--bad); }
 .source-note { background: var(--surface-3); border-left: 3px solid var(--cyan); padding: 8px 10px; margin-top: 8px; }
 .source-note p { margin: 0 0 4px; }
 .source-note.compact { font-size: 0.9rem; }
@@ -454,14 +452,11 @@ ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
 .prov.derived { background: var(--blue-dark); }
 .prov.illustrative { background: var(--yellow-dark); }
 .prov.unknown { background: var(--grey); }
+.prov.player_input, .badge.player_input { background: #6a3fa0; color: #fff; }
 a.prov:hover { filter: brightness(1.2); }
 
 .beat { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; gap: 14px; justify-items: center; }
 .beat-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; }
-.timer-badge { position: relative; min-width: 120px; padding: 8px 12px; background: var(--surface-3); box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
-.timer-badge .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--yellow); transition: width 1s linear; }
-.timer-badge.low { color: var(--bad); }
-.timer-badge.low .bar { background: var(--red); }
 .listing-card, .door, .lease-sheet, .question-card { width: 100%; max-width: 860px; background: var(--surface); box-shadow: 0 0 0 1px var(--line); padding: 18px 20px; display: grid; gap: 12px; }
 .listing-card .illus, .door .illus { margin: -18px -20px 4px; }
 .fineprint.dense { font-size: 0.68rem; line-height: 1.35; letter-spacing: 0.01em; text-transform: uppercase; background: var(--surface-3); padding: 8px 10px; box-shadow: 0 0 0 1px var(--line); margin: 0; }
@@ -518,6 +513,24 @@ a.prov:hover { filter: brightness(1.2); }
 }
 
 .quick-start { gap: 8px; margin-top: 10px; }
+.sound-controls { display: grid; gap: 8px; }
+.slider { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 8px; font-size: 0.85rem; }
+.slider input { width: 100%; min-height: 32px; }
+.party-players { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; width: min(520px, 100%); }
+.party-players li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border: 1px solid var(--line); }
+.party-players li.away { opacity: 0.5; }
+.code-input { text-transform: uppercase; letter-spacing: 0.2em; font-family: var(--font-pixel), monospace; max-width: 220px; }
+.bad-text { color: var(--bad); }
+.good-text { color: var(--ok); }
+.profile-form { display: grid; gap: 6px; }
+.profile-group { font-size: 0.6rem; margin: 10px 0 0; color: var(--cyan); }
+.tell-more summary { cursor: pointer; font-size: 0.7rem; padding: 4px 0; min-height: 44px; display: flex; align-items: center; }
+.profile-drawer { max-height: 85vh; }
+.skip-row { display: flex; justify-content: center; width: 100%; margin-top: 2px; }
+.skip-btn { min-height: 44px; min-width: 120px; opacity: 0.9; }
+.tally { display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: center; font: 0.65rem var(--font-pixel), monospace; }
+.tally .good { color: var(--ok); }
+.tally .bad { color: var(--bad); }
 
 /* ---------- stat cards (PRD v3 Change 4): calm, one big number ---------- */
 .stat-overlay { position: fixed; inset: 0; z-index: 70; background: rgba(6, 4, 18, 0.86); display: grid; place-items: center; padding: 16px; cursor: pointer; }
@@ -548,3 +561,9 @@ a.prov:hover { filter: brightness(1.2); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Pixel icons (pixelarticons) replace emoji everywhere: sit on the text baseline, crisp edges. */
+.icon { display: inline-block; vertical-align: -0.15em; flex: none; shape-rendering: crispEdges; }
+
+.hero-art .char-card { margin-left: auto; }
+.char-card { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 4px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); width: fit-content; max-width: 100%; }

@@ -2,7 +2,9 @@
 import { stageForProfession } from "./career";
 import { burden, cheapestFare, commuteHoursPerMonth, monthlyIncomeCents, oneWayTripsPerMonth, pct1 } from "./calc";
 import { FARES } from "./data";
+import type { Profile } from "./profile";
 import type { Character } from "./sprite";
+import { tailorStage } from "./tailor";
 import type { NegotiatedTerms, Offer, PlayableStage, Shown } from "./types";
 
 const FICTIONAL = { geography: "Fictional scenario", reference_period: "2026 dollars", source_url: null };
@@ -36,9 +38,10 @@ export function fareFor(stage: PlayableStage) {
  * never read (PRD §5). Difficulty is deliberately NOT an input: it changes presentation, never what is true.
  * `terms` are code-validated negotiated terms (rent, utilities concession); the rent stays illustrative.
  */
-export function consequence(input: { character: Character; stage: PlayableStage; offerId: string; revealed: boolean; terms?: NegotiatedTerms }): Consequence {
+export function consequence(input: { character: Character; stage: PlayableStage; offerId: string; revealed: boolean; terms?: NegotiatedTerms; profile?: Profile }): Consequence {
   const { revealed, terms } = input;
-  const stage = stageForProfession(input.stage, input.character.profession);
+  // The player's stated workplace, schedule and income band (PRD v4 Change 4) apply on top of the profession preset.
+  const { stage, tailoring } = tailorStage(stageForProfession(input.stage, input.character.profession), input.profile);
   const listed = stage.offers.find((o) => o.id === input.offerId);
   if (!listed) throw new Error(`Unknown offer ${input.offerId}`);
   const offer: Offer = terms ? { ...listed, rentCents: terms.rentCents } : listed;
@@ -59,9 +62,10 @@ export function consequence(input: { character: Character; stage: PlayableStage;
       label: `Monthly income (${stage.income.basis})`,
       value: income,
       unit: "CAD cents/month",
-      status: "derived",
-      note:
-        stage.income.period === "annual"
+      status: tailoring.income ? "player_input" : "derived",
+      note: tailoring.income
+        ? `Your income band ${tailoring.income.band}: midpoint ÷ 12`
+        : stage.income.period === "annual"
           ? `Illustrative ${money(stage.income.amountCents)}/yr ${stage.income.basis} ÷ 12`
           : `Illustrative ${stage.income.basis} monthly income (${stage.income.description})`,
     },
@@ -125,7 +129,9 @@ export function consequence(input: { character: Character; stage: PlayableStage;
         (fare.pass !== null ? `. Post-secondary pass would be ${money(fare.pass)}, so ${fare.method === "adult-payg" ? "pay-per-trip is cheaper" : "the pass is cheaper"}` : "") +
         ". Same for every offer.",
     },
-    { ...FICTIONAL, label: "Commute, one way", value: offer.commuteMinutes, unit: "minutes", status: "illustrative", note: `To ${stage.destination.name}; not a computed route` },
+    tailoring.commute
+      ? { ...tailoring.commute.field, label: "Commute, one way", value: offer.commuteMinutes, note: `To ${tailoring.commute.workplace}; scheduled transit + walk, median` }
+      : { ...FICTIONAL, label: "Commute, one way", value: offer.commuteMinutes, unit: "minutes", status: "illustrative", note: `To ${stage.destination.name}; not a computed route` },
     { ...FICTIONAL, label: "Commute time per month", value: Math.round(hours * 10) / 10, unit: "hours/month", status: "derived", note: `${offer.commuteMinutes} min × ${trips} trips` },
   ];
 

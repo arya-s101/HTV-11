@@ -1,6 +1,7 @@
 // Shared types. Every number shown to the player is a Field with provenance (PRD §6).
 
-export type Status = "measured" | "derived" | "illustrative" | "unknown";
+// "player_input": a value the player entered themselves (PRD v4 Change 4), e.g. their income band.
+export type Status = "measured" | "derived" | "illustrative" | "unknown" | "player_input";
 
 export interface Field<T> {
   value: T | null; // null when status === "unknown"

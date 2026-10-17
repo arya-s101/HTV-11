@@ -300,6 +300,38 @@
       "compare_label": "All of Toronto"
     },
     {
+      "id": "event:repair-writing:action:rentsafe-units",
+      "question_id": "event:repair-writing:action",
+      "verified_by": "build-stats script, 2026-10-17",
+      "group": "rentsafe-units",
+      "label": "Rental units in buildings the City inspects (RentSafeTO)",
+      "stat": {
+        "value": 327879,
+        "unit": "units",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Sum of CONFIRMED UNITS over 3593 buildings' latest evaluation"
+      }
+    },
+    {
+      "id": "event:repair-leak:action:rentsafe-units",
+      "question_id": "event:repair-leak:action",
+      "verified_by": "build-stats script, 2026-10-17",
+      "group": "rentsafe-units",
+      "label": "Rental units in buildings the City inspects (RentSafeTO)",
+      "stat": {
+        "value": 327879,
+        "unit": "units",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Sum of CONFIRMED UNITS over 3593 buildings' latest evaluation"
+      }
+    },
+    {
       "id": "event:heat:action:rentsafe-units",
       "question_id": "event:heat:action",
       "verified_by": "build-stats script, 2026-10-17",
@@ -332,22 +364,6 @@
       }
     },
     {
-      "id": "event:leak:action:rentsafe-units",
-      "question_id": "event:leak:action",
-      "verified_by": "build-stats script, 2026-10-17",
-      "group": "rentsafe-units",
-      "label": "Rental units in buildings the City inspects (RentSafeTO)",
-      "stat": {
-        "value": 327879,
-        "unit": "units",
-        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
-        "reference_period": "Latest evaluation per building, 2023–2026",
-        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
-        "status": "derived",
-        "source_ref": "Sum of CONFIRMED UNITS over 3593 buildings' latest evaluation"
-      }
-    },
-    {
       "id": "event:smoke:action:rentsafe-units",
       "question_id": "event:smoke:action",
       "verified_by": "build-stats script, 2026-10-17",
@@ -362,6 +378,60 @@
         "status": "derived",
         "source_ref": "Sum of CONFIRMED UNITS over 3593 buildings' latest evaluation"
       }
+    },
+    {
+      "id": "event:repair-writing:level:rentsafe-under-80",
+      "question_id": "event:repair-writing:level",
+      "verified_by": "build-stats script, 2026-10-17",
+      "group": "rentsafe-under-80",
+      "label": "Inspected buildings scoring under 80 out of 100",
+      "stat": {
+        "value": 270,
+        "unit": "buildings",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Count of latest CURRENT BUILDING EVAL SCORE < 80"
+      },
+      "compare_to": {
+        "value": 3593,
+        "unit": "buildings",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Buildings with a latest evaluation score"
+      },
+      "compare_label": "All evaluated",
+      "stat_label": "Under 80"
+    },
+    {
+      "id": "event:repair-leak:level:rentsafe-under-80",
+      "question_id": "event:repair-leak:level",
+      "verified_by": "build-stats script, 2026-10-17",
+      "group": "rentsafe-under-80",
+      "label": "Inspected buildings scoring under 80 out of 100",
+      "stat": {
+        "value": 270,
+        "unit": "buildings",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Count of latest CURRENT BUILDING EVAL SCORE < 80"
+      },
+      "compare_to": {
+        "value": 3593,
+        "unit": "buildings",
+        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
+        "reference_period": "Latest evaluation per building, 2023–2026",
+        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
+        "status": "derived",
+        "source_ref": "Buildings with a latest evaluation score"
+      },
+      "compare_label": "All evaluated",
+      "stat_label": "Under 80"
     },
     {
       "id": "event:heat:level:rentsafe-under-80",
@@ -393,33 +463,6 @@
     {
       "id": "event:pests:level:rentsafe-under-80",
       "question_id": "event:pests:level",
-      "verified_by": "build-stats script, 2026-10-17",
-      "group": "rentsafe-under-80",
-      "label": "Inspected buildings scoring under 80 out of 100",
-      "stat": {
-        "value": 270,
-        "unit": "buildings",
-        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
-        "reference_period": "Latest evaluation per building, 2023–2026",
-        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
-        "status": "derived",
-        "source_ref": "Count of latest CURRENT BUILDING EVAL SCORE < 80"
-      },
-      "compare_to": {
-        "value": 3593,
-        "unit": "buildings",
-        "geography": "City of Toronto, buildings with 3+ storeys and 10+ units",
-        "reference_period": "Latest evaluation per building, 2023–2026",
-        "source_url": "https://open.toronto.ca/dataset/apartment-building-evaluation/",
-        "status": "derived",
-        "source_ref": "Buildings with a latest evaluation score"
-      },
-      "compare_label": "All evaluated",
-      "stat_label": "Under 80"
-    },
-    {
-      "id": "event:leak:level:rentsafe-under-80",
-      "question_id": "event:leak:level",
       "verified_by": "build-stats script, 2026-10-17",
       "group": "rentsafe-under-80",
       "label": "Inspected buildings scoring under 80 out of 100",

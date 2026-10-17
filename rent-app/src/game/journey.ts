@@ -123,12 +123,6 @@ export function belowBenchmark(rentCents: number, benchmarkCents: number | null)
   return Math.round(((benchmarkCents - rentCents) / benchmarkCents) * 100) / 100;
 }
 
-// ---------- phase 2: viewing (quick questions, PRD v3 Change 2) ----------
-export type ViewingQuestion = (typeof J.viewing.questions)[number];
-export function viewingQuestionsFor(seed: number, n: number): ViewingQuestion[] {
-  return shuffle(J.viewing.questions, rng(sub(seed, "viewing"))).slice(0, n);
-}
-
 // ---------- phase 5: lease ----------
 export interface Clause {
   id: string;
@@ -137,10 +131,12 @@ export interface Clause {
   contentId?: string;
   why?: string;
 }
-export function leaseFor(offerId: string, seed: number, rentCents: number, d: Difficulty): Clause[] {
+/** `include`: clause ids that must appear, e.g. the no-pets clause for a player who said they have a pet. */
+export function leaseFor(offerId: string, seed: number, rentCents: number, d: Difficulty, include: string[] = []): Clause[] {
   const r = rng(sub(seed, `lease:${offerId}`));
   const ok = shuffle(J.lease.clauses.filter((c) => !c.problem), r).slice(0, J.lease.okPerLease);
-  const bad = shuffle(J.lease.clauses.filter((c) => c.problem), r).slice(0, J.lease.problemsPerLease);
+  const shuffled = shuffle(J.lease.clauses.filter((c) => c.problem), r);
+  const bad = [...shuffled.filter((c) => include.includes(c.id)), ...shuffled.filter((c) => !include.includes(c.id))].slice(0, J.lease.problemsPerLease);
   const fmt = `$${(rentCents / 100).toLocaleString("en-CA")}`;
   return shuffle([...ok, ...bad], r).map((c) => ({
     id: c.id,
@@ -149,24 +145,6 @@ export function leaseFor(offerId: string, seed: number, rentCents: number, d: Di
     why: (c as { why?: string }).why,
     text: (d === "hard" ? c.legal : c.plain).replaceAll("{rent}", fmt),
   }));
-}
-
-// ---------- phase 7: events ----------
-export type JourneyEvent = (typeof J.events)[number];
-/** Fixed event ids (Base), or a seeded draw of n from the pool (Extended), never repeating `exclude`. */
-export function eventsFor(spec: string[] | number, seed: number, exclude: string[] = []): JourneyEvent[] {
-  const ids = typeof spec === "number" ? shuffle(J.seededEventPool.filter((id) => !exclude.includes(id)), rng(sub(seed, "events"))).slice(0, spec) : spec;
-  return ids.map((id) => J.events.find((e) => e.id === id)!);
-}
-
-/** With move-in photos, an event about existing damage ends differently (PRD v3 Change 1, round 4). */
-export function photoOutcome(e: JourneyEvent, photos: boolean): string | null {
-  const p = (e as { photos?: { with: string; without: string } }).photos;
-  return p ? (photos ? p.with : p.without) : null;
-}
-
-export function levelCorrect(e: JourneyEvent, picked: Level): boolean {
-  return picked === e.level || picked === (e as { alsoLevel?: string }).alsoLevel;
 }
 
 // ---------- phase 8 ----------

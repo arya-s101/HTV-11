@@ -2,8 +2,10 @@
 
 // Stat cards (PRD v3 Change 4): answer → feedback → one big, sourced number → next question.
 // Skippable by button, tap anywhere, Space or Enter; auto-advances unless held; "Show stats: off" removes them.
+import { Icon } from "@/components/icons";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { formatStat, statFor, unitWord, type StatCard as Card } from "@/game/stats";
+import { play } from "../audio";
 import { ProvChip } from "./primitives";
 import { useSettings } from "./settings";
 
@@ -45,6 +47,7 @@ export function StatCardView({ card, onDone }: { card: Card; onDone: () => void 
     onDone();
   }, [onDone]);
 
+  useEffect(() => play("stat"), []);
   // A short arm delay so the press that opened the card can't also close it.
   useEffect(() => {
     const t = setTimeout(() => setArmed(true), 300);
@@ -138,10 +141,10 @@ export function StatCardView({ card, onDone }: { card: Card; onDone: () => void 
         <div className="stat-actions" onClick={stop}>
           <ProvChip f={stat} />
           <button className={`btn ghost small ${hold ? "on" : ""}`} onClick={() => setHold(!hold)} aria-pressed={hold}>
-            {hold ? "▶ Resume" : "❚❚ Hold"}
+            <Icon name={hold ? "play" : "pause"} /> {hold ? "Resume" : "Hold"}
           </button>
           <button className="btn small" onClick={() => armed && finish()} autoFocus>
-            Skip ▶
+            Skip <Icon name="chevron-right" />
           </button>
         </div>
         {!hold && !still && <div className="stat-timer" style={{ animationDuration: `${statMs}ms` }} aria-hidden="true" />}
