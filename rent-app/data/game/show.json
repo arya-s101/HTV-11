@@ -1,0 +1,117 @@
+{
+  "_note": "Game-show script (PRD v2 §5.10). Original host (a generic cartoon presenter drawn in src/components/show/HostAvatar.tsx) and wording: no real TV show names, hosts, logos or catchphrases. Every line is at most 15 words.",
+  "host": {
+    "name": "Mustafa"
+  },
+  "showName": "The Lease You Can Do",
+  "welcome": [
+    "Welcome to The Lease You Can Do!",
+    "I'm your host, Mustafa.",
+    "Tonight: can you rent your first Toronto apartment?"
+  ],
+  "rounds": {
+    "search": {
+      "title": "Spot the Fake!",
+      "intro": [
+        "Listings incoming.",
+        "Legit, suspicious or scam? Check the rent against the area average."
+      ]
+    },
+    "viewing": {
+      "title": "Pick Your Place",
+      "intro": [
+        "Choose what you'll double-check.",
+        "Then pick a place. Every choice trades money, time and unknowns."
+      ]
+    },
+    "apply": {
+      "title": "Paperwork",
+      "intro": [
+        "Time to apply.",
+        "Bring what helps. Refuse what's risky."
+      ]
+    },
+    "negotiate": {
+      "title": "Haggle Time",
+      "intro": [
+        "Optional round!",
+        "Haggle with the landlord, or skip straight to the lease."
+      ]
+    },
+    "lease": {
+      "title": "Read the Fine Print",
+      "intro": [
+        "No clock this round.",
+        "Is each clause fine, or a problem?"
+      ]
+    },
+    "movein": {
+      "title": "Moving Day",
+      "intro": [
+        "Keys in hand!",
+        "One smart move before you unpack."
+      ]
+    },
+    "live": {
+      "title": "Something Breaks",
+      "intro": [
+        "Things go wrong. Who do you call?",
+        "And who can actually fix it?"
+      ]
+    },
+    "moveout": {
+      "title": "Moving Out",
+      "intro": [
+        "Time to move on.",
+        "Leave it right, and your receipts pay off."
+      ]
+    },
+    "report": {
+      "title": "The Report Card",
+      "intro": [
+        "Drumroll, please!"
+      ]
+    }
+  },
+  "reactions": {
+    "correct": [
+      "Nailed it!",
+      "Sharp eyes!",
+      "That's the one!",
+      "Look at you go!",
+      "Textbook!"
+    ],
+    "wrong": [
+      "Ooh, not quite.",
+      "So close!",
+      "Tricky one!",
+      "Not this time.",
+      "Happens to the best of us."
+    ]
+  },
+  "points": {
+    "answer": 100,
+    "small": 50,
+    "lifelineBonus": 150
+  },
+  "lifelines": [
+    {
+      "id": "hint",
+      "name": "Ask Mustafa",
+      "icon": "💡",
+      "help": "A hint for this question."
+    },
+    {
+      "id": "magnify",
+      "name": "Magnifier",
+      "icon": "🔍",
+      "help": "Decodes one piece of fine print."
+    },
+    {
+      "id": "pass",
+      "name": "Free Pass",
+      "icon": "⏭",
+      "help": "Skip one question, no penalty."
+    }
+  ]
+}

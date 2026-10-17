@@ -36,7 +36,7 @@ export interface Offer {
   utilities: { status: "unknown" | "illustrative"; includedInRent?: boolean; note: string };
   commuteMinutes: number;
   unknowns: VerifyItemId[];
-  reveal: { id: VerifyItemId; headline: string; text: string; extraMonthlyCents: number };
+  reveal: { id: VerifyItemId; headline: string; text: string; extraMonthlyCents: number; lines: string[] };
   /** How the same facts are shown at Normal (ad copy) and Hard (fine print + route legs). */
   presentation: { listingText: string; finePrint: string; routeLegs: RouteLeg[] };
 }
@@ -64,6 +64,8 @@ export interface Stage {
   defaultAge: number;
   ageRange: [number, number];
   enabled: boolean;
+  /** Runs the full eight-phase rental journey (PRD v2) instead of the single-decision flow. */
+  journey?: boolean;
   housingNeed: string;
   household?: string;
   destination?: { id: string; name: string };

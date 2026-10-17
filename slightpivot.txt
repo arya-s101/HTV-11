@@ -1,0 +1,295 @@
+# PRD — Toronto Rent Decisions Game (v2)
+
+> Working title. Rename after the core loop works. **Do not use "RentShield"** (taken by [rentshield.ca](https://rentshield.ca/)). Don't buy a domain until availability and event-code terms are checked.
+
+**Context:** Hack the Valley 11. Submitting to the [2026 School of Cities challenge](https://hack-the-valley-11.devpost.com/): civic tech for a real Toronto problem tied to the **October 26, 2026 municipal election** ([City election page](https://www.toronto.ca/city-government/elections/)), founded on Toronto urban data.
+
+---
+
+## 1. Summary
+
+**A flight simulator for your first Toronto apartment.** The player creates an 8-bit character and plays through the whole renting process: spotting fake listings, viewing a unit, applying, negotiating with a landlord, reading the lease, moving in, handling problems, and moving out. Mistakes are cheap here, so they're not made for real later. Every problem the player hits is sorted by **who can actually fix it** (you, your landlord, the City, the Province), which ends in a sourced, nonpartisan question to ask a 2026 municipal candidate.
+
+**Pitch:** "Practise renting in Toronto before you do it for real. Spot the scam, find what the landlord didn't mention, take the photos that save your deposit, and learn who to call when the heat breaks. Then see which of those problems your next city council can actually change."
+
+## 2. Users and use cases
+
+| User | Use case |
+|---|---|
+| Young person about to move out | Tests their apartment-hunting skills in a fun, low-stakes simulation |
+| Parent | Tells their kid to play it before signing a real lease; sees the readiness report card |
+| Newcomer / international student | Learns Toronto-specific process with no local experience (no Canadian credit history, high scam exposure) |
+| Toronto renter before the election | Learns which rental problems are municipal and leaves with a candidate question |
+
+**Design implication:** the game must be fun and replayable on its own merits. The civic layer adds meaning; it is not the reason to play.
+
+## 3. Goals and non-goals
+
+**Goals**
+- Teach the full renting process as practised decisions with consequences.
+- Build practical skills: spotting scams, finding unknown costs, documenting the unit, making requests in writing, knowing who to contact.
+- Teach jurisdiction: which problems the City can act on, which are provincial, which are personal.
+- Produce a readiness report card and one candidate question that depend on how the player actually played.
+
+**Non-goals — the app MUST NOT**
+- Show real listings or promise to find a home.
+- Give legal advice or determine anyone's legal rights. Tenancy rules appear only as sourced general information.
+- Tell people how to vote, endorse candidates, or invent candidate positions.
+- Predict a policy's dollar impact or project future prices.
+- Claim to be "first" or "only", or claim it protects people from scams, saves money or changes votes.
+
+## 4. Positioning
+
+Already exists, so none of these is the hero on its own:
+
+| Existing | Not our core |
+|---|---|
+| [RentShield.ca](https://rentshield.ca/) — rental comparison, hidden costs | Listing analyzer / recommender |
+| [Make Rent](https://farisfarooq.com/make-rent) — cost-of-living game with surprise expenses | "Survive a month on a Toronto salary" |
+| [Urban Institute: The Right Moves](https://apps.urban.org/features/right-moves/) — housing-choice game | "Choose a home, see consequences" alone |
+| [Rent or Buy Today](https://rentorbuytoday.com/play/) — gamified housing finance | Speed-run mechanics |
+| [TTCriders 2026 election dashboard](https://www.ttcriders.ca/2026election) | Static candidate-question list |
+| Life-sim games (BitLife-style) | Aging through random life events |
+| Government and tenant-org renting guides | Static renter information |
+
+**Wedge (provisional):** the whole Toronto renting process as playable, consequence-driven practice, where every problem is tied to the right person to contact and the right level of government. Never claim "first" or "only".
+
+## 5. Game structure
+
+```
+Character creator → Life stage (outer loop) → Rental journey, 8 phases (inner loop) → Report card + candidate question
+```
+
+### 5.1 Character creator
+
+- Layered original pixel-art sprite (hair, skin tone, clothing, accessory, palette). No recognizable game characters or brand styles.
+- Starting age picker; the game starts at the life stage that age falls into. Default 23.
+- **Appearance is cosmetic only** — never affects any number, offer, event or feedback.
+- **Demo preset** loads a fixed character, stage, difficulty and seed for a reproducible demo.
+
+### 5.2 Life stages (outer loop)
+
+| # | Stage | Default age | Housing need | Ships in demo? |
+|---|---|---|---|---|
+| 1 | Student | 20 | Room / shared unit, roommates | Roadmap |
+| 2 | **First job** | 23 | First solo rental | **Yes — full journey** |
+| 3 | New job | 27 | Move for a new workplace | Roadmap |
+| 4 | Moving in with a partner | 30 | Larger unit for two | Roadmap |
+| 5 | Kids | 34 | Family-sized unit | Roadmap |
+| 6 | Retirement | 66 | Accessible / downsized home | Roadmap |
+
+Rules: partner of any gender, kids optional, any stage skippable, no choice rewarded for being traditional. All stages use **dated 2026 figures, labelled "in 2026 dollars"**.
+
+### 5.3 Rental journey (inner loop, per stage)
+
+Each phase is short (about 30 seconds on the demo path). Each has: a mechanic, a learning goal, consequences that can carry forward, and items sorted by "who fixes this?" where relevant.
+
+| # | Phase | Mechanic | Player learns to |
+|---|---|---|---|
+| 1 | **Search: spot the fake** | Swipe/flag a feed of illustrative listings as legit, suspicious or scam | Recognize scam red flags; use the area's rent benchmark as a "too good to be true" test |
+| 2 | **Viewing** | Point-and-click pixel apartment; find issues within a time limit | Inspect a unit (moisture/mould, pests, water pressure, smoke alarm, windows, outlets) and ask what's included |
+| 3 | **Apply** | Pick which documents to bring; respond to a competing-applicant moment | Prepare an application; recognize what's normal to provide |
+| 4 | **Negotiate** (optional) | Chat with an LLM landlord (§5.5) | Negotiate price or terms using evidence; walk away when needed |
+| 5 | **Read the lease** | Highlight clauses that are suspicious or missing | Read a lease before signing; know that Ontario has a standard lease form |
+| 6 | **Move in** | Photo walkthrough: tap each room/defect to "photograph" it; choose tenant insurance | Document condition at move-in; insure belongings |
+| 7 | **Live there** | Random events (broken heat, pests, rent-increase notice, noisy neighbour, repair delay); choose a response and who to contact | Make requests in writing, follow up, escalate to the right body |
+| 8 | **Move out / renew** | Give notice, final walkthrough, deposit outcome | Leave properly; see how earlier receipts pay off |
+
+**Phase 1 ties to the evidence layer:** a listing far below the dated CMHC survey-zone benchmark for its area is a red flag. The benchmark gets a gameplay job.
+
+**The decision screen from v1 is part of phase 2–4:** the player compares 2–3 fictional offers (rent, utilities or "unknown", commute), marks what they'd verify, then sees rent burden, fare and commute time separately (§6).
+
+### 5.4 Receipts inventory
+
+The character carries "receipts": move-in photos, written repair requests, the signed lease, the deposit receipt. Later events check for them. Example: no move-in photos means a damage dispute at move-out goes worse. Teaches documentation through consequences, not lectures.
+
+### 5.5 Negotiation mode (LLM landlord)
+
+- **The LLM voices the landlord; code decides the deal.** Each offer has a hidden deterministic config: asking rent, floor rent, allowed concessions (utilities included, move-in date, parking), and which arguments move the landlord (citing the benchmark, flexible move-in, longer stay).
+- LLM returns structured output (`message`, `proposed_rent`, `proposed_concessions`, `deal_status`). Code rejects any rent below the floor or unlisted concession. Final rent is labelled **"illustrative — negotiated"**.
+- Evidence-based arguments move the landlord more than generic haggling.
+- Difficulty sets floor distance, number of concessions, landlord patience and pressure tactics ("other applicants").
+- **The landlord never states legal rules or rights.** If asked, it deflects and the UI links official Ontario information.
+- Prompt-injection proof by design (floor enforced in code). Landlord stays respectful; ends the chat on abusive input.
+- **Scripted fallback landlord** for API failure and the demo preset.
+- Walking away is always valid.
+
+### 5.6 Who fixes this? (jurisdiction sorting)
+
+Every problem encountered gets sorted. Two layers:
+
+- **Who do I contact?** (practical): landlord in writing, 311, the Landlord and Tenant Board, police/anti-fraud reporting, insurer.
+- **Which level of government?** (civic): personal, City of Toronto, Province of Ontario, shared/federal.
+
+Examples, all to be confirmed against official sources before shipping:
+- Scam listing → personal vigilance; report to fraud reporting bodies.
+- Building-wide heat or pest problems in an apartment building → City services (311, RentSafeTO).
+- Rent increases, deposits, evictions, lease rules → Province (Residential Tenancies Act, Landlord and Tenant Board).
+- Long commute → City (TTC service). The City lists the [TTC as an agency managing Toronto transit](https://www.toronto.ca/city-government/accountability-operations-customer-service/city-administration/city-managers-office/agencies-corporations/agencies/), and [TTC service standards guide route and service planning](https://secure.toronto.ca/council/agenda-item.do?item=2025.TTS2.1).
+
+Wrong sorting gets feedback with a source link. Teaching what the City **can't** do (most tenancy rules are provincial) is a goal, not a gap.
+
+### 5.7 Civic notebook and candidate question
+
+- Each City-level problem the player encounters adds a draft question to the notebook, built from their actual experience and cited evidence (template-based, deterministic).
+- At the end, the player picks one to copy. Link the [official election hub](https://www.toronto.ca/city-government/elections/).
+- Example shape: *"In areas where renters face long commutes, what measurable TTC service action would you prioritize, and when would residents see a public progress report?"*
+- Labelled a draft question, never an endorsement or predicted result. Optional for players who aren't interested; never blocks the report card.
+
+### 5.8 Difficulty
+
+Difficulty changes **how information is presented, never what is true.**
+
+| Level | Presentation |
+|---|---|
+| Easy (default) | Costs as plain line items; unknowns labelled; scams obvious; issues in the viewing clearly visible |
+| Normal | Costs hidden in listing text ("+ hydro"); scams plausible; issues need a closer look |
+| Hard | Costs in lease-style fine print; commute as stop/route info only; benchmark as a raw CMHC table; scams subtle; tougher landlord |
+
+Every hidden fact is recoverable from what's on screen. Provenance badges stay visible at every level. Reveals show everything plainly afterwards, plus what the player caught vs. missed.
+
+### 5.9 Rental readiness report card
+
+End-of-run summary, shareable (image or link):
+- Scams caught / missed
+- Unknown costs and viewing issues found
+- Lease problems spotted
+- Receipts kept
+- Correct "who to contact" choices
+- Trend across stages (when more stages ship)
+
+Score **skill only** — never income, neighbourhood, cash-vs-commute preference, or whether the player spent more or less. Replays use a different random seed for listings, scams and events so a second run isn't memorized.
+
+**Tone:** playful, a bit funny, never preachy or shaming. Consequences land (lost deposit, cold apartment), then the game shows what would have prevented them.
+
+## 6. Hero demo values — Stage 2, First job (all illustrative)
+
+| Field | Value |
+|---|---|
+| Gross income | $55,000/yr → $4,583.33/mo |
+| Trips | 20 workdays, 40 one-way journeys/mo |
+| Offer A | $1,600 rent, 60 min one-way → burden ≈ 34.9% |
+| Offer B | $1,750 rent, 30 min one-way → burden ≈ 38.2% |
+| Time difference | 30 min × 40 = **20 hours/mo** |
+| TTC fare (both) | 40 × $3.30 = **$132** ([Sept 2026 adult fare](https://www.ttc.ca/news/2026/September/Back-to-school-on-the-TTC)) |
+
+B costs $150 more and saves 20 h of travel; **no fare savings**. Either preference is valid. Real fares vary with two-hour transfers, other trips, discounts and the [47-paid-trip monthly cap](https://www.ttc.ca/riding-the-ttc/Updates/Monthly-fare-capping-coming-to-the-TTC). Commute times stay labelled illustrative until a validated router exists.
+
+## 7. Hard rules
+
+- **MUST** label every displayed number `measured`, `derived`, `illustrative` or `unknown`.
+- **MUST** keep fictional characters/offers/listings separate from real Toronto observations. Every listing shows **"Illustrative — not a real listing."**
+- **MUST** compute all figures deterministically in code. LLMs never create costs, figures, geography joins or legal content.
+- **MUST** source all tenancy/legal and scam-pattern content from official pages (Ontario government, Landlord and Tenant Board, City of Toronto, recognized fraud-reporting bodies), stored with its URL and retrieval date, and labelled "general information, not legal advice."
+- **MUST NOT** let appearance affect anything but looks.
+- **MUST NOT** project future prices.
+- **MUST NOT** invent fare savings from a shorter trip.
+- **MUST NOT** imply a councillor can change a route, set market rents, or that City Hall controls tenancy law.
+- **MUST NOT** present CMHC averages as live asking rents, or GTFS as a computed route time.
+- **MUST NOT** remove provenance labels or make facts unrecoverable at any difficulty.
+- **MUST NOT** accept LLM-proposed rent/concessions without code validation; **MUST NOT** let the LLM give legal information; **MUST NOT** expose the API key client-side.
+- **MUST NOT** depend on Facebook Marketplace or any unlicensed listing feed.
+- In-game scam listings teach recognition of patterns; they must not read as usable real-world scam templates (no real names, phone numbers, emails or payment details).
+- RentSafeTO data only with a verified real-building match, never as proof a unit is available or safe.
+
+## 8. Data and content
+
+Every number:
+
+```ts
+type Field<T> = {
+  value: T | null;          // null when status === "unknown"
+  unit: string;
+  geography: string;        // "Fictional", "CMHC Toronto survey zone X", "Neighbourhood #N"
+  reference_period: string; // "2021 Census", "Sept 2026 fare"
+  source_url: string | null;
+  status: "measured" | "derived" | "illustrative" | "unknown";
+};
+```
+
+Every piece of teaching content (red flag, lease clause, contact rule, jurisdiction fact):
+
+```ts
+type ContentItem = {
+  id: string;
+  phase: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  claim: string;            // plain-language general info
+  jurisdiction: "personal" | "landlord" | "city" | "province" | "federal" | "shared";
+  contact?: string;         // "Landlord in writing", "311", "Landlord and Tenant Board"
+  source_url: string;       // official source, required
+  retrieved: string;        // ISO date
+  verified_by: string;      // teammate initials
+};
+```
+
+Content without a `source_url` doesn't ship.
+
+**Real Toronto sources (dated context only):**
+
+| Source | Use | Caveat |
+|---|---|---|
+| City of Toronto 158 neighbourhood boundaries (Open Data) | Locate fictional offers | — |
+| 2021 Neighbourhood Profiles (Open Data) | Renter / shelter-cost-burden context | Census 2021 |
+| CMHC Rental Market Survey, Toronto | Benchmark for decisions and "too good to be true" | Survey-zone averages, not live asking rents; label geography/year |
+| Apartment Building Evaluation / RentSafeTO (Open Data) | Only with verified building match | Buildings, not units |
+| TTC GTFS static feed | Future routing | Planned service; no route computed yet |
+| TTC fare pages (§6) | Fare rule | Dated |
+
+Re-fetch and record exact URLs, fields and retrieval dates in `data/SOURCES.md`.
+
+## 9. Technical shape (default — change if the team prefers)
+
+- Static single-page web app + **one serverless function** proxying the LLM (holds the key, per-session turn limit, timeout).
+- `src/character/` — sprite creator (canvas or CSS grid, integer scaling, `image-rendering: pixelated`), age picker, demo preset.
+- `src/journey/` — one module per phase; shared phase interface (`start`, `evaluate`, `consequences`, `receipts`).
+- `src/negotiation/` — chat UI, schema validation, floor/concession enforcement, scripted fallback.
+- `src/difficulty/` — renders the same underlying data at each level.
+- `src/calc/` — pure functions: income, burden, fares with cap, time difference. Unit-tested against §6.
+- `src/civic/` — jurisdiction sorting, notebook, question builder.
+- `src/report/` — report card + share image.
+- `data/stages.json`, `data/listings.json`, `data/events.json`, `data/content.json` (ContentItems), `data/evidence.json`.
+- Seeded RNG so any run is reproducible from its seed.
+
+## 10. Build order and acceptance criteria
+
+**Demo path:** Stage 2 (First job), full 8-phase journey, Easy difficulty, demo preset, in about 4–5 minutes.
+
+| Tier | Contents |
+|---|---|
+| 1 | Character creator; Stage 2 phases 1, 2, 6, 7 with receipts; decision screen + calc; who-fixes-this sorting; report card; candidate question |
+| 1b | Phases 3, 5, 8; Hard difficulty |
+| 1c | Negotiation (phase 4): scripted fallback first, then LLM |
+| 2 | Normal difficulty; replay seeds; other life stages, each only once its content is sourced |
+
+Don't start a tier until the previous one passes its checks.
+
+**Tier 1**
+- [ ] Creator: ≥4 sprite layers, age picker, demo preset; appearance changes no numbers (test).
+- [ ] Phase 1: at least one scam is detectable via the benchmark; feedback names the red flag with a source.
+- [ ] Phase 2: at least 4 findable issues; missed issues reappear as consequences in phase 7.
+- [ ] Phase 6: photos become receipts; phase 7/8 outcomes differ with and without them.
+- [ ] Phase 7: each event asks who to contact; wrong choice gets sourced feedback.
+- [ ] Calc tests pass: $4,583.33/mo; 34.9% / 38.2%; 20 h; $132 for both; cap at 47 paid trips.
+- [ ] Every number shows its status badge; every listing shows the illustrative label.
+- [ ] Every ContentItem shown has a source URL.
+- [ ] Report card scores skill only; candidate question varies with what the player encountered and links the election hub.
+- [ ] No text endorses a candidate, predicts a policy outcome, gives legal advice, or claims "first/only".
+
+**Tier 1b–1c**
+- [ ] Easy and Hard render the same data; every Hard fact is decodable on screen.
+- [ ] LLM rent below floor or unlisted concession is rejected; injection attempts can't break the floor.
+- [ ] Scripted landlord completes a negotiation with the API off; API key is server-side only.
+- [ ] Evidence-based arguments move the landlord more than generic ones (deterministic test).
+
+## 11. Observable learning outcomes (only these may be claimed)
+
+Per run and across replays: scams caught, unknown costs and issues found, receipts kept, correct contact chosen, correct jurisdiction attributed, question names a lever and a measurable outcome.
+
+## 12. Open items
+
+- Official sources for every ContentItem: scam red flags, viewing checklist, application norms, Ontario standard lease and lease red flags, deposits, rent increases, repair and maintenance obligations, move-out, 311/RentSafeTO scope.
+- Life-stage content for stages 1, 3–6.
+- Which LLM API powers the landlord (check sponsor prize eligibility).
+- Negotiation configs per offer and difficulty.
+- Validated commute router, or keep times illustrative.
+- Final name.

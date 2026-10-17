@@ -3,50 +3,98 @@
   "offers": {
     "s1-a": {
       "landlord": "Dev, the head tenant",
-      "persona": "A friendly grad student who manages the house lease and wants a reliable housemate.",
+      "persona": "A laid-back grad student who holds the house lease, loves the house's Sunday dinners, and just wants a housemate who's easy to live with.",
       "concessions": [
-        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false },
-        { "id": "furnished-desk", "label": "A desk and chair left in the room", "monetary": false }
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        },
+        {
+          "id": "furnished-desk",
+          "label": "A desk and chair left in the room",
+          "monetary": false
+        }
       ]
     },
     "s1-b": {
       "landlord": "Ms. Okafor",
-      "persona": "A practical owner who rents rooms in her apartment and values quiet, tidy tenants.",
+      "persona": "A warm, chatty owner who rents rooms in her apartment, likes having students around, and keeps the place quiet and tidy.",
       "concessions": [
-        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false },
-        { "id": "storage", "label": "A storage locker", "monetary": false }
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        },
+        {
+          "id": "storage",
+          "label": "A storage locker",
+          "monetary": false
+        }
       ]
     },
     "s1-c": {
       "landlord": "Mr. Tran",
-      "persona": "A homeowner renting out a newly finished basement for the first time; careful and a little nervous.",
+      "persona": "A friendly homeowner renting out their newly finished basement for the first time; a little nervous, eager to be fair, proud of the reno.",
       "concessions": [
-        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
-        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false }
+        {
+          "id": "utilities-included",
+          "label": "Hydro included in rent",
+          "monetary": true
+        },
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        }
       ]
     },
     "s2-a": {
-      "landlord": "Northgate Property Management",
-      "persona": "A busy rental office for a large older building; polite, procedural and short on time.",
+      "landlord": "Sam at Northgate Property Management",
+      "persona": "Sam from the rental office of a big older building; busy but genuinely kind, knows the building inside out, and wants tenants to be happy there.",
       "concessions": [
-        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
-        { "id": "fresh-paint", "label": "Fresh paint before move-in", "monetary": false }
+        {
+          "id": "utilities-included",
+          "label": "Hydro included in rent",
+          "monetary": true
+        },
+        {
+          "id": "fresh-paint",
+          "label": "Fresh paint before move-in",
+          "monetary": false
+        }
       ]
     },
     "s2-b": {
       "landlord": "Priya, the owner",
-      "persona": "An owner of a few units in a newer mid-rise who likes long-term tenants and dislikes vacancies.",
+      "persona": "An easygoing owner of a few units in a newer mid-rise who loves long-term tenants and would much rather have a nice person than an empty unit.",
       "concessions": [
-        { "id": "laundry-waived", "label": "In-suite laundry at no extra charge", "monetary": false },
-        { "id": "move-in-flex", "label": "Move-in date that suits you", "monetary": false }
+        {
+          "id": "laundry-waived",
+          "label": "In-suite laundry at no extra charge",
+          "monetary": false
+        },
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        }
       ]
     },
     "s2-c": {
       "landlord": "Marco, the condo owner",
-      "persona": "An investor-owner of one condo unit who watches the market closely and wants it rented fast.",
+      "persona": "A friendly condo owner who's renting out the unit they used to live in, cares about who moves in, and would like it rented soon.",
       "concessions": [
-        { "id": "utilities-included", "label": "Hydro included in rent", "monetary": true },
-        { "id": "parking", "label": "A parking spot", "monetary": false }
+        {
+          "id": "utilities-included",
+          "label": "Hydro included in rent",
+          "monetary": true
+        },
+        {
+          "id": "parking",
+          "label": "A parking spot",
+          "monetary": false
+        }
       ]
     }
   },

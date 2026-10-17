@@ -14,8 +14,10 @@ const stage = (id: string) => {
   if (!isPlayable(s)) throw new Error(`${id} not playable`);
   return s as PlayableStage;
 };
+/** Roadmap stages keep their data; calculations on them are still checked. */
+const stageData = (id: string) => STAGES.find((x) => x.id === id)! as PlayableStage;
 const firstJob = stage("first-job");
-const student = stage("student");
+const student = stageData("student");
 
 describe("PRD §4 hero values (Stage 2, first job)", () => {
   it("monthly income $4,583.33", () => {
@@ -101,17 +103,17 @@ describe("character creator", () => {
 describe("life stages", () => {
   it("maps starting age to the right stage", () => {
     expect(stageForAge(20).id).toBe("student");
-    expect(stageForAge(16).id).toBe("student");
     expect(stageForAge(23).id).toBe("first-job");
     expect(stageForAge(27).id).toBe("new-job");
     expect(stageForAge(66).id).toBe("retirement");
   });
   it("plays from the starting stage onward and ages the character", () => {
-    const p = planLife(20);
-    expect(p.playable.map((x) => [x.stage.id, x.age])).toEqual([["student", 20], ["first-job", 23]]);
+    // Student is on the roadmap (PRD v2), so a 20-year-old starts the playable journey at First job, aged 23.
+    expect(planLife(20).playable.map((x) => [x.stage.id, x.age])).toEqual([["first-job", 23]]);
+    expect(planLife(23).playable.map((x) => [x.stage.id, x.age])).toEqual([["first-job", 23]]);
     expect(planLife(24).playable.map((x) => [x.stage.id, x.age])).toEqual([["first-job", 24]]);
     expect(planLife(40).playable).toEqual([]);
-    expect(planLife(20).comingSoon.map((s) => s.id)).toEqual(["new-job", "partner", "kids", "retirement"]);
+    expect(planLife(23).comingSoon.map((s) => s.id)).toEqual(["new-job", "partner", "kids", "retirement"]);
   });
   it("only ships stages whose lever is officially sourced", () => {
     for (const s of STAGES.filter(isPlayable)) {
@@ -119,7 +121,7 @@ describe("life stages", () => {
       expect(l.sourced).toBe(true);
       expect(l.sources.length).toBeGreaterThan(0);
     }
-    expect(STAGES.filter(isPlayable).map((s) => s.id)).toEqual(["student", "first-job"]);
+    expect(STAGES.filter(isPlayable).map((s) => s.id)).toEqual(["first-job"]);
   });
 });
 

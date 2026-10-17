@@ -28,6 +28,27 @@
       ]
     },
     {
+      "id": "rentsafeto",
+      "name": "RentSafeTO and the indoor temperature bylaw",
+      "jurisdiction": "municipal",
+      "sourced": true,
+      "summary": "The City asks tenants to make repair requests in writing, sets landlord response times (24 hours urgent, seven days non-urgent), takes complaints through 311, and requires at least 21\u00b0C from October 1 to May 15 where the landlord pays for heat.",
+      "sources": [
+        {
+          "title": "City of Toronto: RentSafeTO for tenants: service requests",
+          "url": "https://www.toronto.ca/community-people/housing-shelter/rental-housing-rights-information/housing-property-standards/apartment-building-standards/rentsafeto-for-tenants/rentsafeto-for-tenants-service-requests-complaints-investigations/",
+          "retrievedOn": "2026-10-17",
+          "supports": "Requests in writing, keep a copy; 24-hour urgent and seven-day non-urgent response; 311 if unresolved (page modified 2026-02-24)."
+        },
+        {
+          "title": "City of Toronto: Indoor temperatures in apartment units",
+          "url": "https://www.toronto.ca/community-people/housing-shelter/rental-housing-rights-information/housing-property-standards/indoor-temperatures-in-apartment-units/",
+          "retrievedOn": "2026-10-17",
+          "supports": "21\u00b0C minimum October 1 to May 15 where the owner pays for heat; 311 if unresolved (page modified 2026-09-01)."
+        }
+      ]
+    },
+    {
       "id": "rent-guideline",
       "name": "Ontario rent increase guideline",
       "jurisdiction": "provincial",
@@ -42,17 +63,45 @@
         }
       ]
     },
-    { "id": "planning-near-transit", "name": "Housing near transit (planning)", "jurisdiction": "municipal", "sourced": false, "summary": "To verify.", "sources": [] },
+    {
+      "id": "planning-near-transit",
+      "name": "Housing near transit (planning)",
+      "jurisdiction": "municipal",
+      "sourced": false,
+      "summary": "To verify.",
+      "sources": []
+    },
     {
       "id": "affordable-rental-delivery",
       "name": "Affordable rental delivery",
       "jurisdiction": "shared",
       "sourced": false,
       "summary": "Partially sourced: the City housing plan exists, but which parts are municipal vs. provincial/federal is not yet verified.",
-      "sources": [{ "title": "City of Toronto housing plan (background file)", "url": "https://www.toronto.ca/legdocs/mmis/2023/ex/bgrd/backgroundfile-234815.pdf", "retrievedOn": "2026-10-17", "supports": "URL reachable (HTTP 200); content not yet reviewed for this lever." }]
+      "sources": [
+        {
+          "title": "City of Toronto housing plan (background file)",
+          "url": "https://www.toronto.ca/legdocs/mmis/2023/ex/bgrd/backgroundfile-234815.pdf",
+          "retrievedOn": "2026-10-17",
+          "supports": "URL reachable (HTTP 200); content not yet reviewed for this lever."
+        }
+      ]
     },
-    { "id": "family-sized-units", "name": "Family-sized units in planning", "jurisdiction": "shared", "sourced": false, "summary": "To verify.", "sources": [] },
-    { "id": "seniors-housing", "name": "Seniors' housing and accessibility", "jurisdiction": "shared", "sourced": false, "summary": "To verify.", "sources": [] }
+    {
+      "id": "family-sized-units",
+      "name": "Family-sized units in planning",
+      "jurisdiction": "shared",
+      "sourced": false,
+      "summary": "To verify.",
+      "sources": []
+    },
+    {
+      "id": "seniors-housing",
+      "name": "Seniors' housing and accessibility",
+      "jurisdiction": "shared",
+      "sourced": false,
+      "summary": "To verify.",
+      "sources": []
+    }
   ],
   "fares": {
     "adultFareCents": 330,
@@ -61,10 +110,29 @@
     "transferWindowMinutes": 120,
     "referencePeriod": "September 2026 fares",
     "sources": [
-      { "title": "TTC: Back to school on the TTC (September 4, 2026)", "url": "https://www.ttc.ca/news/2026/September/Back-to-school-on-the-TTC", "retrievedOn": "2026-10-17", "supports": "$3.30 adult PRESTO/debit/credit; $128.15 post-secondary monthly pass with TTC Post-Secondary Student Photo ID; 47-paid-trip monthly cap with the same payment method." },
-      { "title": "TTC: Monthly fare capping", "url": "https://www.ttc.ca/riding-the-ttc/Updates/Monthly-fare-capping-coming-to-the-TTC", "retrievedOn": "2026-10-17", "supports": "Fare-capping page reachable (HTTP 200)." },
-      { "title": "TTC: Fares and passes", "url": "https://www.ttc.ca/Fares-and-passes", "retrievedOn": "2026-10-16", "supports": "Two-hour transfer; 47-fare cap; capping began August 31, 2026." }
+      {
+        "title": "TTC: Back to school on the TTC (September 4, 2026)",
+        "url": "https://www.ttc.ca/news/2026/September/Back-to-school-on-the-TTC",
+        "retrievedOn": "2026-10-17",
+        "supports": "$3.30 adult PRESTO/debit/credit; $128.15 post-secondary monthly pass with TTC Post-Secondary Student Photo ID; 47-paid-trip monthly cap with the same payment method."
+      },
+      {
+        "title": "TTC: Monthly fare capping",
+        "url": "https://www.ttc.ca/riding-the-ttc/Updates/Monthly-fare-capping-coming-to-the-TTC",
+        "retrievedOn": "2026-10-17",
+        "supports": "Fare-capping page reachable (HTTP 200)."
+      },
+      {
+        "title": "TTC: Fares and passes",
+        "url": "https://www.ttc.ca/Fares-and-passes",
+        "retrievedOn": "2026-10-16",
+        "supports": "Two-hour transfer; 47-fare cap; capping began August 31, 2026."
+      }
     ]
   },
-  "electionHub": { "title": "City of Toronto Elections (municipal election Monday, October 26, 2026)", "url": "https://www.toronto.ca/city-government/elections/", "retrievedOn": "2026-10-17" }
+  "electionHub": {
+    "title": "City of Toronto Elections (municipal election Monday, October 26, 2026)",
+    "url": "https://www.toronto.ca/city-government/elections/",
+    "retrievedOn": "2026-10-17"
+  }
 }

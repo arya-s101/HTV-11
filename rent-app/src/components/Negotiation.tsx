@@ -22,13 +22,19 @@ interface ServerReply {
   concessions: { id: string; label: string; monetary: boolean }[];
   status: "open" | "final" | "ended";
   turnsLeft: number;
+  strength: number;
+  strongAt: number;
+  strong: boolean;
   legalHelp: { title: string; url: string } | null;
 }
 
 const CHIPS = [
   "The CMHC average rent for this kind of unit in this area is lower than yours.",
+  "I've seen another place that's comparable and cheaper.",
+  "I have a stable full-time job and great references.",
   "I'm flexible on the move-in date.",
   "I'd sign an 18-month lease.",
+  "I'm ready to sign this week.",
   "Could utilities be included in the rent?",
   "Could you come down a little on the rent?",
 ];
@@ -144,6 +150,14 @@ export function Negotiation(props: {
           <Badge f={{ status: "illustrative", geography: "Fictional scenario", reference_period: last ? "illustrative — negotiated" : "listed", source_url: null }} />
           {rent !== offer.rentCents && <span className="small"> (listed {money(offer.rentCents)})</span>}
           {concessions.length > 0 && <div className="small">Extras: {concessions.map((c) => c.label).join(", ")}</div>}
+        </div>
+        <div className="case-meter" title="Each kind of solid argument adds to your case. A strong case unlocks extra room on the rent.">
+          <span className="small">{last?.strong ? "Strong case: extra room unlocked" : "Your case"}</span>
+          <span className="pips" aria-label={`Case strength ${last?.strength ?? 0} of ${last?.strongAt ?? "?"}`}>
+            {Array.from({ length: last?.strongAt ?? 4 }).map((_, i) => (
+              <span key={i} className={i < (last?.strength ?? 0) ? "on" : ""} />
+            ))}
+          </span>
         </div>
         <div className="small muted">
           {last ? (last.status === "open" ? `${last.turnsLeft} message${last.turnsLeft === 1 ? "" : "s"} before a final offer` : last.status === "final" ? "Final offer" : "Conversation ended") : ""}

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { customCareer } from "@/server/career";
+import { customCareer, presetCareer } from "@/server/career";
 import { cleanProfession, PRESETS, STAGE_IDS, templatePath, validatePath } from "./career";
 
 const good = { valid: true, stages: STAGE_IDS.map((id) => ({ stage_id: id, title: "Pharmacy technician", blurb: "Learning the ropes at a community pharmacy." })) };
@@ -48,5 +48,27 @@ describe("customCareer()", () => {
     expect(failed).toMatchObject({ ok: true, fallbackReason: "model call failed" });
     const invalid = await customCareer("pharmacist", async () => ({ valid: false, stages: [] }));
     expect(invalid.ok).toBe(false);
+  });
+});
+
+describe("presetCareer()", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  it("keeps the handwritten path without a key", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "");
+    const r = await presetCareer("nursing");
+    expect(r).toMatchObject({ ok: true, fallbackReason: "no GEMINI_API_KEY configured", profession: { id: "nursing", source: "preset" } });
+    expect(r.ok && r.profession.path.student.title).toBe("Nursing student");
+  });
+  it("uses a fresh validated Gemini path but keeps the preset selected", async () => {
+    const r = await presetCareer("nursing", async () => good);
+    expect(r).toMatchObject({ ok: true, profession: { id: "nursing", label: "Nursing", source: "llm" } });
+    expect(r.ok && r.profession.path["first-job"].title).toBe("Pharmacy technician");
+  });
+  it("falls back to the handwritten path on bad output or failure, and rejects unknown presets", async () => {
+    const bad = await presetCareer("nursing", async () => ({ valid: true, stages: [] }));
+    expect(bad).toMatchObject({ profession: { source: "preset" }, fallbackReason: "model output failed validation" });
+    const failed = await presetCareer("nursing", async () => { throw new Error("x"); });
+    expect(failed).toMatchObject({ profession: { source: "preset" }, fallbackReason: "model call failed" });
+    expect((await presetCareer("astronaut")).ok).toBe(false);
   });
 });

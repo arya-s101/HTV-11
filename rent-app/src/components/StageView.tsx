@@ -468,7 +468,7 @@ export function StageView(props: {
   );
 }
 
-function OfferCard(props: { o: Offer; letter: string; difficulty: Difficulty; decodedValue: string; onDecode: (v: string) => void; onChoose: () => void }) {
+export function OfferCard(props: { o: Offer; letter: string; difficulty: Difficulty; decodedValue: string; onDecode: (v: string) => void; onChoose: () => void }) {
   const { o, letter, difficulty, decodedValue, onDecode, onChoose } = props;
   const e = evidenceFor(o.neighbourhoodId);
   return (
@@ -601,7 +601,7 @@ export function ScoreBox({ score }: { score: Score }) {
   );
 }
 
-function Fact({ title, f, caveat }: { title: string; f: Parameters<typeof Num>[0]["f"]; caveat: string }) {
+export function Fact({ title, f, caveat }: { title: string; f: Parameters<typeof Num>[0]["f"]; caveat: string }) {
   return (
     <div className="panel fact on-dark">
       <h3>{title}</h3>

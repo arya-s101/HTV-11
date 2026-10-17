@@ -125,3 +125,69 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
   reduced motion). New pages `/how-it-works` and `/sources` are generated from the data files. Home has a hero, a 5-step strip and feature cards. The
   creator is grouped (Who you are / Look / Game) with a sticky preview. In-game there's a HUD bar (avatar, age, job, stage, difficulty, Quit) and the timeline shows job titles.
 - Tests: 46 pass. Browser: Easy demo with negotiation, Hard run, home/creator/stage/pages at desktop and phone, no console errors, no overflow.
+
+## Gemini for every profession + first live checks (2026-10-17)
+
+- Preset buttons now call `/api/career` with `{presetId}`. The handwritten path shows at once and Gemini's fresh path replaces it when it
+  arrives; a request counter makes sure only the latest click can update the character. Bad output, failures and no key keep the handwritten path.
+- **Live Gemini verified** for the first time, with the user's key in `.env.local`. The file was never opened; the source was confirmed from API responses.
+  Two Teaching runs produced different paths. "bus driver" became "Transit Operator". The negotiation used Gemini wording, and the injected "$1" was
+  ignored: rent stayed at code's $2,025.
+- Tests: 49 pass.
+
+## Friendlier landlord (2026-10-17)
+
+- Rewrote the Gemini system prompt: the landlord is a kind, casual person texting. It reacts to what you said first, says no gently with a human reason,
+  varies its openings, and writes 2 to 4 sentences. The decision, number and legal guardrails are unchanged. Personas were rewritten to be warmer.
+  Northgate's landlord is now "Sam at Northgate Property Management". Temperature is 0.9.
+- Found and fixed a validation gap during live testing: Gemini wrote prices in words ("sixteen hundred"), which slipped past the `$`-only check.
+  The validator now refuses spelled-out amounts (hundred/thousand or number-word pairs) and checks bare numbers of 100+ that aren't years; the prompt requires `$1,600`-style digits.
+- The scripted fallback and demo voice were rewritten in the same friendly tone, including the legal-question deflection.
+- Tests: 50 pass. Live check: 6 Gemini replies across 4 scenarios, all warm, varied and on code's numbers.
+
+## Rent leeway for a strong case (2026-10-17)
+
+- New code-decided "case strength". Each kind of argument counts once: valid CMHC point 2, cheaper comparable offer in the same stage 2 (only if one exists),
+  reliable tenant (job, references, pays on time) 1, ready to sign 1, flexible move-in 1, longer lease 1. Reaching 3 / 4 / 5 on Easy / Normal / Hard
+  triggers a one-time goodwill cut ($75 / $75 / $50) and deepens the floor from 8/5/2% to 12/8/5% under asking. Weak haggling never passes the normal floor.
+- The chat shows a case meter and new quick replies (a cheaper comparable place, stable job and references, ready to sign). How it works explains the rule.
+- Live (Hard, Offer B $1,750): a weak ask stayed at $1,750; a strong two-message case reached 5/5, giving $1,700 plus free laundry, all on code's numbers.
+- Tests: 53 pass.
+
+## Background music slot (2026-10-17)
+
+- `public/music/` holds `theme.mp3|ogg|m4a|wav` (README inside). `MusicToggle` in the navbar HEAD-checks for the file, loops it at 30%,
+  starts on the first click or keypress (autoplay policy), and remembers on/off in localStorage. It's hidden when no file exists.
+- Verified with a temporary test tone (since deleted): it plays after a click, toggles, and the "off" choice survives a reload. With no file the button is hidden.
+
+## PRD v2 pivot: the rental journey (slightpivot.txt, 2026-10-17)
+
+- Stage 2 is now the full 8-phase journey, built to Tiers 1, 1b and 1c. Student is now on the roadmap (its journey content isn't sourced), and the default age is 23.
+- **Sources first:** 28 ContentItems, each opened and confirmed on an official page before use. Sources: Competition Bureau (scams, report to the Canadian Anti-Fraud Centre),
+  CMHC (viewing checks, move-in inspection), OHRC (what landlords can ask), the Ontario standard lease guide (void terms, deposits, insurance), LTB guides
+  (24-hour entry notice, rent deposit, repairs, 60-day N9), Ontario rent increases, and City of Toronto pages (21°C heat Oct 1 to May 15, RentSafeTO requests in
+  writing then 311, smoke alarms). Correction: Toronto's heat window is now Oct 1 to May 15, not Sept 15 to June 1. Every item reads
+  `verified_by: "AI (Claude); needs teammate check"`, because the PRD asks for teammate initials.
+- Mechanics: seeded RNG per phase; viewing issues you miss come back as Live-there events. Move-in photos decide the move-out dispute. The insurance choice
+  changes an event's outcome but not the score. The report card is skill only. The civic notebook builds questions from the City-level problems you hit
+  (TTC reliability, heat, repairs); the City lever "RentSafeTO and the indoor temperature bylaw" was added.
+- Tests: 68 pass. Browser: the demo plays all 8 phases to the report card in about 25 s of automated clicks, with no errors and no phone overflow.
+- Background music: the user added public/music/theme.mp3, and the navbar toggle detects it.
+
+## Game-show presentation (gameshow.txt, PRD v2 §5.10), 2026-10-17
+
+- New show shell in `src/components/show/`:
+  - **Text:** line player (typewriter; tap finishes, then advances; auto-advances after a pause).
+  - **Show pieces:** host "Mustafa" (an original, generic cartoon presenter in 8-bit pixel art, plus his own name and script), round title cards with a pixel-dissolve entrance, a podium bar (score with fly-up points, receipts, lifelines, settings, quit), and a round strip.
+  - **Numbers and answers:** animated counters with provenance chips that open their sources, a "Why? · Source" drawer, big 2–4 choice buttons, and reveals (drumroll → ✓/✗ with words, not just colour → host quip → lesson lines). Confetti on the report card.
+  - **Settings:** text speed (slow/normal/fast/instant), skip animations, and sound effects (Web Audio; off by default). Reduced motion turns off movement, shake and confetti. The demo runs at "fast".
+- Every phase is now a round: Spot the Fake (timed, one listing at a time, 4 per run), The Viewing (verify picks → three "doors" → timed hunt),
+  Paperwork (one document at a time + rival), Haggle Time (optional), Read the Fine Print (no timer; Hard stays tiny until Magnifier), Moving Day (photos,
+  insurance, first-month counters, surprise, real data), Life Happens (action → who fixes it, 4 levels), Moving Out, and the report card + candidate question.
+- Lifelines: Ask Mustafa (hint: shows the % vs average, flashes an unfound issue, or hides a wrong answer), Magnifier (decodes Hard fine print), Free Pass (skip; excluded from totals).
+  Each unused lifeline earns a bonus.
+- Text rules are enforced by tests: every content `short`, host line, event, feedback, outcome, reveal line and question ask is ≤15 words, ≤3 lines.
+  Hard fine print is the deliberate exception. Round titles were renamed to avoid real TV show names ("Let's Make a Deal" was caught); a test bans known show names and catchphrases.
+- Music in the navbar is now muted by default (PRD).
+- Bug found in browser testing: an effect returned `false` from the sound helper (React error). Fixed.
+- Tests: 75 pass. Browser: the full demo finishes in about 100 s of automated play at "fast" (about 90 s with reduced motion), a perfect run scores 100%, there are no console errors, and there's no phone overflow.

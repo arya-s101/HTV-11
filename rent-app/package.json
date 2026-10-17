@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "import:sources": "tsx scripts/import-sources.ts",
     "build:check": "NEXT_DIST_DIR=.next-check next build",
-    "build:evidence": "tsx scripts/build-game-evidence.ts"
+    "build:evidence": "tsx scripts/build-game-evidence.ts",
+    "build:stats": "tsx scripts/build-stats.ts"
   },
   "dependencies": {
     "next": "15.5.28",

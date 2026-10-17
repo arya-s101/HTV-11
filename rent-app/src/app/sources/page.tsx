@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import evidenceJson from "../../../data/game/evidence.json";
 import { ELECTION_HUB, FARES, LEVERS } from "@/game/data";
+import { CONTENT, CONTENT_DISCLAIMER } from "@/game/journey";
 
 export const metadata: Metadata = { title: "Data & sources · Toronto Rent Decisions" };
 
@@ -32,6 +33,24 @@ export default function Sources() {
               </a>
               <p>{s.use}</p>
               <span className="note">{s.licence}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="paper">
+        <h2>Renting rules and tips taught in the game</h2>
+        <p className="muted">{CONTENT_DISCLAIMER} Each item lists who checked it; items checked by the AI assistant still need a teammate to confirm.</p>
+        <ul className="source-list">
+          {CONTENT.map((c) => (
+            <li key={c.id}>
+              <p>{c.claim}</p>
+              <span className="note">
+                <a href={c.source_url} target="_blank" rel="noreferrer">
+                  {c.source_title}
+                </a>{" "}
+                · {c.jurisdiction} · checked {c.retrieved} · {c.verified_by}
+              </span>
             </li>
           ))}
         </ul>

@@ -4,7 +4,7 @@ import type { PlayableStage, Stage } from "./types";
 
 export const MIN_AGE = 16;
 export const MAX_AGE = 100;
-export const DEFAULT_AGE = 20;
+export const DEFAULT_AGE = 23;
 
 export function stageForAge(age: number): Stage {
   const a = Math.min(MAX_AGE, Math.max(MIN_AGE, Math.round(age)));

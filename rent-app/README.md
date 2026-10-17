@@ -1,5 +1,17 @@
 # Toronto Rent Decisions (working title)
 
+> **Game-show presentation (gameshow.txt, PRD v2 §5.10):** after character creation, the journey runs as "The Lease You Can Do", hosted by
+> the original 8-bit cartoon host Mustafa. Each phase is a round with a title card. Lines type in one at a time (tap finishes, then advances), there are at most
+> 3 lines of 15 words per screen, and details sit behind "Why? · Source". Big choice buttons, animated number counters with provenance chips, a podium with
+> score, receipts and three lifelines (Ask Mustafa, Magnifier, Free Pass), and reveals with a drumroll, chime/buzzer, shake and confetti. Settings: text speed, skip
+> animations and sound (off by default); prefers-reduced-motion is respected. Music in the navbar is also muted by default. Code: `src/components/show/`.
+>
+> **PRD v2 (slightpivot.txt): "a flight simulator for your first Toronto apartment."** Stage 2 (First job) is now an 8-phase journey:
+> Search (spot the scam) → Viewing (compare offers, then a timed hunt in a pixel apartment) → Apply → Negotiate (optional) → Read the lease →
+> Move in (photos become receipts, insurance, first-month numbers) → Live there (seeded events: who to contact, which level) → Move out →
+> report card + civic question. Teaching content lives in `data/game/content.json`, each item with an official source, retrieval date and
+> verifier. Journey data is in `data/game/journey.json` and the logic in `src/game/journey.ts` (seeded; the demo uses seed 2026). Student and later stages are roadmap.
+
 > Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../newmessage.txt` (PRD).
 
 An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
@@ -14,11 +26,15 @@ Stages 3–6 show "coming soon" because their civic levers don't have an officia
 costs in listing text. Hard uses lease-style fine print, route legs instead of minutes, and a raw CMHC table the player reads. The reasoning
 score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 
-**Starting profession:** choose a preset (handwritten job path) or type your own. Gemini writes a story-only path via `/api/career`,
-with a template fallback; any number or money talk is rejected. A profession never changes an income, offer or score.
+**Starting profession:** choose a preset or type your own. Gemini writes a fresh, story-only path every time via `/api/career`.
+A preset shows its handwritten path instantly and keeps it as the fallback; custom titles fall back to a template. Any number or money talk
+is rejected. A profession never changes an income, offer or score. The demo preset keeps a fixed path so the judged demo is repeatable.
 
 **Site structure:** shared navbar and footer, a neon-grid background, and pages `/` (game), `/how-it-works` and `/sources`
 (rendered from the same data files the game uses).
+
+**Background music:** drop a file named `theme.mp3` (or `.ogg`, `.m4a`, `.wav`) into `public/music/`; see the README there.
+It loops quietly and starts on the first click (browsers block autoplay), and a ♪ toggle appears in the navbar. Use only music you have the rights to share.
 
 **Optional landlord negotiation:** code decides the deal (`src/game/negotiate.ts`). Gemini only writes the landlord's words and is
 validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`, and always for the demo preset,
@@ -36,7 +52,7 @@ npm run dev          # http://localhost:3000
 Checks (all verified passing 2026-10-17). Don't run plain `npm run build` while `npm run dev` is running: both write to `.next/`, and the dev page breaks (404s on JS/CSS).
 
 ```bash
-npm test             # vitest unit tests: 46 pass
+npm test             # vitest unit tests: 75 pass
 npm run typecheck    # tsc --noEmit
 npm run lint
 npm run build:check  # production build into .next-check/; safe while `npm run dev` is running

@@ -29,7 +29,7 @@ export interface Character {
 
 export const DEMO_CHARACTER: Character = {
   name: "Sam",
-  startAge: 20,
+  startAge: 23,
   appearance: { skin: 2, hairStyle: "curly", hairColor: 0, outfit: "hoodie", outfitColor: 0, accessory: "headphones" },
   profession: presetProfession("software"),
 };

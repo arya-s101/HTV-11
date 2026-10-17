@@ -23,20 +23,39 @@ export interface OfferFacts {
   /** CMHC Oct 2025 vacant-unit zone average for this unit type, or null if unpublished/not comparable. */
   benchmarkCents: number | null;
   benchmarkLabel: string;
+  /** Rent of the cheapest other offer in this stage, if one is cheaper; makes "I've seen a cheaper place" a valid point. */
+  cheaperAlternativeCents?: number | null;
 }
 
-export const RULES: Record<Difficulty, { floorPct: number; genericStep: number; evidenceStep: number; moverStep: number; maxTurns: number; maxConcessions: number }> = {
-  easy: { floorPct: 0.08, genericStep: 5000, evidenceStep: 10000, moverStep: 5000, maxTurns: 6, maxConcessions: 2 },
-  normal: { floorPct: 0.05, genericStep: 2500, evidenceStep: 7500, moverStep: 2500, maxTurns: 5, maxConcessions: 1 },
-  // Hard landlords won't move on price for generic haggling or sweeteners; they trade a concession instead.
-  hard: { floorPct: 0.02, genericStep: 0, evidenceStep: 5000, moverStep: 0, maxTurns: 4, maxConcessions: 1 },
+interface Rule {
+  floorPct: number;
+  /** A strong enough case unlocks extra leeway: a deeper floor and a one-time goodwill cut. */
+  strongFloorPct: number;
+  strongAt: number;
+  strongStep: number;
+  genericStep: number;
+  evidenceStep: number;
+  moverStep: number;
+  maxTurns: number;
+  maxConcessions: number;
+}
+
+export const RULES: Record<Difficulty, Rule> = {
+  easy: { floorPct: 0.08, strongFloorPct: 0.12, strongAt: 3, strongStep: 7500, genericStep: 5000, evidenceStep: 10000, moverStep: 5000, maxTurns: 6, maxConcessions: 2 },
+  normal: { floorPct: 0.05, strongFloorPct: 0.08, strongAt: 4, strongStep: 7500, genericStep: 2500, evidenceStep: 7500, moverStep: 2500, maxTurns: 5, maxConcessions: 1 },
+  // Hard landlords won't move on price for generic haggling or sweeteners, but a really strong case still earns leeway.
+  hard: { floorPct: 0.02, strongFloorPct: 0.05, strongAt: 5, strongStep: 5000, genericStep: 0, evidenceStep: 5000, moverStep: 0, maxTurns: 4, maxConcessions: 1 },
 };
+
+/** How much each kind of argument adds to the player's case. Each kind counts once per conversation. */
+export const STRENGTH = { evidence: 2, compare: 2, quality: 1, ready: 1, flex: 1, lease: 1 } as const;
 
 export const MAX_MESSAGE_CHARS = 400;
 
-export function floorCents(askingCents: number, d: Difficulty): number {
+export function floorCents(askingCents: number, d: Difficulty, strong = false): number {
   // Round UP to the nearest $25 so the floor never sits below the stated percentage.
-  return Math.ceil((askingCents * (1 - RULES[d].floorPct)) / 2500) * 2500;
+  const pct = strong ? RULES[d].strongFloorPct : RULES[d].floorPct;
+  return Math.ceil((askingCents * (1 - pct)) / 2500) * 2500;
 }
 
 export type Code =
@@ -46,6 +65,11 @@ export type Code =
   | "evidence-rebutted"
   | "evidence-none"
   | "census-rebutted"
+  | "compare-accepted"
+  | "compare-rebutted"
+  | "quality-noted"
+  | "ready-noted"
+  | "strong-case"
   | "flex-accepted"
   | "flex-traded"
   | "lease-accepted"
@@ -64,7 +88,9 @@ export interface NegState {
   rentCents: number;
   concessions: string[];
   turns: number;
-  used: { evidence: boolean; flex: boolean; lease: boolean; generic: number };
+  used: { evidence: boolean; flex: boolean; lease: boolean; quality: boolean; ready: boolean; compare: boolean; generic: number };
+  strength: number;
+  strong: boolean;
   status: "open" | "final" | "ended";
 }
 
@@ -75,6 +101,9 @@ export interface Reply {
   status: NegState["status"];
   legal: boolean;
   turnsLeft: number;
+  strength: number;
+  strongAt: number;
+  strong: boolean;
 }
 
 const RX = {
@@ -84,6 +113,9 @@ const RX = {
   census: /\b(census|2021|median shelter)\b/i,
   flex: /\b(flexib\w*|any (move[- ]in )?date|whenever works|move in (whenever|any ?time))\b/i,
   lease: /\b(longer lease|18[- ]?months?|two[- ]years?|2[- ]years?|24[- ]?months?|long[- ]term|longer term)\b/i,
+  quality: /\b(references?|stable (job|income)|steady (job|income)|full[- ]time|good credit|credit score|never (been )?late|pay(s)? (the rent )?on time|non[- ]smoker|no pets|employed|reliable|responsible tenant)\b/i,
+  ready: /\b(sign (today|now|right away|this week|immediately)|ready to sign|can sign (today|now|this week)|move in (right away|asap|immediately|this week|next week)|ready to go)\b/i,
+  compare: /\b(another (place|unit|listing|apartment)|other (place|unit|listing|apartment|offer)s?|elsewhere|cheaper (place|option|unit|listing)|comparable|similar (place|unit)s?)\b/i,
   generic: /(lower|less|reduce|discount|come down|negotiat\w*|cheaper|budget|can you do|best price|\$\s?\d)/i,
 };
 
@@ -98,7 +130,15 @@ const CONCESSION_RX: Record<string, RegExp> = {
 };
 
 export function initialState(facts: OfferFacts): NegState {
-  return { rentCents: facts.askingCents, concessions: [], turns: 0, used: { evidence: false, flex: false, lease: false, generic: 0 }, status: "open" };
+  return {
+    rentCents: facts.askingCents,
+    concessions: [],
+    turns: 0,
+    used: { evidence: false, flex: false, lease: false, quality: false, ready: false, compare: false, generic: 0 },
+    strength: 0,
+    strong: false,
+    status: "open",
+  };
 }
 
 function reply(state: NegState, codes: Reply["codes"], cfg: NegotiationConfig, d: Difficulty, legal: boolean): Reply {
@@ -109,6 +149,9 @@ function reply(state: NegState, codes: Reply["codes"], cfg: NegotiationConfig, d
     status: state.status,
     legal,
     turnsLeft: Math.max(0, RULES[d].maxTurns - state.turns),
+    strength: state.strength,
+    strongAt: RULES[d].strongAt,
+    strong: state.strong,
   };
 }
 
@@ -140,11 +183,27 @@ export function step(prev: NegState, message: string, facts: OfferFacts, cfg: Ne
       if (facts.benchmarkCents === null) codes.push({ code: "evidence-none" });
       else if (facts.askingCents > facts.benchmarkCents) {
         drop += r.evidenceStep;
+        s.strength += STRENGTH.evidence;
         codes.push({ code: "evidence-accepted" });
       } else codes.push({ code: "evidence-rebutted" });
     }
   }
   if (RX.census.test(text)) codes.push({ code: "census-rebutted" });
+
+  if (RX.compare.test(text) && !s.used.compare) {
+    s.used.compare = true;
+    if (facts.cheaperAlternativeCents != null && facts.cheaperAlternativeCents < facts.askingCents) {
+      s.strength += STRENGTH.compare;
+      drop += r.genericStep;
+      codes.push({ code: "compare-accepted" });
+    } else codes.push({ code: "compare-rebutted" });
+  }
+  for (const key of ["quality", "ready"] as const) {
+    if (!RX[key].test(text) || s.used[key]) continue;
+    s.used[key] = true;
+    s.strength += STRENGTH[key];
+    codes.push({ code: key === "quality" ? "quality-noted" : "ready-noted" });
+  }
 
   for (const [key, code, traded] of [
     ["flex", "flex-accepted", "flex-traded"],
@@ -152,6 +211,7 @@ export function step(prev: NegState, message: string, facts: OfferFacts, cfg: Ne
   ] as const) {
     if (!RX[key].test(text) || s.used[key]) continue;
     s.used[key] = true;
+    s.strength += STRENGTH[key];
     if (r.moverStep > 0) {
       drop += r.moverStep;
       codes.push({ code });
@@ -173,7 +233,7 @@ export function step(prev: NegState, message: string, facts: OfferFacts, cfg: Ne
   }
 
   // A message already answered on price (moved, or an evidence argument weighed) doesn't also count as haggling.
-  const priceAnswered = drop > 0 || codes.some((c) => c.code.startsWith("evidence") || c.code === "census-rebutted");
+  const priceAnswered = drop > 0 || codes.some((c) => c.code.startsWith("evidence") || c.code.startsWith("compare") || c.code === "census-rebutted");
   if (!priceAnswered && RX.generic.test(text)) {
     if (r.genericStep > 0 && s.used.generic < 2) {
       s.used.generic += 1;
@@ -182,7 +242,13 @@ export function step(prev: NegState, message: string, facts: OfferFacts, cfg: Ne
     } else codes.push({ code: "generic-firm" });
   }
 
-  const floor = floorCents(facts.askingCents, d);
+  // A strong enough case earns a one-time goodwill cut and a deeper floor (the extra leeway).
+  if (!s.strong && s.strength >= r.strongAt) {
+    s.strong = true;
+    drop += r.strongStep;
+    codes.push({ code: "strong-case" });
+  }
+  const floor = floorCents(facts.askingCents, d, s.strong);
   if (drop > 0) {
     const next = Math.max(floor, s.rentCents - drop);
     if (next === floor) codes.push({ code: "at-floor" });
@@ -205,72 +271,87 @@ export function replay(playerMessages: string[], facts: OfferFacts, cfg: Negotia
 }
 
 export function openingLine(facts: OfferFacts, cfg: NegotiationConfig): string {
-  return `Hi, this is ${cfg.landlord}. The place is ${money(facts.askingCents)} a month. Happy to answer questions or hear an offer.`;
+  return `Hey! This is ${cfg.landlord}. Thanks for reaching out about the place. It's ${money(facts.askingCents)} a month, and I'm happy to chat about anything.`;
 }
 
-/** Deterministic landlord line for a decision: the fallback, and the demo-preset voice. */
+/** Deterministic landlord line for a decision: the fallback, and the demo-preset voice. Friendly, never legal advice. */
 export function scriptedMessage(rep: Reply, facts: OfferFacts, cfg: NegotiationConfig, d: Difficulty): string {
   const label = (id?: string) => cfg.concessions.find((c) => c.id === id)?.label.toLowerCase() ?? "that";
   const lines: string[] = [];
   for (const { code, concessionId } of rep.codes) {
     switch (code) {
       case "abuse":
-        return "I'm going to end the conversation here. Take care.";
+        return "Okay, I think it's best we leave it here. Take care, and good luck with the search.";
       case "closed":
-        return "We've already settled where things stand.";
+        return "I think we've landed where we're going to land, but thanks for chatting with me!";
       case "legal-deflect":
-        lines.push("I can't advise on tenancy rules or rights. The Province publishes those; please check the official Ontario page.");
+        lines.push("Honestly, I'm not the right person for the legal side of renting, and I'd hate to steer you wrong. The Province has a really clear page on tenant rights, linked just below.");
         break;
       case "evidence-accepted":
-        lines.push(`Fair point: the ${facts.benchmarkLabel} is ${money(facts.benchmarkCents!)}, and I'm above that. I can come down.`);
+        lines.push(`Oh, fair point. The ${facts.benchmarkLabel} is ${money(facts.benchmarkCents!)}, and I'm above that, so I can come down for you.`);
         break;
       case "evidence-rebutted":
-        lines.push(`I checked that too: the ${facts.benchmarkLabel} is ${money(facts.benchmarkCents!)}, and I'm already under it.`);
+        lines.push(`I hear you! I actually looked that up too: the ${facts.benchmarkLabel} is ${money(facts.benchmarkCents!)}, so I'm already a bit under it.`);
         break;
       case "evidence-none":
-        lines.push("There's no published average for this kind of unit here, so that doesn't change my number.");
+        lines.push("Good thinking, but there isn't a published average for this kind of place, so I don't have much to go on there.");
         break;
       case "census-rebutted":
-        lines.push("Those census figures are from 2021 and include people who've rented for years, so they're not today's asking rents.");
+        lines.push("Those census numbers are from 2021 and include folks who've been renting for years, so they're a bit different from what places go for now.");
+        break;
+      case "compare-accepted":
+        lines.push("That's fair, I know there are cheaper places out there and I'd rather it be you than an empty unit.");
+        break;
+      case "compare-rebutted":
+        lines.push("Honestly, I think this is already one of the more affordable options around.");
+        break;
+      case "quality-noted":
+        lines.push("That's really good to hear. A reliable tenant means a lot to me.");
+        break;
+      case "ready-noted":
+        lines.push("Love that you're ready to go.");
+        break;
+      case "strong-case":
+        lines.push("Okay, you've made a really good case. Let me do a bit better for you.");
         break;
       case "flex-accepted":
-        lines.push("A flexible move-in date helps me avoid a gap. I can take a bit off for that.");
+        lines.push("Being flexible on the move-in date really helps me out, so I can take a little off.");
         break;
       case "lease-accepted":
-        lines.push("A longer commitment is worth something to me. I'll trim the rent a little.");
+        lines.push("A longer lease means a lot to me. I'll trim the rent a bit for that.");
         break;
       case "flex-traded":
       case "lease-traded":
-        lines.push("I can't move on price for that, but I'll add something instead.");
+        lines.push("I can't really budge on the price for that, but I'd love to throw something in instead.");
         break;
       case "concession-granted":
-        lines.push(`Done: ${label(concessionId)}.`);
+        lines.push(`Sure, happy to do ${label(concessionId)}!`);
         break;
       case "concession-refused":
-        lines.push(`I can't add ${label(concessionId)} on top of what we've agreed.`);
+        lines.push(`I wish I could add ${label(concessionId)} too, but that's about all I can stretch to.`);
         break;
       case "generic-moved":
-        lines.push("I can come down a little.");
+        lines.push("Let me see what I can do. I can come down a little.");
         break;
       case "generic-firm":
-        lines.push(d === "hard" ? "I have other applicants interested, so the price is firm." : "I'm not able to move on price for that.");
+        lines.push(d === "hard" ? "I'm sorry, I've had a few people interested, so I need to keep the price where it is." : "I'm sorry, I can't really move on the price for that.");
         break;
       case "repeat":
-        lines.push("We've covered that already.");
+        lines.push("I think we already covered that one!");
         break;
       case "unclear":
-        lines.push("Sorry, what are you proposing?");
+        lines.push("Sorry, I'm not totally sure what you're asking. What did you have in mind?");
         break;
       case "at-floor":
-        lines.push("That's as low as I can go.");
+        lines.push("That's honestly as low as I can go.");
         break;
       case "final-offer":
-        lines.push("This is my final offer.");
+        lines.push("This is my last offer, but I really hope it works for you.");
         break;
     }
   }
   const extras = rep.concessions.length ? `, with ${rep.concessions.map((c) => c.label.toLowerCase()).join(" and ")}` : "";
-  lines.push(`So that's ${money(rep.rentCents)} a month${extras}.`);
+  lines.push(`So we're at ${money(rep.rentCents)} a month${extras}.`);
   return lines.join(" ");
 }
 
@@ -283,6 +364,9 @@ export interface LlmOutput {
   deal_status: "open" | "final" | "ended";
 }
 
+const NUM_WORD = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety";
+// "hundred"/"thousand", or a pair like "eighteen sixty" / "twenty-five": how prices get written out in words.
+const SPELLED_AMOUNT = new RegExp(`\\b(hundred|thousand|grand|k a month)\\b|\\b(eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[\\s-]+(${NUM_WORD}|hundred|thousand)\\b`, "i");
 const LEGAL_TALK = /\b(law|legal|tribunal|landlord and tenant board|ltb|evict\w*|deposit|rent control|guideline|act)\b/i;
 
 /**
@@ -301,9 +385,16 @@ export function validateLlm(raw: unknown, rep: Reply, facts: OfferFacts, fallbac
   if (Array.isArray(o.proposed_concessions) && o.proposed_concessions.some((c) => !allowed.has(c))) adjustments.push("concession outside code's decision rejected");
   if (o.deal_status !== rep.status) adjustments.push("deal status set by code");
 
+  // Amounts spelled out in words ("sixteen hundred") can't be checked, so they're refused outright.
+  if (SPELLED_AMOUNT.test(o.message)) return { message: fallback, source: "scripted", adjustments: [...adjustments, "message spelled out an amount"] };
   const okAmounts = new Set([rep.rentCents, facts.askingCents, facts.benchmarkCents].filter((x): x is number => x !== null));
-  const quoted = [...o.message.matchAll(/\$\s?([\d,]+(?:\.\d{1,2})?)/g)].map((m) => Math.round(Number(m[1].replace(/,/g, "")) * 100));
-  if (quoted.some((c) => !okAmounts.has(c))) return { message: fallback, source: "scripted", adjustments: [...adjustments, "message quoted a figure code didn't decide"] };
+  // Every $ figure, and every bare number of 100+ that isn't a year, must be one code decided.
+  const unapproved = [...o.message.matchAll(/(\$)?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d{1,2}))?/g)].some((m) => {
+    const value = Number(m[2].replace(/,/g, "")) + (m[3] ? Number(`0.${m[3]}`) : 0);
+    if (!m[1] && (value < 100 || (value >= 1900 && value <= 2099 && !m[3]))) return false;
+    return !okAmounts.has(Math.round(value * 100));
+  });
+  if (unapproved) return { message: fallback, source: "scripted", adjustments: [...adjustments, "message quoted a figure code didn't decide"] };
   if (!rep.legal && LEGAL_TALK.test(o.message)) return { message: fallback, source: "scripted", adjustments: [...adjustments, "message touched on legal rules"] };
   if (rep.legal && LEGAL_TALK.test(o.message.replace(/official ontario page/i, ""))) {
     return { message: fallback, source: "scripted", adjustments: [...adjustments, "legal question deflected by script"] };

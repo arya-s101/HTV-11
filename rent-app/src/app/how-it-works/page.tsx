@@ -9,13 +9,15 @@ import type { Difficulty } from "@/game/types";
 export const metadata: Metadata = { title: "How it works · Toronto Rent Decisions" };
 
 const LOOP = [
-  ["Start", "Your character, age, job and an illustrative income, household and destination."],
-  ["Choose", "Two or three fictional offers. Mark what you'd verify before signing."],
+  ["Search", "Flag listings as legit, suspicious or a scam. Rent far below the CMHC area average is a red flag."],
+  ["Viewing", "Compare the offers, then hunt for problems in a pixel apartment against the clock."],
+  ["Apply", "Bring the right documents, refuse the risky asks, and decide what to do when someone outbids you."],
   ["Negotiate", "Optional. Haggle with a fictional landlord; game code decides the deal."],
-  ["Consequence", "Housing cash, rent burden, TTC fare and commute time, shown separately. One unknown is revealed."],
-  ["Evidence", "Real Toronto data for that neighbourhood, each figure with its place, date and source."],
-  ["Civic turn", "Sort what you verify yourself from what the City, or another government, controls."],
-  ["Question", "A neutral question for candidates, built from your choice, saved to your civic notebook."],
+  ["Read the lease", "Flag clauses that Ontario's rules make void, like no-pet bans or damage deposits."],
+  ["Move in", "Photograph existing damage, decide on contents insurance, and see your first month's numbers."],
+  ["Live there", "Handle problems: who do you contact, and which level of government can act?"],
+  ["Move out", "Give proper notice. Your move-in photos settle the final walkthrough."],
+  ["Report card", "A skill-only readiness score, your receipts, and a sourced question for candidates."],
 ];
 
 export default function HowItWorks() {
@@ -24,15 +26,15 @@ export default function HowItWorks() {
     <div className="page">
       <header className="page-head">
         <span className="eyebrow">How it works</span>
-        <h1>One rental decision per life stage</h1>
+        <h1>A flight simulator for your first Toronto apartment</h1>
         <p className="lede">
-          Each stage runs the same loop. Across stages you collect questions and see whether your reasoning improves. You leave with one sourced question
-          to ask a municipal candidate before October 26, 2026.
+          Practise the whole renting process where mistakes are cheap: spot the scam, find what the landlord didn&apos;t mention, take the photos that
+          save you later, and learn who to call. Then see which problems your next city council can actually change.
         </p>
       </header>
 
       <section className="paper">
-        <h2>The loop</h2>
+        <h2>The journey (First job stage)</h2>
         <ol className="loop">
           {LOOP.map(([t, d], i) => (
             <li key={t}>
@@ -90,6 +92,10 @@ export default function HowItWorks() {
             <li>
               Floors sit {levels.map((d) => `${Math.round(RULES[d].floorPct * 100)}%`).join(" / ")} under asking on Easy / Normal / Hard.
             </li>
+            <li>
+              Build a strong case (a valid data point, a cheaper comparable place, being a reliable tenant, flexibility, a longer lease, being ready to sign)
+              and the landlord gives extra leeway: down to {levels.map((d) => `${Math.round(RULES[d].strongFloorPct * 100)}%`).join(" / ")} under asking.
+            </li>
             <li>Evidence works only when it&apos;s true: if the rent is already under the CMHC area average, the landlord says so.</li>
             <li>The landlord never gives legal advice. Ask about rules and you&apos;ll get the official Ontario page.</li>
             <li>No key, a timeout or the demo preset? A scripted landlord answers instead.</li>
@@ -98,12 +104,12 @@ export default function HowItWorks() {
         <div className="paper">
           <h2>Scoring</h2>
           <ul>
-            <li>Unknowns you flagged before choosing (as a share): 40</li>
-            <li>City lever attributed correctly: 30</li>
-            <li>Other statements sorted correctly: 30</li>
-            <li>Hard only: route legs decoded and CMHC table read: up to 20</li>
+            <li>Scams caught, viewing issues found, lease problems spotted</li>
+            <li>Right documents brought, move-in photos taken</li>
+            <li>Best response to each problem, and the right level of government</li>
+            <li>Knowing where to report a scam, and moving out with proper notice</li>
           </ul>
-          <p className="note">Never scored: which home you picked, its price, its commute, your income or your job.</p>
+          <p className="note">Never scored: which home you picked, its price, its commute, your income, your job, or whether you bought insurance. Replays use a new seed so you can&apos;t just memorize answers.</p>
         </div>
       </section>
 

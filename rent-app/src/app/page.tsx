@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Legend, Sprite, TitleScene } from "@/components/pixel";
+import { JourneyShow, type BaseCarry } from "@/components/show/JourneyShow";
+import { ShowSettingsProvider } from "@/components/show/settings";
 import { ScoreBox, StageView, type StageRecord } from "@/components/StageView";
+import { MODES, type Mode } from "@/config/modes";
+import { DEMO_SEED, newSeed } from "@/game/journey";
 import { PRESETS, presetProfession } from "@/game/career";
 import { ELECTION_HUB, STAGES } from "@/game/data";
 import { money } from "@/game/outcome";
@@ -32,13 +36,21 @@ export default function Game() {
   const [skipped, setSkipped] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [demo, setDemo] = useState(false);
+  const [seed, setSeed] = useState(DEMO_SEED);
+  const [mode, setMode] = useState<Mode>("base");
+  const [carry, setCarry] = useState<BaseCarry | undefined>(undefined);
 
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  function begin(c: Character, isDemo = false) {
+  function begin(c: Character, isDemo = false, m: Mode = mode, from?: BaseCarry) {
     setDemo(isDemo);
+    setMode(m);
+    setCarry(from);
+    setSeed(isDemo ? DEMO_SEED : from ? seed : newSeed());
     if (isDemo) setDifficulty("easy");
-    const p = planLife(c.startAge);
+    // The Base game is Stage 2 (First job) only; Extended follows the age-based life plan.
+    const full = planLife(m === "base" ? DEFAULT_AGE : c.startAge);
+    const p = m === "base" ? { ...full, playable: full.playable.filter((x) => x.stage.journey).slice(0, 1) } : full;
     setCharacter(c);
     setPlan(p);
     setIndex(0);
@@ -63,23 +75,26 @@ export default function Game() {
 
   return (
     <div className="game">
-      {(screen === "stage" || screen === "between" || screen === "end") && plan && (
+      {(screen === "stage" || screen === "between" || screen === "end") && plan && !current?.stage.journey && (
         <Hud character={character} age={current?.age ?? character.startAge} stageTitle={screen === "end" ? "Life summary" : current?.stage.title ?? ""} stageId={current?.stage.id} difficulty={difficulty} onQuit={() => { setScreen("title"); top(); }} />
       )}
 
       {screen === "title" && (
         <TitleScreen
-          onNew={() => {
+          onNew={(m) => {
+            setMode(m);
             setCharacter({ ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE });
             setScreen("create");
             top();
           }}
-          onDemo={() => begin(DEMO_CHARACTER, true)}
+          onDemo={() => begin(DEMO_CHARACTER, true, "base")}
         />
       )}
 
       {screen === "create" && (
         <Creator
+          mode={mode}
+          setMode={setMode}
           character={character}
           setCharacter={setCharacter}
           difficulty={difficulty}
@@ -91,8 +106,34 @@ export default function Game() {
 
       {(screen === "stage" || screen === "between") && plan && current && (
         <>
-          <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} character={character} />
-          {screen === "stage" && (
+          {!current.stage.journey && <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} character={character} />}
+          {screen === "stage" && current.stage.journey && (
+            // Game-show presentation (PRD v2 §5.10). The demo preset is the Base game with stat cards on a 3-second auto-advance.
+            <ShowSettingsProvider initial={demo ? { textSpeed: "normal", showStats: true, statMs: 3000 } : undefined}>
+              <JourneyShow
+                key={`${current.stage.id}-${seed}-${mode}`}
+                mode={mode}
+                carry={carry}
+                onExtended={(from) => begin(character, false, "extended", from)}
+                stage={current.stage}
+                age={current.age}
+                character={character}
+                difficulty={difficulty}
+                seed={seed}
+                scriptedLandlord={demo}
+                onReplay={() => {
+                  setCarry(undefined);
+                  setSeed(newSeed());
+                  top();
+                }}
+                onQuit={() => {
+                  setScreen("title");
+                  top();
+                }}
+              />
+            </ShowSettingsProvider>
+          )}
+          {screen === "stage" && !current.stage.journey && (
             <StageView
               key={current.stage.id}
               stage={current.stage}
@@ -119,7 +160,7 @@ export default function Game() {
 
       {screen === "end" && plan && <EndScreen character={character} plan={plan} records={records} skipped={skipped} onRestart={() => { setScreen("title"); top(); }} />}
 
-      {screen !== "title" && (
+      {screen !== "title" && !(screen === "stage" && current?.stage.journey) && (
         <div className="panel legend-bar">
           <Legend />
         </div>
@@ -155,7 +196,7 @@ function Hud(props: { character: Character; age: number; stageTitle: string; sta
   );
 }
 
-function TitleScreen({ onNew, onDemo }: { onNew: () => void; onDemo: () => void }) {
+function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () => void }) {
   const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
   return (
     <div className="home">
@@ -170,14 +211,19 @@ function TitleScreen({ onNew, onDemo }: { onNew: () => void; onDemo: () => void 
             your next city council can actually change.
           </p>
           <div className="row">
-            <button className="btn big" onClick={onNew}>
-              ▶ New game
+            <button className="btn big" onClick={() => onNew("base")}>
+              ▶ Play
             </button>
-            <button className="btn blue big" onClick={onDemo}>
+            <button className="btn blue big" onClick={() => onNew("extended")}>
+              Extended game
+            </button>
+            <button className="btn ghost" onClick={onDemo}>
               Demo preset
             </button>
           </div>
-          <p className="small on-dark">About 4 minutes · no sign-up · nonpartisan</p>
+          <p className="small on-dark">
+            Play: {MODES.base.blurb} Extended: {MODES.extended.blurb} No sign-up · nonpartisan
+          </p>
         </div>
         <div className="hero-art">
           <TitleScene />
@@ -228,26 +274,47 @@ function DifficultyPicker({ value, onChange }: { value: Difficulty; onChange: (d
   );
 }
 
-function ProfessionPicker({ character, setCharacter }: { character: Character; setCharacter: (c: Character) => void }) {
+const NAMES = ["Sam", "Priya", "Jordan", "Mei", "Alex", "Tariq", "Riley", "Ana", "Kofi", "Noor"];
+
+type SetCharacter = React.Dispatch<React.SetStateAction<Character>>;
+
+/** `llm` false (Base game): handwritten paths only, no API call. */
+function ProfessionPicker({ character, setCharacter, llm }: { character: Character; setCharacter: SetCharacter; llm: boolean }) {
   const [custom, setCustom] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const latest = useRef(0);
   const p = character.profession;
 
-  async function generate() {
+  /** Asks the server for a fresh path; only the most recent request may update the character. */
+  async function request(body: { presetId: string } | { profession: string }) {
+    const ticket = ++latest.current;
     setBusy(true);
-    setMsg(null);
+    setMsg("Writing a job path…");
     try {
-      const res = await fetch("/api/career", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ profession: custom }) });
+      const res = await fetch("/api/career", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
+      if (ticket !== latest.current) return;
       if (!res.ok) throw new Error(data.error ?? "Couldn't build a job path");
-      setCharacter({ ...character, profession: data.profession });
-      setMsg(data.profession.source === "llm" ? "Job path written by Gemini (story only)." : `Used a simple template (${data.fallbackReason}).`);
+      setCharacter((c) => ({ ...c, profession: data.profession }));
+      setMsg(
+        data.profession.source === "llm"
+          ? "Job path written by Gemini (story only)."
+          : data.profession.source === "preset"
+            ? `Using the handwritten path (${data.fallbackReason}).`
+            : `Used a simple template (${data.fallbackReason}).`,
+      );
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Couldn't build a job path");
+      if (ticket === latest.current) setMsg(e instanceof Error ? e.message : "Couldn't build a job path");
     } finally {
-      setBusy(false);
+      if (ticket === latest.current) setBusy(false);
     }
+  }
+
+  function pickPreset(id: string) {
+    // Show the handwritten path at once, then let Gemini replace it with a fresh one.
+    setCharacter((c) => ({ ...c, profession: presetProfession(id) }));
+    if (llm) request({ presetId: id });
   }
 
   return (
@@ -255,24 +322,26 @@ function ProfessionPicker({ character, setCharacter }: { character: Character; s
       <h3>Starting profession</h3>
       <div className="row" style={{ gap: 4 }}>
         {PRESETS.map((x) => (
-          <button key={x.id} className={`choice ${p.id === x.id ? "on" : ""}`} onClick={() => setCharacter({ ...character, profession: presetProfession(x.id) })} aria-pressed={p.id === x.id}>
+          <button key={x.id} className={`choice ${p.id === x.id ? "on" : ""}`} onClick={() => pickPreset(x.id)} aria-pressed={p.id === x.id}>
             {x.label}
           </button>
         ))}
       </div>
-      <form
-        className="row"
-        style={{ marginTop: 8 }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          generate();
-        }}
-      >
-        <input className="field-input" value={custom} maxLength={40} placeholder="Other: e.g. pharmacist" onChange={(e) => setCustom(e.target.value)} aria-label="Custom profession" />
-        <button className="btn blue small" disabled={busy || custom.trim().length < 2}>
-          {busy ? "Writing…" : "Generate job path"}
-        </button>
-      </form>
+      {llm && (
+        <form
+          className="row"
+          style={{ marginTop: 8 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            request({ profession: custom });
+          }}
+        >
+          <input className="field-input" value={custom} maxLength={40} placeholder="Other: e.g. pharmacist" onChange={(e) => setCustom(e.target.value)} aria-label="Custom profession" />
+          <button className="btn blue small" disabled={busy || custom.trim().length < 2}>
+            {busy ? "Writing…" : "Generate job path"}
+          </button>
+        </form>
+      )}
       {msg && <p className="small">{msg}</p>}
       <ol className="path">
         {STAGES.map((s) => (
@@ -287,33 +356,53 @@ function ProfessionPicker({ character, setCharacter }: { character: Character; s
 }
 
 function Creator(props: {
+  mode: Mode;
+  setMode: (m: Mode) => void;
   character: Character;
-  setCharacter: (c: Character) => void;
+  setCharacter: SetCharacter;
   difficulty: Difficulty;
   setDifficulty: (d: Difficulty) => void;
   onBack: () => void;
   onStart: () => void;
 }) {
-  const { character, setCharacter, difficulty, setDifficulty, onBack, onStart } = props;
+  const { mode, setMode, character, setCharacter, difficulty, setDifficulty, onBack, onStart } = props;
+  const base = mode === "base";
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
   const plan = planLife(character.startAge);
   const start = stageForAge(character.startAge);
   const randomize = () =>
-    setA({
+    setCharacter({
+      ...character,
+      name: character.name || NAMES[Math.floor(Math.random() * NAMES.length)],
+      appearance: {
+        ...a,
       skin: Math.floor(Math.random() * SKIN.length),
       hairStyle: HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)],
       hairColor: Math.floor(Math.random() * HAIR_COLOR.length),
       outfit: OUTFITS[Math.floor(Math.random() * OUTFITS.length)],
       outfitColor: Math.floor(Math.random() * OUTFIT_COLOR.length),
       accessory: ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)],
+      },
     });
 
   return (
     <div className="page">
       <header className="page-head">
-        <span className="eyebrow">New game</span>
-        <h1>Create your character</h1>
+        <span className="eyebrow">New game · {MODES[mode].label}</span>
+        <h1>{base ? "Quick character" : "Create your character"}</h1>
+        <div className="row quick-start">
+          <button className="btn big" disabled={plan.playable.length === 0 && !base} onClick={onStart}>
+            ▶ Start
+          </button>
+          <button className="btn ghost" onClick={randomize}>
+            🎲 Randomize
+          </button>
+          <button className="btn ghost small" onClick={() => setMode(base ? "extended" : "base")}>
+            Switch to {base ? MODES.extended.label : MODES.base.label}
+          </button>
+        </div>
+        {base && <p className="small">Everything below is optional. The Base game makes no AI or API calls.</p>}
       </header>
       <section className="creator">
         <aside className="paper stage-preview">
@@ -325,12 +414,12 @@ function Creator(props: {
           </div>
           <div className="small">{character.profession.path[start.id]?.title ?? character.profession.label}</div>
           <button className="btn ghost small" onClick={randomize}>
-            🎲 Randomize look
+            🎲 Randomize
           </button>
           <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
           <div className="preview-actions">
-            <button className="btn big" disabled={plan.playable.length === 0} onClick={onStart}>
-              ▶ Start life
+            <button className="btn big" disabled={plan.playable.length === 0 && !base} onClick={onStart}>
+              ▶ Start
             </button>
             <button className="btn ghost small" onClick={onBack}>
               Back
@@ -345,17 +434,19 @@ function Creator(props: {
               <h3>Name</h3>
               <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
             </div>
-            <div className="field">
-              <h3>Starting age: {character.startAge}</h3>
-              <input type="range" min={MIN_AGE} max={MAX_AGE} value={character.startAge} onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })} aria-label="Starting age" />
-              <p className="small">
-                Starts at stage {start.order}: <b>{start.title}</b>.{" "}
-                {plan.playable.length > 0
-                  ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
-                  : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
-              </p>
-            </div>
-            <ProfessionPicker character={character} setCharacter={setCharacter} />
+            {!base && (
+              <div className="field">
+                <h3>Starting age: {character.startAge}</h3>
+                <input type="range" min={MIN_AGE} max={MAX_AGE} value={character.startAge} onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })} aria-label="Starting age" />
+                <p className="small">
+                  Starts at stage {start.order}: <b>{start.title}</b>.{" "}
+                  {plan.playable.length > 0
+                    ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
+                    : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
+                </p>
+              </div>
+            )}
+            <ProfessionPicker character={character} setCharacter={setCharacter} llm={MODES[mode].apiCalls} />
           </fieldset>
 
           <fieldset className="paper group">

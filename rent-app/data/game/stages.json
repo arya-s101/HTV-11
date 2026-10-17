@@ -28,7 +28,7 @@
         16,
         21
       ],
-      "enabled": true,
+      "enabled": false,
       "housingNeed": "A room or shared unit near campus",
       "household": "Just you, sharing with housemates",
       "destination": {
@@ -68,7 +68,11 @@
             "id": "utilities",
             "headline": "Utilities weren't in the ad",
             "text": "The housemates split hydro and internet. In this scenario your share works out to $70 a month, on top of rent.",
-            "extraMonthlyCents": 7000
+            "extraMonthlyCents": 7000,
+            "lines": [
+              "Surprise: utilities are split with housemates.",
+              "Your share is $70 a month, on top of rent."
+            ]
           },
           "presentation": {
             "listingText": "Furnished room in a 4-bedroom house, steps from the bus to campus. $950/month, utilities split with your housemates. Shared kitchen and coin laundry.",
@@ -107,7 +111,11 @@
             "id": "commute-timing",
             "headline": "Your schedule isn't the morning peak",
             "text": "The 40-minute figure is for a weekday morning. In this scenario two of your weekly classes end at 9 p.m., and the illustrative trip home then takes 55 minutes.",
-            "extraMonthlyCents": 0
+            "extraMonthlyCents": 0,
+            "lines": [
+              "Surprise: your evening classes end at 9 p.m.",
+              "That trip home takes about 55 minutes."
+            ]
           },
           "presentation": {
             "listingText": "Private room in a 3-bedroom apartment. $750/month all-inclusive. The morning bus to campus takes about 40 minutes.",
@@ -156,7 +164,11 @@
             "id": "rent-control",
             "headline": "This unit may not be rent-controlled",
             "text": "In this scenario the basement unit was first rented out in 2021. Ontario says units first occupied for residential purposes after November 15, 2018 are exempt from rent control, so next year's increase isn't capped by the guideline.",
-            "extraMonthlyCents": 0
+            "extraMonthlyCents": 0,
+            "lines": [
+              "Surprise: the basement was first rented in 2021.",
+              "Units first occupied after Nov 15, 2018 aren't rent-controlled."
+            ]
           },
           "presentation": {
             "listingText": "Renovated basement studio with a private entrance. $1,250/month plus hydro, which is separately metered. Newly converted unit.",
@@ -196,7 +208,8 @@
           "correct": "non-municipal",
           "leverId": "rent-guideline"
         }
-      ]
+      ],
+      "roadmapNote": "Roadmap: the student journey's content isn't sourced yet (PRD v2)."
     },
     {
       "id": "first-job",
@@ -246,7 +259,11 @@
             "id": "utilities",
             "headline": "\"Hydro extra\" has a price",
             "text": "In this scenario the landlord says hydro for the unit has averaged $95 a month, on top of rent.",
-            "extraMonthlyCents": 9500
+            "extraMonthlyCents": 9500,
+            "lines": [
+              "Surprise: hydro isn't included.",
+              "It's averaged $95 a month, on top of rent."
+            ]
           },
           "presentation": {
             "listingText": "Spacious 1-bed in a 1970s high-rise. $1,600/month, hydro extra. About an hour to downtown by bus and subway.",
@@ -291,7 +308,11 @@
             "id": "rent-control",
             "headline": "Newer building, no rent control",
             "text": "In this scenario the building opened in 2020. Ontario says units first occupied for residential purposes after November 15, 2018 are exempt from rent control, so the 2026 guideline cap doesn't apply to your next increase.",
-            "extraMonthlyCents": 0
+            "extraMonthlyCents": 0,
+            "lines": [
+              "Surprise: the building opened in 2020.",
+              "Units first occupied after Nov 15, 2018 aren't rent-controlled."
+            ]
           },
           "presentation": {
             "listingText": "Bright 1-bed in a newer mid-rise, utilities included. $1,750/month. In-suite laundry available.",
@@ -335,7 +356,11 @@
             "id": "utilities",
             "headline": "The sub-metered hydro bill",
             "text": "In this scenario the condo's sub-metered hydro has averaged $85 a month, on top of rent.",
-            "extraMonthlyCents": 8500
+            "extraMonthlyCents": 8500,
+            "lines": [
+              "Surprise: the condo's hydro is sub-metered.",
+              "It's averaged $85 a month, on top of rent."
+            ]
           },
           "presentation": {
             "listingText": "Luxury 1-bed condo with gym and concierge. $2,100/month plus hydro. Building completed 2022.",
@@ -380,7 +405,8 @@
           "correct": "non-municipal",
           "leverId": "rent-guideline"
         }
-      ]
+      ],
+      "journey": true
     },
     {
       "id": "new-job",

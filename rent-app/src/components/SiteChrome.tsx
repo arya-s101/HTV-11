@@ -1,6 +1,7 @@
 // Site-wide navbar, footer and neon background. Server components (no client JS).
 import Link from "next/link";
 import { ELECTION_HUB } from "@/game/data";
+import { MusicToggle } from "./MusicToggle";
 
 const NAV = [
   { href: "/", label: "Play" },
@@ -27,6 +28,7 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+        <MusicToggle />
         <a className="election-pill" href={ELECTION_HUB.url} target="_blank" rel="noreferrer">
           <span className="dot" /> Election day · Oct 26
         </a>

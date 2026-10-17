@@ -1,0 +1,730 @@
+{
+  "_note": "FICTIONAL journey content for Stage 2 (First job). Listings, landlords, events and lease text are illustrative. Teaching points reference content.json items (each with an official source). Scam listings teach patterns only: no real names, numbers, emails or payment details. Difficulty changes wording, never the facts.",
+  "listings": [
+    {
+      "id": "s2-a",
+      "answer": "legit",
+      "offerId": "s2-a",
+      "redFlags": []
+    },
+    {
+      "id": "s2-b",
+      "answer": "legit",
+      "offerId": "s2-b",
+      "redFlags": []
+    },
+    {
+      "id": "s2-c",
+      "answer": "legit",
+      "offerId": "s2-c",
+      "redFlags": []
+    },
+    {
+      "id": "scam-overseas",
+      "answer": "scam",
+      "title": "Sunny 1-bedroom",
+      "neighbourhoodId": 162,
+      "cmhcBedroom": "1br",
+      "rentCents": 105000,
+      "text": {
+        "easy": "Gorgeous 1-bed, $1,050/month! I'm overseas, so no viewings. E-transfer the first month and I'll mail the keys.",
+        "normal": "Bright 1-bed, $1,050/month, utilities included. Owner is abroad. Keys couriered once your deposit clears.",
+        "hard": "1BR, $1,050/mo all-incl. Owner o/s on contract; virtual tour only. Reserve w/ deposit; keys by courier."
+      },
+      "redFlags": [
+        "scam-below-market",
+        "scam-no-viewing",
+        "scam-deposit-first"
+      ]
+    },
+    {
+      "id": "scam-portal",
+      "answer": "scam",
+      "title": "Luxury 1-bedroom condo",
+      "neighbourhoodId": 56,
+      "cmhcBedroom": "1br",
+      "rentCents": 115000,
+      "text": {
+        "easy": "Luxury condo, only $1,150/month! Book a viewing through our online form. Banking details required first.",
+        "normal": "Condo 1-bed, $1,150/month. Our pre-approval form unlocks viewing times. Banking info required.",
+        "hard": "1BR condo $1,150. Pre-screening portal: ID + online banking verification req'd before showings."
+      },
+      "redFlags": [
+        "scam-below-market",
+        "scam-personal-info"
+      ]
+    },
+    {
+      "id": "sus-holding-fee",
+      "answer": "suspicious",
+      "title": "1-bedroom apartment",
+      "neighbourhoodId": 24,
+      "cmhcBedroom": "1br",
+      "rentCents": 157500,
+      "text": {
+        "easy": "1-bed, $1,575/month. Viewing on Saturday. Send a $200 holding fee by e-transfer first.",
+        "normal": "1-bed, $1,575/month. Saturday viewings. A small e-transfer holding fee secures your slot.",
+        "hard": "1BR $1,575. Viewings Sat. Holding fee (e-transfer) to confirm slot; non-refundable."
+      },
+      "redFlags": [
+        "scam-deposit-first"
+      ]
+    }
+  ],
+  "viewing": {
+    "_note": "Extended only: quick questions that replace the old point-and-click viewing (PRD v3 Change 2). src/config/modes.ts sets how many a run asks.",
+    "questions": [
+      {
+        "id": "view-water",
+        "text": "At a viewing, what's worth checking closely?",
+        "contentId": "view-water-damage",
+        "options": [
+          {
+            "id": "water",
+            "label": "Stains, musty smells or rotting wood",
+            "correct": true
+          },
+          {
+            "id": "paint",
+            "label": "Whether you like the paint colour"
+          },
+          {
+            "id": "neighbours",
+            "label": "Whether the neighbours are home"
+          }
+        ],
+        "feedback": {
+          "right": "Right: water damage is easy to miss and costly later.",
+          "wrong": "Look for water damage: stains, musty smells, rotting wood."
+        }
+      },
+      {
+        "id": "view-smoke",
+        "text": "There's no smoke alarm. Whose job is it to install one?",
+        "contentId": "view-smoke",
+        "options": [
+          {
+            "id": "landlord",
+            "label": "The landlord's",
+            "correct": true
+          },
+          {
+            "id": "you",
+            "label": "Yours, once you move in"
+          },
+          {
+            "id": "nobody",
+            "label": "Nobody's, it's optional"
+          }
+        ],
+        "feedback": {
+          "right": "Right: in Toronto, the landlord installs and maintains them.",
+          "wrong": "In Toronto, landlords must install smoke alarms and keep them working."
+        }
+      },
+      {
+        "id": "view-locks",
+        "text": "A window lock is broken. What do you do?",
+        "contentId": "view-locks",
+        "options": [
+          {
+            "id": "ask",
+            "label": "Ask the landlord to fix it before move-in, at their cost",
+            "correct": true
+          },
+          {
+            "id": "buy",
+            "label": "Buy and fit a lock yourself"
+          },
+          {
+            "id": "ignore",
+            "label": "Ignore it"
+          }
+        ],
+        "feedback": {
+          "right": "Right: raise it now, before you sign.",
+          "wrong": "Ask the landlord to fix locks, at their expense, before move-in."
+        }
+      },
+      {
+        "id": "view-pests",
+        "text": "You spot droppings under the sink. What now?",
+        "contentId": "view-pests",
+        "options": [
+          {
+            "id": "write",
+            "label": "Raise it with the landlord in writing",
+            "correct": true
+          },
+          {
+            "id": "trap",
+            "label": "Say nothing and buy traps later"
+          },
+          {
+            "id": "joke",
+            "label": "Assume it's old and forget it"
+          }
+        ],
+        "feedback": {
+          "right": "Right: get it on record before it's your problem.",
+          "wrong": "Raise pests with the landlord, in writing, before move-in."
+        }
+      },
+      {
+        "id": "view-included",
+        "text": "Before applying, what's worth asking the landlord?",
+        "contentId": "view-ask-included",
+        "options": [
+          {
+            "id": "included",
+            "label": "What's included: heat, hydro, water, internet, laundry",
+            "correct": true
+          },
+          {
+            "id": "neighbours",
+            "label": "Who the other tenants are"
+          },
+          {
+            "id": "nothing",
+            "label": "Nothing, the ad says enough"
+          }
+        ],
+        "feedback": {
+          "right": "Right: \"hydro extra\" has a price.",
+          "wrong": "Ask what's included: heat, hydro, water, internet, parking, laundry."
+        }
+      }
+    ]
+  },
+  "apply": {
+    "docs": [
+      {
+        "id": "income",
+        "label": "Proof of income (job letter or pay stub)",
+        "ok": true,
+        "contentId": "apply-can-ask"
+      },
+      {
+        "id": "references",
+        "label": "Rental history or a reference",
+        "ok": true,
+        "contentId": "apply-can-ask"
+      },
+      {
+        "id": "credit",
+        "label": "Consent to a credit check",
+        "ok": true,
+        "contentId": "apply-can-ask"
+      },
+      {
+        "id": "banking",
+        "label": "Your online banking password",
+        "ok": false,
+        "contentId": "scam-personal-info"
+      },
+      {
+        "id": "three-months",
+        "label": "Three months' rent as a deposit",
+        "ok": false,
+        "contentId": "apply-deposit-limit"
+      }
+    ],
+    "infoContentId": "apply-no-credit",
+    "rival": {
+      "text": "Another applicant just offered $100 more a month. Match it?",
+      "options": [
+        {
+          "id": "match",
+          "label": "Match it: offer $100 more",
+          "rentDeltaCents": 10000,
+          "outcome": [
+            "Done: your rent is now $100 higher.",
+            "That's a budget choice, not a rule."
+          ]
+        },
+        {
+          "id": "stick",
+          "label": "Stick with the listed rent",
+          "rentDeltaCents": 0,
+          "outcome": [
+            "You kept to your budget.",
+            "Your complete application did the talking. You got it!"
+          ]
+        },
+        {
+          "id": "walk",
+          "label": "Walk away and look at the other offers",
+          "rentDeltaCents": 0,
+          "outcome": [
+            "Walking away is always an option."
+          ]
+        }
+      ]
+    }
+  },
+  "lease": {
+    "problemsPerLease": 3,
+    "clauses": [
+      {
+        "id": "rent",
+        "problem": false,
+        "plain": "Rent is {rent} a month, due on the 1st.",
+        "legal": "Tenant shall remit monthly rent of {rent} on or before the first (1st) day of each month."
+      },
+      {
+        "id": "last-month",
+        "problem": false,
+        "contentId": "apply-deposit-limit",
+        "plain": "A rent deposit of {rent} covers your last month.",
+        "legal": "A deposit equal to one (1) month's rent ({rent}) shall be applied to the final month of the tenancy."
+      },
+      {
+        "id": "insurance",
+        "problem": false,
+        "contentId": "lease-insurance",
+        "plain": "You need tenant liability insurance, and must show proof if asked.",
+        "legal": "Tenant shall maintain liability insurance and furnish proof thereof upon Landlord's request."
+      },
+      {
+        "id": "standard-form",
+        "problem": false,
+        "contentId": "lease-standard",
+        "plain": "This agreement is on Ontario's standard lease form.",
+        "legal": "This Residential Tenancy Agreement is made on the Standard Form of Lease prescribed for Ontario."
+      },
+      {
+        "id": "no-pets",
+        "problem": true,
+        "contentId": "lease-void-pets-guests",
+        "plain": "No pets allowed, ever.",
+        "legal": "No animals of any kind shall be kept in or about the Premises.",
+        "why": "A term banning pets is void."
+      },
+      {
+        "id": "no-guests",
+        "problem": true,
+        "contentId": "lease-void-pets-guests",
+        "plain": "No overnight guests.",
+        "legal": "Tenant shall not permit any person to remain in the Premises overnight.",
+        "why": "A term banning guests or other occupants is void."
+      },
+      {
+        "id": "damage-deposit",
+        "problem": true,
+        "contentId": "lease-void-fees",
+        "plain": "Plus a $300 damage deposit at signing.",
+        "legal": "Tenant shall pay a security deposit of $300 against damage upon execution hereof.",
+        "why": "Damage deposits aren't allowed; a rent deposit can't be used as a damage deposit."
+      },
+      {
+        "id": "tenant-repairs",
+        "problem": true,
+        "contentId": "lease-void-repairs",
+        "plain": "You pay for all repairs, including the furnace and plumbing.",
+        "legal": "Tenant assumes responsibility for all repairs to the Premises, including heating and plumbing systems.",
+        "why": "A term making you pay for repairs the landlord is responsible for is void."
+      },
+      {
+        "id": "any-entry",
+        "problem": true,
+        "contentId": "lease-entry",
+        "plain": "The landlord can come in any time, no notice needed.",
+        "legal": "Landlord may enter the Premises at any time without prior notice.",
+        "why": "Most entries need 24 hours' written notice and an 8 a.m.–8 p.m. time."
+      }
+    ],
+    "okPerLease": 2
+  },
+  "moveIn": {
+    "defects": [
+      {
+        "id": "floor-scratch",
+        "label": "Deep scratch on the floor"
+      },
+      {
+        "id": "counter-chip",
+        "label": "Chipped kitchen counter"
+      },
+      {
+        "id": "carpet-stain",
+        "label": "Stain on the bedroom carpet"
+      }
+    ],
+    "contentId": "movein-document",
+    "insuranceContentId": "lease-insurance",
+    "question": {
+      "text": "Moving day! Before you unpack, what do you do?",
+      "options": [
+        {
+          "id": "photos",
+          "label": "Photograph every room and any damage, and keep a copy",
+          "correct": true
+        },
+        {
+          "id": "unpack",
+          "label": "Unpack first, it can wait"
+        },
+        {
+          "id": "verbal",
+          "label": "Mention the damage to the landlord in passing"
+        },
+        {
+          "id": "clean",
+          "label": "Clean everything first"
+        }
+      ],
+      "feedback": {
+        "photos": [
+          "Smart. Every bit of damage, on record.",
+          "Receipt earned: 📷 move-in photos."
+        ],
+        "unpack": [
+          "Once your stuff is in, it's hard to prove what was already there.",
+          "Photograph every room before you unpack."
+        ],
+        "verbal": [
+          "Words are easy to forget or deny.",
+          "Photograph the damage, and keep a copy."
+        ],
+        "clean": [
+          "Cleaning can hide or blur existing damage.",
+          "Photograph everything first."
+        ]
+      }
+    }
+  },
+  "events": [
+    {
+      "id": "heat",
+      "title": "January: the heat is out",
+      "text": "January. Your place is freezing, and the heat's been off a day.",
+      "contentId": "live-heat",
+      "actions": [
+        {
+          "id": "write",
+          "label": "Message the landlord in writing and keep a copy",
+          "best": true
+        },
+        {
+          "id": "311",
+          "label": "Call 311 right away"
+        },
+        {
+          "id": "withhold",
+          "label": "Stop paying rent until it's fixed"
+        }
+      ],
+      "feedback": {
+        "write": [
+          "Right first step: in writing, and keep a copy.",
+          "No heat is urgent: landlords must respond within 24 hours."
+        ],
+        "311": [
+          "311 comes next, if the landlord doesn't fix it.",
+          "Start with the landlord, in writing."
+        ],
+        "withhold": [
+          "That's not an official route.",
+          "Landlord in writing first, then 311 if unresolved."
+        ]
+      },
+      "level": "city",
+      "levelWhy": "Toronto's indoor temperature bylaw is a City rule, enforced through 311.",
+      "civic": "heat"
+    },
+    {
+      "id": "pests",
+      "title": "You spot mice in the kitchen",
+      "text": "You find droppings under the sink. Now there are mice.",
+      "contentId": "live-written-requests",
+      "actions": [
+        {
+          "id": "write",
+          "label": "Send the landlord a written request and keep a copy",
+          "best": true
+        },
+        {
+          "id": "diy",
+          "label": "Buy traps and say nothing"
+        },
+        {
+          "id": "311",
+          "label": "Call 311 right away"
+        }
+      ],
+      "feedback": {
+        "write": [
+          "Exactly. A written request is your receipt if you need to escalate."
+        ],
+        "diy": [
+          "Traps help, but pests are the landlord's job.",
+          "Tell them in writing so there's a record."
+        ],
+        "311": [
+          "311 is for when the landlord doesn't act.",
+          "Start with a written request."
+        ]
+      },
+      "level": "city",
+      "levelWhy": "If the landlord doesn't act, 311 can open a City service request.",
+      "civic": "repairs"
+    },
+    {
+      "id": "leak",
+      "title": "Water drips from the ceiling",
+      "text": "Water drips from the ceiling, through an old stain, right onto your laptop bag.",
+      "contentId": "live-written-requests",
+      "extraContentIds": [
+        "live-repairs-ltb",
+        "lease-insurance"
+      ],
+      "actions": [
+        {
+          "id": "write",
+          "label": "Tell the landlord in writing it's urgent, and keep a copy",
+          "best": true
+        },
+        {
+          "id": "wait",
+          "label": "Put a bucket under it and wait"
+        },
+        {
+          "id": "fix",
+          "label": "Patch it yourself and deduct it from rent"
+        }
+      ],
+      "feedback": {
+        "write": [
+          "Good: urgent, in writing, copy kept.",
+          "Still not fixed? 311, or the Landlord and Tenant Board."
+        ],
+        "wait": [
+          "A bucket buys time, but leaks get worse.",
+          "Tell the landlord in writing."
+        ],
+        "fix": [
+          "Deducting repairs from rent isn't an official route.",
+          "Ask in writing; escalate via 311 or the Landlord and Tenant Board."
+        ]
+      },
+      "level": "city",
+      "alsoLevel": "province",
+      "levelWhy": "The City handles property standards via 311; the Province's tribunal handles maintenance disputes.",
+      "civic": "repairs",
+      "insurance": true,
+      "photos": {
+        "with": "Your move-in photos show the stain was already there. Clearly the landlord's repair.",
+        "without": "The landlord says the stain is new and blames you. No photos to prove otherwise."
+      }
+    },
+    {
+      "id": "smoke",
+      "title": "No smoke alarm",
+      "text": "You burn toast and notice: no working smoke alarm.",
+      "contentId": "live-smoke",
+      "actions": [
+        {
+          "id": "tell",
+          "label": "Tell the landlord right away, in writing",
+          "best": true
+        },
+        {
+          "id": "ignore",
+          "label": "Ignore it, you'll be careful"
+        },
+        {
+          "id": "buy",
+          "label": "Buy one and never mention it"
+        }
+      ],
+      "feedback": {
+        "tell": [
+          "Right. Landlords must install and maintain smoke alarms.",
+          "No fix? 311 refers it to Toronto Fire Services."
+        ],
+        "ignore": [
+          "Not worth the risk.",
+          "Tell the landlord: a working alarm is their job."
+        ],
+        "buy": [
+          "A spare is nice, but working alarms are the landlord's job.",
+          "Tell them."
+        ]
+      },
+      "level": "city",
+      "levelWhy": "No fix? 311 refers it to Toronto Fire Services, a City service.",
+      "civic": "repairs"
+    },
+    {
+      "id": "lock",
+      "title": "The window won't lock",
+      "text": "The window lock was broken from day one. Ground floor, too.",
+      "contentId": "view-locks",
+      "extraContentIds": [
+        "live-repairs-ltb",
+        "live-written-requests"
+      ],
+      "actions": [
+        {
+          "id": "write",
+          "label": "Ask the landlord in writing to repair it",
+          "best": true
+        },
+        {
+          "id": "tape",
+          "label": "Tape it shut and hope"
+        },
+        {
+          "id": "police",
+          "label": "Call the police"
+        }
+      ],
+      "feedback": {
+        "write": [
+          "Yes. In writing, with a copy kept for your records."
+        ],
+        "tape": [
+          "Tape isn't a lock.",
+          "Ask the landlord in writing to fix it."
+        ],
+        "police": [
+          "Police handle crimes and emergencies, not repairs.",
+          "Ask the landlord in writing."
+        ]
+      },
+      "level": "province",
+      "levelWhy": "Repairs not made? The Landlord and Tenant Board (Province) can act."
+    },
+    {
+      "id": "rent-increase",
+      "title": "A rent increase notice",
+      "text": "A note under your door: \"Rent goes up 6% next month.\"",
+      "contentId": "live-rent-increase",
+      "actions": [
+        {
+          "id": "check",
+          "label": "Check the Ontario rules on notice and increases first",
+          "best": true
+        },
+        {
+          "id": "pay",
+          "label": "Just pay it"
+        },
+        {
+          "id": "311",
+          "label": "Call 311 to complain"
+        }
+      ],
+      "feedback": {
+        "check": [
+          "Smart. Increases generally need 90 days' written notice.",
+          "Most units are capped at 2.1% for 2026.",
+          "Units first occupied after Nov 15, 2018 are exempt from the cap."
+        ],
+        "pay": [
+          "Check first.",
+          "Increases generally need 90 days' written notice; most are capped at 2.1%."
+        ],
+        "311": [
+          "Rent increases aren't a City matter.",
+          "The rules are provincial; disputes go to the Landlord and Tenant Board."
+        ]
+      },
+      "level": "province",
+      "levelWhy": "Rent increase rules are provincial; the Landlord and Tenant Board handles disputes."
+    },
+    {
+      "id": "ttc",
+      "title": "Late bus, again",
+      "text": "Your bus was badly late three days this week.",
+      "contentId": "live-ttc",
+      "actions": [
+        {
+          "id": "city",
+          "label": "Treat it as a City issue: TTC service is a City agency",
+          "best": true
+        },
+        {
+          "id": "landlord",
+          "label": "Complain to your landlord"
+        },
+        {
+          "id": "nothing",
+          "label": "Nothing anyone can do"
+        }
+      ],
+      "feedback": {
+        "city": [
+          "Right. The TTC is a City agency.",
+          "Its service standards set frequency and on-time targets."
+        ],
+        "landlord": [
+          "Your landlord can't fix the bus.",
+          "TTC service is set through a City agency."
+        ],
+        "nothing": [
+          "There is someone: the TTC, a City agency.",
+          "Its service standards are under review."
+        ]
+      },
+      "level": "city",
+      "levelWhy": "The TTC is a City of Toronto agency.",
+      "civic": "ttc"
+    }
+  ],
+  "seededEventPool": [
+    "heat",
+    "pests",
+    "leak",
+    "smoke",
+    "lock",
+    "rent-increase",
+    "ttc"
+  ],
+  "moveOut": {
+    "contentId": "moveout-notice",
+    "depositContentId": "moveout-deposit",
+    "options": [
+      {
+        "id": "text",
+        "label": "Text the landlord two weeks before you leave"
+      },
+      {
+        "id": "n9",
+        "label": "Give written notice (Form N9) at least 60 days before the end of a rental month",
+        "best": true
+      },
+      {
+        "id": "leave",
+        "label": "Just move out and leave the keys"
+      }
+    ],
+    "feedback": {
+      "text": [
+        "Too short, and not the right form.",
+        "Use Form N9, at least 60 days ahead."
+      ],
+      "n9": [
+        "Right: Form N9, at least 60 days ahead.",
+        "It ends on the last day of a rental month."
+      ],
+      "leave": [
+        "That's not an official route.",
+        "Use Form N9 with at least 60 days' notice."
+      ]
+    }
+  },
+  "levels": {
+    "personal": "Me",
+    "landlord": "My landlord",
+    "city": "City of Toronto",
+    "province": "Province of Ontario",
+    "federal": "Federal"
+  },
+  "eventLevels": [
+    "personal",
+    "landlord",
+    "city",
+    "province"
+  ]
+}

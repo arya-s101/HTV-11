@@ -3,9 +3,10 @@ import { IBM_Plex_Mono, Press_Start_2P } from "next/font/google";
 import { NeonBackground, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import "./globals.css";
 
-const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel" });
+// display "block": no flash of fallback type changing line breaks mid-animation (audit A9).
+const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel", display: "block" });
 // Body/number font must have unambiguous digits; the pixel font is for headings only.
-const body = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-body" });
+const body = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-body", display: "block" });
 
 export const metadata: Metadata = {
   // Working title; rename after the core loop works (PRD).
