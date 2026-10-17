@@ -5,6 +5,7 @@ import { EVIDENCE, evidenceFor, FARES, isPlayable, LEVERS, STAGES } from "./data
 import { planLife, stageForAge } from "./life";
 import { consequence, fareFor } from "./outcome";
 import { buildQuestion, tradeoffOf } from "./question";
+import { presetProfession } from "./career";
 import { composeSprite, DEMO_CHARACTER, type Character } from "./sprite";
 import type { CivicCategory, PlayableStage } from "./types";
 
@@ -71,11 +72,12 @@ describe("unknowns", () => {
 });
 
 describe("appearance is cosmetic only", () => {
-  it("changing every appearance layer changes no number, question or feedback", () => {
+  it("changing every appearance layer AND the profession changes no number, question or feedback", () => {
     const other: Character = {
       name: "Alex",
       startAge: 20,
       appearance: { skin: 5, hairStyle: "long", hairColor: 4, outfit: "dress", outfitColor: 3, accessory: "cap" },
+      profession: presetProfession("nursing"),
     };
     expect(composeSprite(other.appearance)).not.toEqual(composeSprite(DEMO_CHARACTER.appearance));
     for (const s of [student, firstJob]) for (const o of s.offers) {

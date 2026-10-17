@@ -14,6 +14,12 @@ Stages 3–6 show "coming soon" because their civic levers don't have an officia
 costs in listing text. Hard uses lease-style fine print, route legs instead of minutes, and a raw CMHC table the player reads. The reasoning
 score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 
+**Starting profession:** choose a preset (handwritten job path) or type your own. Gemini writes a story-only path via `/api/career`,
+with a template fallback; any number or money talk is rejected. A profession never changes an income, offer or score.
+
+**Site structure:** shared navbar and footer, a neon-grid background, and pages `/` (game), `/how-it-works` and `/sources`
+(rendered from the same data files the game uses).
+
 **Optional landlord negotiation:** code decides the deal (`src/game/negotiate.ts`). Gemini only writes the landlord's words and is
 validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`, and always for the demo preset,
 a scripted landlord is used. Copy `.env.example` to `.env.local` to enable Gemini (optional).
@@ -30,7 +36,7 @@ npm run dev          # http://localhost:3000
 Checks (all verified passing 2026-10-17). Don't run plain `npm run build` while `npm run dev` is running: both write to `.next/`, and the dev page breaks (404s on JS/CSS).
 
 ```bash
-npm test             # vitest unit tests: 40 pass
+npm test             # vitest unit tests: 46 pass
 npm run typecheck    # tsc --noEmit
 npm run lint
 npm run build:check  # production build into .next-check/; safe while `npm run dev` is running
@@ -54,7 +60,10 @@ npm run build:evidence  # rebuild data/game/evidence.json from raw downloads (ma
 | `src/game/score.ts` | Reasoning score; difficulty multiplier |
 | `src/game/negotiate.ts` | Deterministic negotiation engine, scripted landlord lines, validation of LLM output |
 | `data/game/negotiation.json`, `src/server/negotiation.ts`, `src/app/api/negotiate/route.ts` | **Server-only** hidden landlord configs, the Gemini call (key never sent to the browser), and the API route that replays the player's messages |
-| `src/components/`, `src/app/page.tsx` | UI (client); the only server code is the negotiation route |
+| `data/game/professions.json`, `src/game/career.ts`, `src/server/career.ts`, `src/app/api/career/route.ts` | Preset job paths, validation, and the custom-profession Gemini call |
+| `src/server/gemini.ts` | Shared server-only Gemini client (8 s timeout, JSON output) |
+| `src/components/SiteChrome.tsx` | Navbar, footer, neon background |
+| `src/components/`, `src/app/page.tsx`, `src/app/how-it-works`, `src/app/sources` | UI; the only server code is the two API routes |
 
 Older pipeline (kept for provenance): `scripts/import-sources.ts` builds `data/snapshots/` (CMHC zones and rents, neighbourhood→zone
 assignment), and `scripts/routing/precompute_travel_times.py` (r5py) builds `travel-times.json`. Those times are only a cross-check;

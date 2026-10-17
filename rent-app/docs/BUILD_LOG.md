@@ -111,3 +111,17 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
   with no console errors and no phone overflow. A grep of the client bundle found no negotiation config or API key.
 - **Not verified:** a live Gemini call (no key available here). Default model id taken from Google's models page on 2026-10-17.
 - Found and fixed: a message whose CMHC argument was rebutted was also treated as generic haggling and won a discount.
+
+## Sprites, profession, UI structure (2026-10-17)
+
+- Sprite fixes (checked on a rendered sheet of every layer): glasses were a solid black visor (frame and eye were the same colour on one row) and are now
+  tinted lenses with a bridge and arms. The dress no longer shows pants pixels beside the legs: overlays gained a `_` clear token. The cap brim
+  is shorter and the cap hides big hair above it.
+- Starting profession: 7 handwritten presets, plus custom text sent to Gemini (`/api/career`) and validated so every stage is present, the text is short,
+  and there are no digits, money or salary words, URLs or blocked terms. Without a key or on failure, a template is used. Story only: tests prove a
+  profession changes no number. The First-job destination is now "work near Union Station", neutral across jobs.
+- UI: shared layout with a sticky navbar (Play, How it works, Data & sources, election pill), a three-column footer (about, data licences,
+  vote links, AI-use note) and a skip link. Retro neon grid background (striped sun, glowing horizon, scrolling perspective grid; still under
+  reduced motion). New pages `/how-it-works` and `/sources` are generated from the data files. Home has a hero, a 5-step strip and feature cards. The
+  creator is grouped (Who you are / Look / Game) with a sticky preview. In-game there's a HUD bar (avatar, age, job, stage, difficulty, Quit) and the timeline shows job titles.
+- Tests: 46 pass. Browser: Easy demo with negotiation, Hard run, home/creator/stage/pages at desktop and phone, no console errors, no overflow.

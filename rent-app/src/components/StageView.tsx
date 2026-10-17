@@ -81,7 +81,6 @@ export function StageView(props: {
             {s === "Negotiate" ? " (optional)" : ""}
           </span>
         ))}
-        <span className="tab diff">{DIFFICULTY_INFO[difficulty].label}</span>
       </div>
 
       {step === "Start" && (
@@ -96,6 +95,12 @@ export function StageView(props: {
             <h2>
               {character.name}, {age}: {stage.housingNeed.toLowerCase()}
             </h2>
+            {character.profession.path[stage.id] && (
+              <p className="job-line">
+                <b>{character.profession.path[stage.id].title}.</b> {character.profession.path[stage.id].blurb}
+                <Badge f={{ ...ILLUS, reference_period: "story only" }} />
+              </p>
+            )}
             <p>
               {stage.household}. Heading to {stage.destination.name}, {stage.commuteDaysPerMonth} days a month by TTC.
             </p>
@@ -599,7 +604,7 @@ export function ScoreBox({ score }: { score: Score }) {
 function Fact({ title, f, caveat }: { title: string; f: Parameters<typeof Num>[0]["f"]; caveat: string }) {
   return (
     <div className="panel fact on-dark">
-      <h3 style={{ color: "#f6eed9" }}>{title}</h3>
+      <h3>{title}</h3>
       <div className="val">
         {formatValue(f)}
         <Badge f={f} />

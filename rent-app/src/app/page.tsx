@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Legend, Sprite, TitleScene } from "@/components/pixel";
 import { ScoreBox, StageView, type StageRecord } from "@/components/StageView";
+import { PRESETS, presetProfession } from "@/game/career";
 import { ELECTION_HUB, STAGES } from "@/game/data";
 import { money } from "@/game/outcome";
 import { DEFAULT_AGE, MAX_AGE, MIN_AGE, planLife, stageForAge, type LifePlan } from "@/game/life";
@@ -61,16 +62,9 @@ export default function Game() {
   const current = plan?.playable[index];
 
   return (
-    <main>
-      {screen !== "title" && (
-        <div className="spread" style={{ marginBottom: 6 }}>
-          <span className="pixel" style={{ fontSize: "0.7rem", color: "var(--yellow)" }}>
-            Toronto Rent Decisions
-          </span>
-          <button className="btn ghost small" onClick={() => setScreen("title")}>
-            Quit to title
-          </button>
-        </div>
+    <div className="game">
+      {(screen === "stage" || screen === "between" || screen === "end") && plan && (
+        <Hud character={character} age={current?.age ?? character.startAge} stageTitle={screen === "end" ? "Life summary" : current?.stage.title ?? ""} stageId={current?.stage.id} difficulty={difficulty} onQuit={() => { setScreen("title"); top(); }} />
       )}
 
       {screen === "title" && (
@@ -90,13 +84,14 @@ export default function Game() {
           setCharacter={setCharacter}
           difficulty={difficulty}
           setDifficulty={setDifficulty}
+          onBack={() => { setScreen("title"); top(); }}
           onStart={() => begin({ ...character, name: character.name.trim() || "Player" })}
         />
       )}
 
       {(screen === "stage" || screen === "between") && plan && current && (
         <>
-          <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} />
+          <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} character={character} />
           {screen === "stage" && (
             <StageView
               key={current.stage.id}
@@ -122,64 +117,171 @@ export default function Game() {
         </>
       )}
 
-      {screen === "end" && plan && <EndScreen character={character} plan={plan} records={records} skipped={skipped} onRestart={() => setScreen("title")} />}
+      {screen === "end" && plan && <EndScreen character={character} plan={plan} records={records} skipped={skipped} onRestart={() => { setScreen("title"); top(); }} />}
 
       {screen !== "title" && (
-        <div style={{ marginTop: 20 }}>
+        <div className="panel legend-bar">
           <Legend />
         </div>
       )}
-      <footer className="site">
-        Offers, people and incomes are fictional (labelled illustrative). Real data: City of Toronto Open Data (Open Government Licence – Toronto), CMHC
-        Rental Market Survey (adapted; not endorsed by CMHC), TTC fares, Province of Ontario. Nonpartisan: this game doesn&apos;t endorse candidates or
-        predict policy outcomes. <a href={ELECTION_HUB.url}>Toronto municipal election: Monday, October 26, 2026</a>.
-      </footer>
-    </main>
+    </div>
+  );
+}
+
+function Hud(props: { character: Character; age: number; stageTitle: string; stageId?: string; difficulty: Difficulty; onQuit: () => void }) {
+  const { character, age, stageTitle, stageId, difficulty, onQuit } = props;
+  const job = stageId ? character.profession.path[stageId]?.title : undefined;
+  return (
+    <div className="hud">
+      <div className="hud-who">
+        <div className="hud-avatar">
+          <Sprite appearance={character.appearance} scale={2} />
+        </div>
+        <div>
+          <div className="pixel hud-name">
+            {character.name}, {age}
+          </div>
+          <div className="small">{job ?? character.profession.label}</div>
+        </div>
+      </div>
+      <div className="hud-stage">
+        <span className="pixel">{stageTitle}</span>
+        <span className="tab diff">{DIFFICULTY_INFO[difficulty].label}</span>
+      </div>
+      <button className="btn ghost small" onClick={onQuit}>
+        Quit
+      </button>
+    </div>
   );
 }
 
 function TitleScreen({ onNew, onDemo }: { onNew: () => void; onDemo: () => void }) {
+  const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
   return (
-    <section className="title-screen">
-      <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-        <TitleScene />
-      </div>
-      <div className="title-card">
-        <h1>Toronto Rent Decisions</h1>
-        <p className="tag">
-          Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem
-          your next city council can actually change. You&apos;ll leave with one sourced question for municipal candidates.
-        </p>
-        <div className="row" style={{ justifyContent: "center" }}>
-          <button className="btn" onClick={onNew}>
-            ▶ New game
-          </button>
-          <button className="btn blue" onClick={onDemo}>
-            Demo preset
-          </button>
+    <div className="home">
+      <section className="hero">
+        <div className="hero-copy">
+          <span className="eyebrow">Toronto municipal election · Monday, Oct 26, 2026</span>
+          <h1>
+            Toronto <span className="neon">Rent</span> Decisions
+          </h1>
+          <p className="lede">
+            Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem
+            your next city council can actually change.
+          </p>
+          <div className="row">
+            <button className="btn big" onClick={onNew}>
+              ▶ New game
+            </button>
+            <button className="btn blue big" onClick={onDemo}>
+              Demo preset
+            </button>
+          </div>
+          <p className="small on-dark">About 4 minutes · no sign-up · nonpartisan</p>
         </div>
-        <p className="pixel blink" style={{ fontSize: "0.6rem", marginTop: 18, color: "#cfc8de" }}>
-          Election day · Oct 26, 2026
-        </p>
-      </div>
-    </section>
+        <div className="hero-art">
+          <TitleScene />
+          <p className="pixel blink press">Press start</p>
+        </div>
+      </section>
+
+      <ol className="steps-strip" aria-label="Each life stage">
+        {steps.map((s, i) => (
+          <li key={s}>
+            <span className="num">{i + 1}</span>
+            {s}
+          </li>
+        ))}
+      </ol>
+
+      <section className="feature-grid">
+        <article className="paper">
+          <h3>Fictional homes, real Toronto data</h3>
+          <p>Offers are made up and labelled as such. Rents, census figures and fares come from CMHC, the City and the TTC, each with a source.</p>
+        </article>
+        <article className="paper">
+          <h3>Haggle if you want</h3>
+          <p>Negotiate with a landlord before signing. The landlord&apos;s words may come from AI; the deal is always decided by game code.</p>
+        </article>
+        <article className="paper">
+          <h3>Leave with a question</h3>
+          <p>Every stage ends with a neutral, sourced question for municipal candidates, built from your own choices.</p>
+        </article>
+      </section>
+    </div>
   );
 }
 
 function DifficultyPicker({ value, onChange }: { value: Difficulty; onChange: (d: Difficulty) => void }) {
   return (
-    <div>
+    <div className="field">
       <h3>Difficulty</h3>
-      <div className="row" style={{ gap: 4 }}>
+      <div className="seg">
         {(["easy", "normal", "hard"] as Difficulty[]).map((d) => (
           <button key={d} className={`choice ${d === value ? "on" : ""}`} onClick={() => onChange(d)} aria-pressed={d === value}>
             {DIFFICULTY_INFO[d].label}
           </button>
         ))}
       </div>
-      <p className="small">
-        {DIFFICULTY_INFO[value].blurb} Difficulty changes how information is shown, never what is true, and multiplies your reasoning score.
-      </p>
+      <p className="small muted">{DIFFICULTY_INFO[value].blurb} It changes how information is shown, never what is true.</p>
+    </div>
+  );
+}
+
+function ProfessionPicker({ character, setCharacter }: { character: Character; setCharacter: (c: Character) => void }) {
+  const [custom, setCustom] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const p = character.profession;
+
+  async function generate() {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/career", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ profession: custom }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Couldn't build a job path");
+      setCharacter({ ...character, profession: data.profession });
+      setMsg(data.profession.source === "llm" ? "Job path written by Gemini (story only)." : `Used a simple template (${data.fallbackReason}).`);
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Couldn't build a job path");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="field">
+      <h3>Starting profession</h3>
+      <div className="row" style={{ gap: 4 }}>
+        {PRESETS.map((x) => (
+          <button key={x.id} className={`choice ${p.id === x.id ? "on" : ""}`} onClick={() => setCharacter({ ...character, profession: presetProfession(x.id) })} aria-pressed={p.id === x.id}>
+            {x.label}
+          </button>
+        ))}
+      </div>
+      <form
+        className="row"
+        style={{ marginTop: 8 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          generate();
+        }}
+      >
+        <input className="field-input" value={custom} maxLength={40} placeholder="Other: e.g. pharmacist" onChange={(e) => setCustom(e.target.value)} aria-label="Custom profession" />
+        <button className="btn blue small" disabled={busy || custom.trim().length < 2}>
+          {busy ? "Writing…" : "Generate job path"}
+        </button>
+      </form>
+      {msg && <p className="small">{msg}</p>}
+      <ol className="path">
+        {STAGES.map((s) => (
+          <li key={s.id} className={s.enabled ? "" : "soon"}>
+            <span className="pixel">{s.title}</span> {p.path[s.id]?.title}
+          </li>
+        ))}
+      </ol>
+      <p className="note">Your job shapes the story only. Incomes, offers and scores stay the same for everyone, so choices stay comparable.</p>
     </div>
   );
 }
@@ -189,9 +291,10 @@ function Creator(props: {
   setCharacter: (c: Character) => void;
   difficulty: Difficulty;
   setDifficulty: (d: Difficulty) => void;
+  onBack: () => void;
   onStart: () => void;
 }) {
-  const { character, setCharacter, difficulty, setDifficulty, onStart } = props;
+  const { character, setCharacter, difficulty, setDifficulty, onBack, onStart } = props;
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
   const plan = planLife(character.startAge);
@@ -207,57 +310,71 @@ function Creator(props: {
     });
 
   return (
-    <section className="creator">
-      <div className="paper stage-preview">
-        <span className="eyebrow">Character</span>
-        <div className="sprite-frame">
-          <Sprite appearance={a} scale={10} />
-        </div>
-        <div className="pixel" style={{ fontSize: "0.7rem" }}>
-          {character.name.trim() || "Player"}, {character.startAge}
-        </div>
-        <button className="btn ghost small" onClick={randomize}>
-          🎲 Randomize look
-        </button>
-        <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
-      </div>
-
-      <div className="paper options">
-        <div>
-          <h3>Name</h3>
-          <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
-        </div>
-        <div>
-          <h3>Starting age: {character.startAge}</h3>
-          <input
-            type="range"
-            min={MIN_AGE}
-            max={MAX_AGE}
-            value={character.startAge}
-            onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })}
-            aria-label="Starting age"
-          />
-          <p className="small">
-            Starts at stage {start.order}: <b>{start.title}</b>.{" "}
-            {plan.playable.length > 0
-              ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
-              : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
-          </p>
-        </div>
-        <DifficultyPicker value={difficulty} onChange={setDifficulty} />
-        <Swatches label="Skin tone" colors={SKIN} value={a.skin} onPick={(i) => setA({ skin: i })} />
-        <Choices label="Hair style" options={HAIR_STYLES} value={a.hairStyle} onPick={(v) => setA({ hairStyle: v })} />
-        <Swatches label="Hair colour" colors={HAIR_COLOR} value={a.hairColor} onPick={(i) => setA({ hairColor: i })} />
-        <Choices label="Outfit" options={OUTFITS} value={a.outfit} onPick={(v) => setA({ outfit: v })} />
-        <Swatches label="Outfit colour" colors={OUTFIT_COLOR} value={a.outfitColor} onPick={(i) => setA({ outfitColor: i })} />
-        <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
-        <div>
-          <button className="btn" disabled={plan.playable.length === 0} onClick={onStart}>
-            ▶ Start life
+    <div className="page">
+      <header className="page-head">
+        <span className="eyebrow">New game</span>
+        <h1>Create your character</h1>
+      </header>
+      <section className="creator">
+        <aside className="paper stage-preview">
+          <div className="sprite-frame">
+            <Sprite appearance={a} scale={10} />
+          </div>
+          <div className="pixel" style={{ fontSize: "0.7rem" }}>
+            {character.name.trim() || "Player"}, {character.startAge}
+          </div>
+          <div className="small">{character.profession.path[start.id]?.title ?? character.profession.label}</div>
+          <button className="btn ghost small" onClick={randomize}>
+            🎲 Randomize look
           </button>
+          <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
+          <div className="preview-actions">
+            <button className="btn big" disabled={plan.playable.length === 0} onClick={onStart}>
+              ▶ Start life
+            </button>
+            <button className="btn ghost small" onClick={onBack}>
+              Back
+            </button>
+          </div>
+        </aside>
+
+        <div className="options">
+          <fieldset className="paper group">
+            <legend>Who you are</legend>
+            <div className="field">
+              <h3>Name</h3>
+              <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
+            </div>
+            <div className="field">
+              <h3>Starting age: {character.startAge}</h3>
+              <input type="range" min={MIN_AGE} max={MAX_AGE} value={character.startAge} onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })} aria-label="Starting age" />
+              <p className="small">
+                Starts at stage {start.order}: <b>{start.title}</b>.{" "}
+                {plan.playable.length > 0
+                  ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
+                  : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
+              </p>
+            </div>
+            <ProfessionPicker character={character} setCharacter={setCharacter} />
+          </fieldset>
+
+          <fieldset className="paper group">
+            <legend>Look</legend>
+            <Swatches label="Skin tone" colors={SKIN} value={a.skin} onPick={(i) => setA({ skin: i })} />
+            <Choices label="Hair style" options={HAIR_STYLES} value={a.hairStyle} onPick={(v) => setA({ hairStyle: v })} />
+            <Swatches label="Hair colour" colors={HAIR_COLOR} value={a.hairColor} onPick={(i) => setA({ hairColor: i })} />
+            <Choices label="Outfit" options={OUTFITS} value={a.outfit} onPick={(v) => setA({ outfit: v })} />
+            <Swatches label="Outfit colour" colors={OUTFIT_COLOR} value={a.outfitColor} onPick={(i) => setA({ outfitColor: i })} />
+            <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
+          </fieldset>
+
+          <fieldset className="paper group">
+            <legend>Game</legend>
+            <DifficultyPicker value={difficulty} onChange={setDifficulty} />
+          </fieldset>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -289,11 +406,12 @@ function Choices<T extends string>({ label, options, value, onPick }: { label: s
   );
 }
 
-function Timeline({ plan, index, records, skipped, between }: { plan: LifePlan; index: number; records: StageRecord[]; skipped: string[]; between: boolean }) {
+function Timeline(props: { plan: LifePlan; index: number; records: StageRecord[]; skipped: string[]; between: boolean; character: Character }) {
+  const { plan, index, records, skipped, between, character } = props;
   const currentId = plan.playable[index]?.stage.id;
   const doneIds = new Set([...records.map((r) => r.stageId), ...skipped]);
   return (
-    <nav className="timeline" aria-label="Life stages">
+    <nav className="timeline panel" aria-label="Life stages">
       {STAGES.map((s, i) => {
         const soon = plan.comingSoon.some((x) => x.id === s.id) || s.order < plan.start.order;
         const cls = doneIds.has(s.id) ? "done" : s.id === currentId && !between ? "current" : soon ? "soon" : "";
@@ -307,6 +425,7 @@ function Timeline({ plan, index, records, skipped, between }: { plan: LifePlan; 
                 <br />
                 {plan.comingSoon.some((x) => x.id === s.id) ? "coming soon" : `age ${plan.playable.find((p) => p.stage.id === s.id)?.age ?? s.defaultAge}`}
               </span>
+              <span className="job">{character.profession.path[s.id]?.title}</span>
             </div>
           </div>
         );
@@ -450,7 +569,7 @@ function EndScreen({ character, plan, records, skipped, onRestart }: { character
             <ul>
               {records.map((r) => (
                 <li key={r.stageId}>
-                  Age {r.age}, {r.stageTitle}: {r.offerTitle} in {r.neighbourhood}
+                  Age {r.age}, {r.stageTitle} ({character.profession.path[r.stageId]?.title}): {r.offerTitle} in {r.neighbourhood}
                 </li>
               ))}
             </ul>

@@ -212,7 +212,7 @@
       "household": "Just you",
       "destination": {
         "id": "union",
-        "name": "an office near Union Station"
+        "name": "work near Union Station"
       },
       "income": {
         "amountCents": 5500000,

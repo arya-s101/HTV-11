@@ -1,0 +1,89 @@
+{
+  "_note": "Story-only job paths (fictional). A profession never changes an income, offer, commute or score: those stay the same illustrative figures for everyone so comparisons are fair. No numbers allowed in titles or blurbs.",
+  "presets": [
+    {
+      "id": "nursing",
+      "label": "Nursing",
+      "path": {
+        "student": { "title": "Nursing student", "blurb": "Clinical placements by day, anatomy flashcards on the bus." },
+        "first-job": { "title": "Registered nurse", "blurb": "First hospital job, rotating day and night shifts downtown." },
+        "new-job": { "title": "Charge nurse", "blurb": "Moved to a new unit and now runs the floor on busy shifts." },
+        "partner": { "title": "Nurse educator", "blurb": "Training new grads while planning a home for two." },
+        "kids": { "title": "Clinical nurse specialist", "blurb": "Fewer night shifts, more school pickups." },
+        "retirement": { "title": "Retired nurse", "blurb": "Still volunteers at the community health centre." }
+      }
+    },
+    {
+      "id": "software",
+      "label": "Software",
+      "path": {
+        "student": { "title": "Computer science student", "blurb": "Group projects, hackathons and too much instant ramen." },
+        "first-job": { "title": "Junior developer", "blurb": "First full-time role at a downtown tech team." },
+        "new-job": { "title": "Software engineer", "blurb": "Switched companies for a team building transit apps." },
+        "partner": { "title": "Senior engineer", "blurb": "Leading features and mentoring the new hires." },
+        "kids": { "title": "Engineering manager", "blurb": "More meetings, fewer bugs, flexible hours for family." },
+        "retirement": { "title": "Retired engineer", "blurb": "Teaches coding workshops at the local library." }
+      }
+    },
+    {
+      "id": "trades",
+      "label": "Skilled trades",
+      "path": {
+        "student": { "title": "Electrical apprentice", "blurb": "Trade school classes mixed with time on job sites." },
+        "first-job": { "title": "Licensed electrician", "blurb": "Wiring condo towers across the city." },
+        "new-job": { "title": "Site lead", "blurb": "Running a crew on a new commercial build." },
+        "partner": { "title": "Electrical contractor", "blurb": "Started a small business with a partner's help." },
+        "kids": { "title": "Small-business owner", "blurb": "Hiring apprentices and balancing family time." },
+        "retirement": { "title": "Retired contractor", "blurb": "Fixes the neighbours' lights for free." }
+      }
+    },
+    {
+      "id": "teaching",
+      "label": "Teaching",
+      "path": {
+        "student": { "title": "Education student", "blurb": "Practicum classrooms and lesson plans every weekend." },
+        "first-job": { "title": "Occasional teacher", "blurb": "Covering classes at schools all over the city." },
+        "new-job": { "title": "Classroom teacher", "blurb": "Landed a permanent spot at a new school." },
+        "partner": { "title": "Department head", "blurb": "Coordinating the science team and coaching after school." },
+        "kids": { "title": "Vice-principal", "blurb": "Learning school leadership while raising kids." },
+        "retirement": { "title": "Retired educator", "blurb": "Tutors newcomers learning English." }
+      }
+    },
+    {
+      "id": "hospitality",
+      "label": "Food & hospitality",
+      "path": {
+        "student": { "title": "Culinary student", "blurb": "Knife skills in class, line shifts on weekends." },
+        "first-job": { "title": "Line cook", "blurb": "Late nights in a busy downtown kitchen." },
+        "new-job": { "title": "Sous chef", "blurb": "Moved to a new restaurant to run the line." },
+        "partner": { "title": "Head chef", "blurb": "Writing menus and planning a shared kitchen at home." },
+        "kids": { "title": "Catering business owner", "blurb": "Daytime events instead of late service." },
+        "retirement": { "title": "Retired chef", "blurb": "Cooks for the community centre's weekly dinner." }
+      }
+    },
+    {
+      "id": "arts",
+      "label": "Arts & design",
+      "path": {
+        "student": { "title": "Design student", "blurb": "Studio critiques and late nights in the print lab." },
+        "first-job": { "title": "Junior designer", "blurb": "First agency job, plus freelance on the side." },
+        "new-job": { "title": "Product designer", "blurb": "Joined a new team designing public-facing apps." },
+        "partner": { "title": "Design lead", "blurb": "Leading a small team and sharing a studio corner at home." },
+        "kids": { "title": "Creative director", "blurb": "Big-picture work with more predictable hours." },
+        "retirement": { "title": "Retired artist", "blurb": "Paints murals with neighbourhood youth groups." }
+      }
+    },
+    {
+      "id": "retail",
+      "label": "Retail & customer service",
+      "path": {
+        "student": { "title": "Business student", "blurb": "Classes during the week, a retail job on weekends." },
+        "first-job": { "title": "Store associate", "blurb": "Full-time at a busy downtown store." },
+        "new-job": { "title": "Assistant store manager", "blurb": "Moved to a new location to lead the floor team." },
+        "partner": { "title": "Store manager", "blurb": "Running the whole store and planning a move together." },
+        "kids": { "title": "District manager", "blurb": "Visiting stores across the region, home for dinner." },
+        "retirement": { "title": "Retired manager", "blurb": "Mentors young workers through a local program." }
+      }
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Press_Start_2P } from "next/font/google";
+import { NeonBackground, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import "./globals.css";
 
 const pixel = Press_Start_2P({ subsets: ["latin"], weight: "400", variable: "--font-pixel" });
@@ -15,7 +16,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${pixel.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <NeonBackground />
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        <SiteHeader />
+        <main id="main" className="container">
+          {children}
+        </main>
+        <SiteFooter />
+      </body>
     </html>
   );
 }

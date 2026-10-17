@@ -5,12 +5,11 @@ import negotiationJson from "../../data/game/negotiation.json";
 import { evidenceFor, isPlayable, STAGES } from "@/game/data";
 import { openingLine, replay, scriptedMessage, validateLlm, type NegotiationConfig, type OfferFacts, type Reply } from "@/game/negotiate";
 import type { Difficulty, PlayableStage } from "@/game/types";
+import { fallbackReasonFor, geminiJson, hasGeminiKey } from "./gemini";
 
 export const LEGAL_HELP = negotiationJson.legalHelp;
 const CONFIGS = negotiationJson.offers as Record<string, NegotiationConfig>;
 const BEDROOM_WORDS: Record<string, string> = { studio: "bachelor units", "1br": "1-bedroom units", "2br": "2-bedroom units" };
-export const DEFAULT_MODEL = "gemini-3.5-flash-lite";
-const TIMEOUT_MS = 8000;
 
 export function lookup(stageId: string, offerId: string) {
   const stage = STAGES.find((s) => s.id === stageId);
@@ -55,44 +54,21 @@ function systemInstruction(cfg: NegotiationConfig, facts: OfferFacts, rep: Reply
   ].join("\n");
 }
 
-async function callGemini(cfg: NegotiationConfig, facts: OfferFacts, rep: Reply, transcript: Turn[]): Promise<unknown> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error("no key");
-  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: "POST",
-      signal: ctrl.signal,
-      headers: { "content-type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemInstruction(cfg, facts, rep) }] },
-        contents: transcript.slice(-12).map((t) => ({ role: t.role === "player" ? "user" : "model", parts: [{ text: t.text }] })),
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              message: { type: "STRING" },
-              proposed_rent: { type: "NUMBER" },
-              proposed_concessions: { type: "ARRAY", items: { type: "STRING" } },
-              deal_status: { type: "STRING", enum: ["open", "final", "ended"] },
-            },
-            required: ["message", "proposed_rent", "proposed_concessions", "deal_status"],
-          },
-        },
-      }),
-    });
-    if (!res.ok) throw new Error(`gemini ${res.status}`);
-    const body = await res.json();
-    const text = body?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("") ?? "";
-    return JSON.parse(text);
-  } finally {
-    clearTimeout(timer);
-  }
+function callGemini(cfg: NegotiationConfig, facts: OfferFacts, rep: Reply, transcript: Turn[]): Promise<unknown> {
+  return geminiJson({
+    system: systemInstruction(cfg, facts, rep),
+    contents: transcript.slice(-12).map((t) => ({ role: t.role === "player" ? "user" : "model", text: t.text })),
+    schema: {
+      type: "OBJECT",
+      properties: {
+        message: { type: "STRING" },
+        proposed_rent: { type: "NUMBER" },
+        proposed_concessions: { type: "ARRAY", items: { type: "STRING" } },
+        deal_status: { type: "STRING", enum: ["open", "final", "ended"] },
+      },
+      required: ["message", "proposed_rent", "proposed_concessions", "deal_status"],
+    },
+  });
 }
 
 export interface NegotiateResult {
@@ -130,13 +106,13 @@ export async function negotiate(args: {
   let fallbackReason: string | undefined;
   let adjustments: string[] = [];
   if (args.mode === "scripted") fallbackReason = "scripted mode (demo preset)";
-  else if (!process.env.GEMINI_API_KEY && !args.callModel) fallbackReason = "no GEMINI_API_KEY configured";
+  else if (!hasGeminiKey() && !args.callModel) fallbackReason = "no GEMINI_API_KEY configured";
   else {
     try {
       const raw = await (args.callModel ?? callGemini)(cfg, facts, rep, args.transcript);
       ({ message, source, adjustments } = validateLlm(raw, rep, facts, scripted));
     } catch (e) {
-      fallbackReason = e instanceof Error && e.name === "AbortError" ? "model timed out" : "model call failed";
+      fallbackReason = fallbackReasonFor(e);
     }
   }
   return {

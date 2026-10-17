@@ -1,3 +1,5 @@
+import { presetProfession, type Profession } from "./career";
+
 // Original layered 16×24 pixel-art character. Appearance is cosmetic only: nothing in the game's
 // calculations, offers or feedback reads it (enforced by tests).
 
@@ -21,12 +23,15 @@ export interface Character {
   name: string;
   startAge: number;
   appearance: Appearance;
+  /** Story only: job titles per stage. Never changes a number, offer or score. */
+  profession: Profession;
 }
 
 export const DEMO_CHARACTER: Character = {
   name: "Sam",
   startAge: 20,
   appearance: { skin: 2, hairStyle: "curly", hairColor: 0, outfit: "hoodie", outfitColor: 0, accessory: "headphones" },
+  profession: presetProfession("software"),
 };
 
 export const W = 16;
@@ -60,7 +65,7 @@ const BASE = [
   "................",
 ];
 
-// Overlays: "." keeps what's below; any other letter paints that token.
+// Overlays: "." keeps what's below, "_" clears the pixel; any other letter paints that token.
 const HAIR: Record<Appearance["hairStyle"], string[]> = {
   short: [
     "................",
@@ -164,17 +169,18 @@ const OUTFIT: Record<Appearance["outfit"], { rows: number; art: string[] }> = {
       "...OOOOOOOOOO...",
       "..OOOOOOOOOOOO..",
       "..DDDDDDDDDDDD..",
-      ".....SS..SS.....",
-      ".....SS..SS.....",
-      ".....SS..SS.....",
+      "...._SS__SS_....",
+      "...._SS__SS_....",
+      "...._SS__SS_....",
     ],
   },
 };
 
 const ACCESSORY: Record<Appearance["accessory"], { row: number; art: string[] }> = {
   none: { row: 0, art: [] },
-  glasses: { row: 5, art: ["....GEGGGGEG...."] },
-  cap: { row: 0, art: ["................", ".....CCCCCC.....", "....CCCCCCCCCC..", "....CCCCCCCCCCC."] },
+  // One-row frames: tinted lens either side of each eye, a bridge, and arms reaching the ears.
+  glasses: { row: 5, art: ["...GLELGGLELG..."] },
+  cap: { row: 0, art: ["..____________..", ".....CCCCCC.....", "....CCCCCCCC....", "....CCCCCCCCCC.."] },
   headphones: {
     row: 1,
     art: ["....KKKKKKKK....", "...K........K...", "...K........K...", "..KK........KK..", "..KK........KK..", "..KK........KK.."],
@@ -193,7 +199,7 @@ function shade(hex: string, f: number): string {
 function paint(grid: string[][], art: string[], top: number) {
   art.forEach((row, r) => {
     [...row].forEach((ch, c) => {
-      if (ch !== "." && grid[top + r]) grid[top + r][c] = ch;
+      if (ch !== "." && grid[top + r]) grid[top + r][c] = ch === "_" ? "." : ch;
     });
   });
 }
@@ -217,7 +223,8 @@ export function composeSprite(a: Appearance): Pixel[][] {
     P: "#2d3450",
     B: "#1a1a1a",
     H: HAIR_COLOR[a.hairColor],
-    G: "#1b1b2a",
+    G: "#4a3b5c",
+    L: "#cfeaff",
     C: shade(outfit, 1.25),
     K: "#3a3a46",
     F: shade(outfit, 1.3),
