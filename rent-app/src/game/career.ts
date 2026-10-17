@@ -1,6 +1,8 @@
-// Job paths: story text only. Shared by the client (presets, display) and the server (LLM validation).
+// Job paths and preset work details. Shared by the client (presets, display) and the server (LLM validation).
+// Story text may come from an LLM; income and trips come only from handwritten presets (PRD §5).
 import professionsJson from "../../data/game/professions.json";
 import { STAGES } from "./data";
+import type { PlayableStage, WorkDetails } from "./types";
 
 export interface PathStep {
   title: string;
@@ -14,15 +16,24 @@ export interface Profession {
   label: string;
   path: JobPath;
   source: "preset" | "llm" | "template";
+  /** Per-stage income and commute days. Presets only; custom professions use the stage defaults. */
+  work?: Record<string, WorkDetails>;
 }
 
-export const PRESETS = professionsJson.presets as { id: string; label: string; path: JobPath }[];
+export const PRESETS = professionsJson.presets as { id: string; label: string; path: JobPath; work: Record<string, WorkDetails> }[];
 export const STAGE_IDS = STAGES.map((s) => s.id);
 export const MAX_PROFESSION_CHARS = 40;
 
 export function presetProfession(id: string): Profession {
   const p = PRESETS.find((x) => x.id === id) ?? PRESETS[0];
-  return { id: p.id, label: p.label, path: p.path, source: "preset" };
+  return { id: p.id, label: p.label, path: p.path, source: "preset", work: p.work };
+}
+
+/** The stage as this profession lives it: preset income and commute days replace the defaults; nothing else changes. */
+export function stageForProfession(stage: PlayableStage, profession: Profession): PlayableStage {
+  const w = profession.source === "preset" ? profession.work?.[stage.id] : undefined;
+  if (!w) return stage;
+  return { ...stage, income: w.income, commuteDaysPerMonth: w.commuteDaysPerMonth };
 }
 
 const BLOCKED = /\b(sex|porn|drug dealer|hitman|terroris\w*|nazi|kill\w*|murder\w*|escort|stripper|scam\w*|fuck\w*|shit\w*)\b/i;

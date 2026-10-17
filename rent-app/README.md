@@ -12,7 +12,7 @@
 > report card + civic question. Teaching content lives in `data/game/content.json`, each item with an official source, retrieval date and
 > verifier. Journey data is in `data/game/journey.json` and the logic in `src/game/journey.ts` (seeded; the demo uses seed 2026). Student and later stages are roadmap.
 
-> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../newmessage.txt` (PRD).
+> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md` (PRD).
 
 An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
 through life stages. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
@@ -26,9 +26,11 @@ Stages 3–6 show "coming soon" because their civic levers don't have an officia
 costs in listing text. Hard uses lease-style fine print, route legs instead of minutes, and a raw CMHC table the player reads. The reasoning
 score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 
-**Starting profession:** choose a preset or type your own. Gemini writes a fresh, story-only path every time via `/api/career`.
-A preset shows its handwritten path instantly and keeps it as the fallback; custom titles fall back to a template. Any number or money talk
-is rejected. A profession never changes an income, offer or score. The demo preset keeps a fixed path so the judged demo is repeatable.
+**Starting profession:** choose a preset (handwritten job path) or type your own. Gemini writes a fresh, story-only path via `/api/career`
+(Extended game only; the Base game makes no API calls). A preset shows its handwritten path instantly and keeps it as the fallback; custom titles
+fall back to a template; any number or money talk is rejected. Each preset also sets its own illustrative income and commute days per stage
+(`work` in `professions.json`; software keeps the hero values). Custom professions use the stage defaults. Offers and score never change.
+The demo preset keeps a fixed path so the judged demo is repeatable.
 
 **Site structure:** shared navbar and footer, a neon-grid background, and pages `/` (game), `/how-it-works` and `/sources`
 (rendered from the same data files the game uses).

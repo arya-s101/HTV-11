@@ -23,7 +23,7 @@ export interface Character {
   name: string;
   startAge: number;
   appearance: Appearance;
-  /** Story only: job titles per stage. Never changes a number, offer or score. */
+  /** Job titles per stage; a preset also sets income and commute days. Never changes offers or score. */
   profession: Profession;
 }
 

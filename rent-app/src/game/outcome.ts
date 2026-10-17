@@ -1,4 +1,5 @@
 // Consequence step: every number computed in code, each with its status and provenance.
+import { stageForProfession } from "./career";
 import { burden, cheapestFare, commuteHoursPerMonth, monthlyIncomeCents, oneWayTripsPerMonth, pct1 } from "./calc";
 import { FARES } from "./data";
 import type { Character } from "./sprite";
@@ -31,12 +32,13 @@ export function fareFor(stage: PlayableStage) {
 }
 
 /**
- * The character is accepted so tests can prove appearance never changes a number (PRD §5):
- * nothing below reads it. Difficulty is deliberately NOT an input: it changes presentation, never what is true.
+ * Only the character's preset profession is read (its income and commute days for this stage); appearance is
+ * never read (PRD §5). Difficulty is deliberately NOT an input: it changes presentation, never what is true.
  * `terms` are code-validated negotiated terms (rent, utilities concession); the rent stays illustrative.
  */
 export function consequence(input: { character: Character; stage: PlayableStage; offerId: string; revealed: boolean; terms?: NegotiatedTerms }): Consequence {
-  const { stage, revealed, terms } = input;
+  const { revealed, terms } = input;
+  const stage = stageForProfession(input.stage, input.character.profession);
   const listed = stage.offers.find((o) => o.id === input.offerId);
   if (!listed) throw new Error(`Unknown offer ${input.offerId}`);
   const offer: Offer = terms ? { ...listed, rentCents: terms.rentCents } : listed;
