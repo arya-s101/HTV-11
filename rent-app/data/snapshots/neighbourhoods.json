@@ -1,0 +1,2940 @@
+{
+  "source": {
+    "boundaries": {
+      "publisher": "City of Toronto Open Data",
+      "title": "Neighbourhoods (158), WGS84",
+      "url": "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/fc443770-ef0a-4025-9c2c-2cb558bfab00/resource/0719053b-28b7-48ea-b863-068823a93aaa/download/neighbourhoods-4326.geojson",
+      "sha256": "b0cb58077f5b3a47e0e56a68913c6980cfaf39d37d7d020fd91b60650c480233",
+      "licence": "Open Government Licence – Toronto"
+    },
+    "zones": {
+      "publisher": "CMHC",
+      "title": "HMIP survey zones, FeatureServer/2 (current geography year 2026)",
+      "url": "https://geospatial.cmhc-schl.gc.ca/server/rest/services/CMHC_APPS/HMIP_CURRENT_CAWD/FeatureServer/2",
+      "sha256": "d4475c0d0fb5c4f6f1f0e5a1d2b48b1a2a0263431c6814b77c60a08a7ce064fb"
+    },
+    "assignmentMethod": "Each neighbourhood is assigned to the CMHC survey zone holding the largest share of its area (turf intersect, WGS84). PROVISIONAL: zone polygons are the 2026 geography layer, while the 2025 rent tables use 2021 census zone definitions; no official 2025 polygon layer was available. Rent benchmarks are zone means, never neighbourhood prices."
+  },
+  "neighbourhoods": [
+    {
+      "id": 1,
+      "name": "West Humber-Clairville",
+      "representativePoint": [
+        -79.595811,
+        43.713313
+      ],
+      "zoneCode": "07",
+      "zoneShare": 0.994,
+      "pointZoneCode": "07",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "07",
+          "share": 0.994
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Mount Olive-Silverstone-Jamestown",
+      "representativePoint": [
+        -79.586001,
+        43.745546
+      ],
+      "zoneCode": "07",
+      "zoneShare": 0.998,
+      "pointZoneCode": "07",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "07",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Thistletown-Beaumond Heights",
+      "representativePoint": [
+        -79.564333,
+        43.736988
+      ],
+      "zoneCode": "07",
+      "zoneShare": 0.992,
+      "pointZoneCode": "07",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "07",
+          "share": 0.992
+        },
+        {
+          "zoneCode": "17",
+          "share": 0.008
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Rexdale-Kipling",
+      "representativePoint": [
+        -79.566239,
+        43.723888
+      ],
+      "zoneCode": "07",
+      "zoneShare": 1,
+      "pointZoneCode": "07",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "07",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Elms-Old Rexdale",
+      "representativePoint": [
+        -79.549978,
+        43.72117
+      ],
+      "zoneCode": "07",
+      "zoneShare": 0.995,
+      "pointZoneCode": "07",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "07",
+          "share": 0.995
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Kingsview Village-The Westway",
+      "representativePoint": [
+        -79.550553,
+        43.699308
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.999,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Willowridge-Martingrove-Richview",
+      "representativePoint": [
+        -79.552109,
+        43.684734
+      ],
+      "zoneCode": "06",
+      "zoneShare": 1,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Humber Heights-Westmount",
+      "representativePoint": [
+        -79.519929,
+        43.69192
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.998,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Edenbridge-Humber Valley",
+      "representativePoint": [
+        -79.522268,
+        43.668437
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.999,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Princess-Rosethorn",
+      "representativePoint": [
+        -79.544787,
+        43.664928
+      ],
+      "zoneCode": "06",
+      "zoneShare": 1,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Eringate-Centennial-West Deane",
+      "representativePoint": [
+        -79.58199,
+        43.657618
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.999,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Markland Wood",
+      "representativePoint": [
+        -79.571413,
+        43.634934
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.554,
+      "pointZoneCode": "06",
+      "straddles": true,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.554
+        },
+        {
+          "zoneCode": "05",
+          "share": 0.446
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Etobicoke West Mall",
+      "representativePoint": [
+        -79.569543,
+        43.644777
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.999,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Kingsway South",
+      "representativePoint": [
+        -79.508836,
+        43.654458
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.999,
+      "pointZoneCode": "06",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Stonegate-Queensway",
+      "representativePoint": [
+        -79.498841,
+        43.63528
+      ],
+      "zoneCode": "05",
+      "zoneShare": 1,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "New Toronto",
+      "representativePoint": [
+        -79.511793,
+        43.600219
+      ],
+      "zoneCode": "05",
+      "zoneShare": 1,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Long Branch",
+      "representativePoint": [
+        -79.533849,
+        43.591138
+      ],
+      "zoneCode": "05",
+      "zoneShare": 0.993,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 0.993
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Alderwood",
+      "representativePoint": [
+        -79.542386,
+        43.603685
+      ],
+      "zoneCode": "05",
+      "zoneShare": 0.998,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Humber Summit",
+      "representativePoint": [
+        -79.557888,
+        43.759468
+      ],
+      "zoneCode": "17",
+      "zoneShare": 0.996,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Humbermede",
+      "representativePoint": [
+        -79.547451,
+        43.742977
+      ],
+      "zoneCode": "17",
+      "zoneShare": 0.997,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Pelmo Park-Humberlea",
+      "representativePoint": [
+        -79.528527,
+        43.720167
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.516,
+      "pointZoneCode": "17",
+      "straddles": true,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.516
+        },
+        {
+          "zoneCode": "17",
+          "share": 0.48
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Black Creek",
+      "representativePoint": [
+        -79.519882,
+        43.76499
+      ],
+      "zoneCode": "17",
+      "zoneShare": 1,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Glenfield-Jane Heights",
+      "representativePoint": [
+        -79.512397,
+        43.746383
+      ],
+      "zoneCode": "17",
+      "zoneShare": 1,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "York University Heights",
+      "representativePoint": [
+        -79.492253,
+        43.764901
+      ],
+      "zoneCode": "17",
+      "zoneShare": 1,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "Rustic",
+      "representativePoint": [
+        -79.497749,
+        43.711487
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.999,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "Maple Leaf",
+      "representativePoint": [
+        -79.481134,
+        43.715622
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.999,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "Brookhaven-Amesbury",
+      "representativePoint": [
+        -79.487674,
+        43.701895
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.997,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "Yorkdale-Glen Park",
+      "representativePoint": [
+        -79.455555,
+        43.714879
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.999,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "Englemount-Lawrence",
+      "representativePoint": [
+        -79.437849,
+        43.721004
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.997,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "Clanton Park",
+      "representativePoint": [
+        -79.446688,
+        43.741763
+      ],
+      "zoneCode": "16",
+      "zoneShare": 0.99,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 0.99
+        },
+        {
+          "zoneCode": "17",
+          "share": 0.01
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "Bathurst Manor",
+      "representativePoint": [
+        -79.45043,
+        43.769068
+      ],
+      "zoneCode": "16",
+      "zoneShare": 0.999,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "name": "Westminster-Branson",
+      "representativePoint": [
+        -79.454266,
+        43.776805
+      ],
+      "zoneCode": "16",
+      "zoneShare": 1,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "name": "Newtonbrook West",
+      "representativePoint": [
+        -79.431127,
+        43.785929
+      ],
+      "zoneCode": "16",
+      "zoneShare": 1,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "name": "Willowdale West",
+      "representativePoint": [
+        -79.427628,
+        43.771553
+      ],
+      "zoneCode": "16",
+      "zoneShare": 1,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "Lansing-Westgate",
+      "representativePoint": [
+        -79.424411,
+        43.752116
+      ],
+      "zoneCode": "16",
+      "zoneShare": 1,
+      "pointZoneCode": "16",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "16",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "Bedford Park-Nortown",
+      "representativePoint": [
+        -79.419319,
+        43.730951
+      ],
+      "zoneCode": "15",
+      "zoneShare": 0.996,
+      "pointZoneCode": "15",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "15",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "St.Andrew-Windfields",
+      "representativePoint": [
+        -79.376145,
+        43.754895
+      ],
+      "zoneCode": "13",
+      "zoneShare": 0.999,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "Bridle Path-Sunnybrook-York Mills",
+      "representativePoint": [
+        -79.378179,
+        43.730081
+      ],
+      "zoneCode": "13",
+      "zoneShare": 0.999,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "name": "Banbury-Don Mills",
+      "representativePoint": [
+        -79.35067,
+        43.736365
+      ],
+      "zoneCode": "13",
+      "zoneShare": 1,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "Victoria Village",
+      "representativePoint": [
+        -79.315359,
+        43.728622
+      ],
+      "zoneCode": "13",
+      "zoneShare": 1,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "name": "Flemingdon Park",
+      "representativePoint": [
+        -79.335961,
+        43.716445
+      ],
+      "zoneCode": "13",
+      "zoneShare": 0.992,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 0.992
+        },
+        {
+          "zoneCode": "09",
+          "share": 0.008
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "name": "Pleasant View",
+      "representativePoint": [
+        -79.33371,
+        43.788498
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "name": "Don Valley Village",
+      "representativePoint": [
+        -79.353848,
+        43.783405
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "name": "Hillcrest Village",
+      "representativePoint": [
+        -79.353691,
+        43.802831
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "name": "Bayview Woods-Steeles",
+      "representativePoint": [
+        -79.382149,
+        43.796829
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "name": "Newtonbrook East",
+      "representativePoint": [
+        -79.406116,
+        43.79152
+      ],
+      "zoneCode": "14",
+      "zoneShare": 0.999,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "name": "Bayview Village",
+      "representativePoint": [
+        -79.375904,
+        43.776684
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "name": "Henry Farm",
+      "representativePoint": [
+        -79.341866,
+        43.771354
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "name": "O'Connor-Parkview",
+      "representativePoint": [
+        -79.315828,
+        43.706094
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.999,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "name": "Thorncliffe Park",
+      "representativePoint": [
+        -79.349926,
+        43.707286
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.998,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "name": "Leaside-Bennington",
+      "representativePoint": [
+        -79.365323,
+        43.70011
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.981,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.981
+        },
+        {
+          "zoneCode": "13",
+          "share": 0.014
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "name": "Broadview North",
+      "representativePoint": [
+        -79.356321,
+        43.689305
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.986,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.986
+        },
+        {
+          "zoneCode": "02",
+          "share": 0.014
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "name": "Old East York",
+      "representativePoint": [
+        -79.334244,
+        43.696402
+      ],
+      "zoneCode": "09",
+      "zoneShare": 1,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "name": "Danforth East York",
+      "representativePoint": [
+        -79.330953,
+        43.689584
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.999,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "name": "Woodbine-Lumsden",
+      "representativePoint": [
+        -79.311104,
+        43.693767
+      ],
+      "zoneCode": "09",
+      "zoneShare": 1,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "name": "Taylor-Massey",
+      "representativePoint": [
+        -79.297034,
+        43.695862
+      ],
+      "zoneCode": "09",
+      "zoneShare": 0.983,
+      "pointZoneCode": "09",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "09",
+          "share": 0.983
+        },
+        {
+          "zoneCode": "02",
+          "share": 0.017
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "name": "East End-Danforth",
+      "representativePoint": [
+        -79.298576,
+        43.6832
+      ],
+      "zoneCode": "02",
+      "zoneShare": 0.998,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "name": "The Beaches",
+      "representativePoint": [
+        -79.304747,
+        43.670023
+      ],
+      "zoneCode": "02",
+      "zoneShare": 1,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "name": "Woodbine Corridor",
+      "representativePoint": [
+        -79.315783,
+        43.676022
+      ],
+      "zoneCode": "02",
+      "zoneShare": 1,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "name": "Greenwood-Coxwell",
+      "representativePoint": [
+        -79.323617,
+        43.672456
+      ],
+      "zoneCode": "02",
+      "zoneShare": 1,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "name": "Danforth",
+      "representativePoint": [
+        -79.329526,
+        43.684068
+      ],
+      "zoneCode": "02",
+      "zoneShare": 0.998,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "name": "Playter Estates-Danforth",
+      "representativePoint": [
+        -79.3549,
+        43.679701
+      ],
+      "zoneCode": "02",
+      "zoneShare": 0.992,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 0.992
+        },
+        {
+          "zoneCode": "09",
+          "share": 0.006
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "name": "North Riverdale",
+      "representativePoint": [
+        -79.352106,
+        43.671743
+      ],
+      "zoneCode": "02",
+      "zoneShare": 0.997,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "name": "Blake-Jones",
+      "representativePoint": [
+        -79.337255,
+        43.675349
+      ],
+      "zoneCode": "02",
+      "zoneShare": 1,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "name": "South Riverdale",
+      "representativePoint": [
+        -79.33307,
+        43.644287
+      ],
+      "zoneCode": "02",
+      "zoneShare": 0.968,
+      "pointZoneCode": "02",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "02",
+          "share": 0.968
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "name": "Cabbagetown-South St.James Town",
+      "representativePoint": [
+        -79.367325,
+        43.668637
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "name": "Regent Park",
+      "representativePoint": [
+        -79.36068,
+        43.660075
+      ],
+      "zoneCode": "01",
+      "zoneShare": 0.999,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "name": "Moss Park",
+      "representativePoint": [
+        -79.365002,
+        43.656944
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "name": "North St.James Town",
+      "representativePoint": [
+        -79.375064,
+        43.669382
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "name": "Kensington-Chinatown",
+      "representativePoint": [
+        -79.397176,
+        43.653524
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "name": "University",
+      "representativePoint": [
+        -79.400854,
+        43.662601
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "name": "Palmerston-Little Italy",
+      "representativePoint": [
+        -79.41858,
+        43.659358
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "name": "Trinity-Bellwoods",
+      "representativePoint": [
+        -79.415207,
+        43.649987
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "name": "Dufferin Grove",
+      "representativePoint": [
+        -79.438137,
+        43.65552
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "name": "Little Portugal",
+      "representativePoint": [
+        -79.432722,
+        43.647105
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "name": "South Parkdale",
+      "representativePoint": [
+        -79.446652,
+        43.636252
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.999,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "name": "Roncesvalles",
+      "representativePoint": [
+        -79.440332,
+        43.647795
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "name": "High Park-Swansea",
+      "representativePoint": [
+        -79.469502,
+        43.644879
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.995,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.995
+        },
+        {
+          "zoneCode": "05",
+          "share": 0.005
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "name": "High Park North",
+      "representativePoint": [
+        -79.464943,
+        43.657133
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "name": "Runnymede-Bloor West Village",
+      "representativePoint": [
+        -79.487769,
+        43.658079
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.537,
+      "pointZoneCode": "04",
+      "straddles": true,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.537
+        },
+        {
+          "zoneCode": "04",
+          "share": 0.463
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "name": "Junction Area",
+      "representativePoint": [
+        -79.46998,
+        43.66972
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.997,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "name": "Weston-Pelham Park",
+      "representativePoint": [
+        -79.460718,
+        43.674511
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.999,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "name": "Corso Italia-Davenport",
+      "representativePoint": [
+        -79.447023,
+        43.677964
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.998,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "name": "Wychwood",
+      "representativePoint": [
+        -79.425304,
+        43.676952
+      ],
+      "zoneCode": "04",
+      "zoneShare": 0.996,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "name": "Annex",
+      "representativePoint": [
+        -79.404321,
+        43.672333
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "name": "Casa Loma",
+      "representativePoint": [
+        -79.408236,
+        43.682346
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.995,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.995
+        },
+        {
+          "zoneCode": "01",
+          "share": 0.005
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "name": "Yonge-St.Clair",
+      "representativePoint": [
+        -79.398539,
+        43.688088
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.996,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "name": "Rosedale-Moore Park",
+      "representativePoint": [
+        -79.379366,
+        43.682628
+      ],
+      "zoneCode": "01",
+      "zoneShare": 0.634,
+      "pointZoneCode": "01",
+      "straddles": true,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 0.634
+        },
+        {
+          "zoneCode": "03",
+          "share": 0.362
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "name": "Mount Pleasant East",
+      "representativePoint": [
+        -79.38611,
+        43.705011
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.999,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "name": "Yonge-Eglinton",
+      "representativePoint": [
+        -79.4038,
+        43.70463
+      ],
+      "zoneCode": "03",
+      "zoneShare": 1,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "name": "Forest Hill South",
+      "representativePoint": [
+        -79.413216,
+        43.693788
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.945,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.945
+        },
+        {
+          "zoneCode": "08",
+          "share": 0.055
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "name": "Forest Hill North",
+      "representativePoint": [
+        -79.428324,
+        43.704273
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.998,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "name": "Lawrence Park South",
+      "representativePoint": [
+        -79.405256,
+        43.715356
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.996,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "name": "Lawrence Park North",
+      "representativePoint": [
+        -79.403528,
+        43.729739
+      ],
+      "zoneCode": "03",
+      "zoneShare": 0.993,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 0.993
+        },
+        {
+          "zoneCode": "13",
+          "share": 0.005
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "name": "Humewood-Cedarvale",
+      "representativePoint": [
+        -79.427838,
+        43.691221
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.999,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "name": "Oakwood Village",
+      "representativePoint": [
+        -79.439686,
+        43.688636
+      ],
+      "zoneCode": "08",
+      "zoneShare": 1,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "name": "Briar Hill-Belgravia",
+      "representativePoint": [
+        -79.452968,
+        43.698883
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.998,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "name": "Caledonia-Fairbank",
+      "representativePoint": [
+        -79.455195,
+        43.688625
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.999,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "name": "Keelesdale-Eglinton West",
+      "representativePoint": [
+        -79.473758,
+        43.685687
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.998,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "name": "Rockcliffe-Smythe",
+      "representativePoint": [
+        -79.49275,
+        43.673992
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.996,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.996
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "name": "Beechborough-Greenbrook",
+      "representativePoint": [
+        -79.481302,
+        43.693568
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.997,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "name": "Weston",
+      "representativePoint": [
+        -79.519107,
+        43.701973
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.986,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.986
+        },
+        {
+          "zoneCode": "15",
+          "share": 0.009
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "name": "Lambton Baby Point",
+      "representativePoint": [
+        -79.498347,
+        43.656649
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.987,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.987
+        },
+        {
+          "zoneCode": "06",
+          "share": 0.011
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "name": "Mount Dennis",
+      "representativePoint": [
+        -79.4981,
+        43.688416
+      ],
+      "zoneCode": "08",
+      "zoneShare": 0.995,
+      "pointZoneCode": "08",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "08",
+          "share": 0.995
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "name": "Steeles",
+      "representativePoint": [
+        -79.321165,
+        43.81301
+      ],
+      "zoneCode": "11",
+      "zoneShare": 0.999,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "name": "Tam O'Shanter-Sullivan",
+      "representativePoint": [
+        -79.303816,
+        43.782217
+      ],
+      "zoneCode": "11",
+      "zoneShare": 0.998,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "name": "Wexford/Maryvale",
+      "representativePoint": [
+        -79.298827,
+        43.74872
+      ],
+      "zoneCode": "10",
+      "zoneShare": 0.999,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "name": "Clairlea-Birchmount",
+      "representativePoint": [
+        -79.27846,
+        43.712901
+      ],
+      "zoneCode": "10",
+      "zoneShare": 0.999,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "name": "Oakridge",
+      "representativePoint": [
+        -79.279253,
+        43.700668
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "name": "Birchcliffe-Cliffside",
+      "representativePoint": [
+        -79.265795,
+        43.694914
+      ],
+      "zoneCode": "10",
+      "zoneShare": 0.998,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "name": "Cliffcrest",
+      "representativePoint": [
+        -79.234067,
+        43.720909
+      ],
+      "zoneCode": "10",
+      "zoneShare": 0.999,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "name": "Kennedy Park",
+      "representativePoint": [
+        -79.260168,
+        43.725427
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 125,
+      "name": "Ionview",
+      "representativePoint": [
+        -79.272273,
+        43.734218
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "name": "Dorset Park",
+      "representativePoint": [
+        -79.279214,
+        43.758367
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "name": "Agincourt South-Malvern West",
+      "representativePoint": [
+        -79.2635,
+        43.78938
+      ],
+      "zoneCode": "11",
+      "zoneShare": 1,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "name": "Agincourt North",
+      "representativePoint": [
+        -79.266698,
+        43.804038
+      ],
+      "zoneCode": "11",
+      "zoneShare": 1,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "name": "Milliken",
+      "representativePoint": [
+        -79.275072,
+        43.818934
+      ],
+      "zoneCode": "11",
+      "zoneShare": 0.999,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 133,
+      "name": "Centennial Scarborough",
+      "representativePoint": [
+        -79.154703,
+        43.782648
+      ],
+      "zoneCode": "12",
+      "zoneShare": 0.999,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "name": "Highland Creek",
+      "representativePoint": [
+        -79.174232,
+        43.789481
+      ],
+      "zoneCode": "12",
+      "zoneShare": 1,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "name": "Morningside",
+      "representativePoint": [
+        -79.208067,
+        43.780286
+      ],
+      "zoneCode": "12",
+      "zoneShare": 1,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 136,
+      "name": "West Hill",
+      "representativePoint": [
+        -79.174515,
+        43.767541
+      ],
+      "zoneCode": "12",
+      "zoneShare": 1,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 138,
+      "name": "Eglinton East",
+      "representativePoint": [
+        -79.247774,
+        43.741998
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 139,
+      "name": "Scarborough Village",
+      "representativePoint": [
+        -79.2168,
+        43.738948
+      ],
+      "zoneCode": "12",
+      "zoneShare": 0.999,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "name": "Guildwood",
+      "representativePoint": [
+        -79.191023,
+        43.747005
+      ],
+      "zoneCode": "12",
+      "zoneShare": 1,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "name": "Golfdale-Cedarbrae-Woburn",
+      "representativePoint": [
+        -79.222283,
+        43.760016
+      ],
+      "zoneCode": "12",
+      "zoneShare": 0.999,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 142,
+      "name": "Woburn North",
+      "representativePoint": [
+        -79.233075,
+        43.772399
+      ],
+      "zoneCode": "12",
+      "zoneShare": 0.997,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 143,
+      "name": "West Rouge",
+      "representativePoint": [
+        -79.152594,
+        43.795589
+      ],
+      "zoneCode": "12",
+      "zoneShare": 0.998,
+      "pointZoneCode": "12",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "12",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 144,
+      "name": "Morningside Heights",
+      "representativePoint": [
+        -79.201191,
+        43.82599
+      ],
+      "zoneCode": "11",
+      "zoneShare": 0.999,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 145,
+      "name": "Malvern West",
+      "representativePoint": [
+        -79.230575,
+        43.806957
+      ],
+      "zoneCode": "11",
+      "zoneShare": 1,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 146,
+      "name": "Malvern East",
+      "representativePoint": [
+        -79.217544,
+        43.802607
+      ],
+      "zoneCode": "11",
+      "zoneShare": 1,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 147,
+      "name": "L'Amoreaux West",
+      "representativePoint": [
+        -79.323244,
+        43.790468
+      ],
+      "zoneCode": "11",
+      "zoneShare": 0.999,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 148,
+      "name": "East L'Amoreaux",
+      "representativePoint": [
+        -79.304625,
+        43.797782
+      ],
+      "zoneCode": "11",
+      "zoneShare": 1,
+      "pointZoneCode": "11",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "11",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 149,
+      "name": "Parkwoods-O'Connor Hills",
+      "representativePoint": [
+        -79.329824,
+        43.751724
+      ],
+      "zoneCode": "13",
+      "zoneShare": 1,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 150,
+      "name": "Fenside-Parkwoods",
+      "representativePoint": [
+        -79.336214,
+        43.760762
+      ],
+      "zoneCode": "13",
+      "zoneShare": 0.999,
+      "pointZoneCode": "13",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "13",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 151,
+      "name": "Yonge-Doris",
+      "representativePoint": [
+        -79.411921,
+        43.770992
+      ],
+      "zoneCode": "14",
+      "zoneShare": 0.997,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 0.997
+        }
+      ]
+    },
+    {
+      "id": 152,
+      "name": "East Willowdale",
+      "representativePoint": [
+        -79.400266,
+        43.773554
+      ],
+      "zoneCode": "14",
+      "zoneShare": 1,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 153,
+      "name": "Avondale",
+      "representativePoint": [
+        -79.399045,
+        43.760103
+      ],
+      "zoneCode": "14",
+      "zoneShare": 0.999,
+      "pointZoneCode": "14",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "14",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 154,
+      "name": "Oakdale-Beverley Heights",
+      "representativePoint": [
+        -79.506782,
+        43.727147
+      ],
+      "zoneCode": "17",
+      "zoneShare": 1,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "name": "Downsview",
+      "representativePoint": [
+        -79.475447,
+        43.739134
+      ],
+      "zoneCode": "17",
+      "zoneShare": 0.998,
+      "pointZoneCode": "17",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "17",
+          "share": 0.998
+        }
+      ]
+    },
+    {
+      "id": 156,
+      "name": "Bendale-Glen Andrew",
+      "representativePoint": [
+        -79.2601,
+        43.766372
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 157,
+      "name": "Bendale South",
+      "representativePoint": [
+        -79.252932,
+        43.74885
+      ],
+      "zoneCode": "10",
+      "zoneShare": 1,
+      "pointZoneCode": "10",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "10",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 158,
+      "name": "Islington",
+      "representativePoint": [
+        -79.542162,
+        43.645183
+      ],
+      "zoneCode": "06",
+      "zoneShare": 0.846,
+      "pointZoneCode": "06",
+      "straddles": true,
+      "overlaps": [
+        {
+          "zoneCode": "06",
+          "share": 0.846
+        },
+        {
+          "zoneCode": "05",
+          "share": 0.154
+        }
+      ]
+    },
+    {
+      "id": 159,
+      "name": "Etobicoke City Centre",
+      "representativePoint": [
+        -79.54076,
+        43.626911
+      ],
+      "zoneCode": "05",
+      "zoneShare": 0.97,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 0.97
+        },
+        {
+          "zoneCode": "06",
+          "share": 0.03
+        }
+      ]
+    },
+    {
+      "id": 160,
+      "name": "Mimico-Queensway",
+      "representativePoint": [
+        -79.506108,
+        43.613037
+      ],
+      "zoneCode": "05",
+      "zoneShare": 1,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 161,
+      "name": "Humber Bay Shores",
+      "representativePoint": [
+        -79.481158,
+        43.621884
+      ],
+      "zoneCode": "05",
+      "zoneShare": 0.999,
+      "pointZoneCode": "05",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "05",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 162,
+      "name": "West Queen West",
+      "representativePoint": [
+        -79.411841,
+        43.643628
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 163,
+      "name": "Fort York-Liberty Village",
+      "representativePoint": [
+        -79.412932,
+        43.633437
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 164,
+      "name": "Wellington Place",
+      "representativePoint": [
+        -79.394516,
+        43.645711
+      ],
+      "zoneCode": "01",
+      "zoneShare": 0.999,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 165,
+      "name": "Harbourfront-CityPlace",
+      "representativePoint": [
+        -79.390499,
+        43.639492
+      ],
+      "zoneCode": "01",
+      "zoneShare": 0.999,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 0.999
+        }
+      ]
+    },
+    {
+      "id": 166,
+      "name": "St Lawrence-East Bayfront-The Islands",
+      "representativePoint": [
+        -79.376098,
+        43.634153
+      ],
+      "zoneCode": "01",
+      "zoneShare": 0.995,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 0.995
+        }
+      ]
+    },
+    {
+      "id": 167,
+      "name": "Church-Wellesley",
+      "representativePoint": [
+        -79.381753,
+        43.666488
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 168,
+      "name": "Downtown Yonge East",
+      "representativePoint": [
+        -79.377288,
+        43.654652
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 169,
+      "name": "Bay-Cloverhill",
+      "representativePoint": [
+        -79.388626,
+        43.665043
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 170,
+      "name": "Yonge-Bay Corridor",
+      "representativePoint": [
+        -79.383734,
+        43.653074
+      ],
+      "zoneCode": "01",
+      "zoneShare": 1,
+      "pointZoneCode": "01",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "01",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 171,
+      "name": "Junction-Wallace Emerson",
+      "representativePoint": [
+        -79.446527,
+        43.665583
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 172,
+      "name": "Dovercourt Village",
+      "representativePoint": [
+        -79.428853,
+        43.666151
+      ],
+      "zoneCode": "04",
+      "zoneShare": 1,
+      "pointZoneCode": "04",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "04",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 173,
+      "name": "North Toronto",
+      "representativePoint": [
+        -79.39488,
+        43.710259
+      ],
+      "zoneCode": "03",
+      "zoneShare": 1,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 1
+        }
+      ]
+    },
+    {
+      "id": 174,
+      "name": "South Eglinton-Davisville",
+      "representativePoint": [
+        -79.392298,
+        43.702037
+      ],
+      "zoneCode": "03",
+      "zoneShare": 1,
+      "pointZoneCode": "03",
+      "straddles": false,
+      "overlaps": [
+        {
+          "zoneCode": "03",
+          "share": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2155 @@
+{
+  "source": {
+    "publisher": "Canada Mortgage and Housing Corporation (CMHC)",
+    "title": "Rental Market Survey data tables, Toronto, 2025",
+    "table": "1.1.9 Private Apartment Average Rents ($) of Vacant and Occupied Units by Zone and Bedroom Type - Toronto CMA (October 2025)",
+    "survey": "October 2025",
+    "population": "Private apartments (purpose-built rental universe). Not condominium, row-house, or room rents.",
+    "geographyNote": "§ 2025 and 2024 data are based on the 2021 census geographic definitions.",
+    "qualityKey": "a Excellent, b Very Good, c Good, d Poor (use with caution); ** suppressed (kept null, never zero)",
+    "url": "https://assets.cmhc-schl.gc.ca/sites/cmhc/professional/housing-markets-data-and-research/housing-data-tables/rental-market/rental-market-report-data-tables/2025/rmr-toronto-2025-en.xlsx?rev=f107330e-4620-4462-9027-8c6ff1522f1a",
+    "sha256": "99ad5966bead408ce75761a8a9540d2748cd28deb764a42d16ffde32facf9f6d",
+    "licence": "CMHC data reuse licence; see README attribution notice."
+  },
+  "zones": [
+    {
+      "zoneCode": "01",
+      "zoneLabel": "Zone 1 - Toronto (Central)",
+      "zoneName": "Toronto (Central)",
+      "inCityOfToronto": true,
+      "sourceRow": 8,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 179000,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B8"
+          },
+          "occupied": {
+            "valueCents": 159900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D8"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 232100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G8"
+          },
+          "occupied": {
+            "valueCents": 203600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I8"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 312800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L8"
+          },
+          "occupied": {
+            "valueCents": 276600,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N8"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q8"
+          },
+          "occupied": {
+            "valueCents": 355600,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S8"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "02",
+      "zoneLabel": "Zone 2 - Toronto (East)",
+      "zoneName": "Toronto (East)",
+      "inCityOfToronto": true,
+      "sourceRow": 9,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 133700,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B9"
+          },
+          "occupied": {
+            "valueCents": 120900,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D9"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 187400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G9"
+          },
+          "occupied": {
+            "valueCents": 168500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I9"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 204500,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L9"
+          },
+          "occupied": {
+            "valueCents": 186600,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N9"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q9"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!S9"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "03",
+      "zoneLabel": "Zone 3 - Toronto (North)",
+      "zoneName": "Toronto (North)",
+      "inCityOfToronto": true,
+      "sourceRow": 10,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 170100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B10"
+          },
+          "occupied": {
+            "valueCents": 156400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D10"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 201600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G10"
+          },
+          "occupied": {
+            "valueCents": 188800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I10"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 267700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L10"
+          },
+          "occupied": {
+            "valueCents": 246800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N10"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q10"
+          },
+          "occupied": {
+            "valueCents": 296800,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S10"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "04",
+      "zoneLabel": "Zone 4 - Toronto (West)",
+      "zoneName": "Toronto (West)",
+      "inCityOfToronto": true,
+      "sourceRow": 11,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 167100,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B11"
+          },
+          "occupied": {
+            "valueCents": 140000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D11"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 202500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G11"
+          },
+          "occupied": {
+            "valueCents": 178700,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I11"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 305000,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L11"
+          },
+          "occupied": {
+            "valueCents": 223500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N11"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q11"
+          },
+          "occupied": {
+            "valueCents": 321400,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S11"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "05",
+      "zoneLabel": "Zone 5 - Etobicoke (South)",
+      "zoneName": "Etobicoke (South)",
+      "inCityOfToronto": true,
+      "sourceRow": 13,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 178800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B13"
+          },
+          "occupied": {
+            "valueCents": 149100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D13"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 182000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G13"
+          },
+          "occupied": {
+            "valueCents": 148000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I13"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 223300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L13"
+          },
+          "occupied": {
+            "valueCents": 175400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N13"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q13"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!S13"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "06",
+      "zoneLabel": "Zone 6 - Etobicoke (Central)",
+      "zoneName": "Etobicoke (Central)",
+      "inCityOfToronto": true,
+      "sourceRow": 14,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B14"
+          },
+          "occupied": {
+            "valueCents": 168900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D14"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 218500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G14"
+          },
+          "occupied": {
+            "valueCents": 186400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I14"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 253900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L14"
+          },
+          "occupied": {
+            "valueCents": 218500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N14"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 261200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q14"
+          },
+          "occupied": {
+            "valueCents": 249600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S14"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "07",
+      "zoneLabel": "Zone 7 - Etobicoke (North)",
+      "zoneName": "Etobicoke (North)",
+      "inCityOfToronto": true,
+      "sourceRow": 15,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B15"
+          },
+          "occupied": {
+            "valueCents": 134200,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D15"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 185500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G15"
+          },
+          "occupied": {
+            "valueCents": 171400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I15"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 227300,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L15"
+          },
+          "occupied": {
+            "valueCents": 201400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N15"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 245500,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q15"
+          },
+          "occupied": {
+            "valueCents": 252200,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S15"
+          },
+          "vacantHigherThanOccupied": "N"
+        }
+      }
+    },
+    {
+      "zoneCode": "08",
+      "zoneLabel": "Zone 8 - York",
+      "zoneName": "York",
+      "inCityOfToronto": true,
+      "sourceRow": 17,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 163600,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B17"
+          },
+          "occupied": {
+            "valueCents": 137200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D17"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 204500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G17"
+          },
+          "occupied": {
+            "valueCents": 169200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I17"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 269200,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L17"
+          },
+          "occupied": {
+            "valueCents": 205200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N17"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 315300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q17"
+          },
+          "occupied": {
+            "valueCents": 253300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S17"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "09",
+      "zoneLabel": "Zone 9 - East York",
+      "zoneName": "East York",
+      "inCityOfToronto": true,
+      "sourceRow": 18,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 142000,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B18"
+          },
+          "occupied": {
+            "valueCents": 133100,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D18"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 196800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G18"
+          },
+          "occupied": {
+            "valueCents": 156100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I18"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 270500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L18"
+          },
+          "occupied": {
+            "valueCents": 180100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N18"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 376600,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q18"
+          },
+          "occupied": {
+            "valueCents": 217100,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S18"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "10",
+      "zoneLabel": "Zone 10 - Scarborough (Central)",
+      "zoneName": "Scarborough (Central)",
+      "inCityOfToronto": true,
+      "sourceRow": 19,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 178100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B19"
+          },
+          "occupied": {
+            "valueCents": 150700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D19"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 190900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G19"
+          },
+          "occupied": {
+            "valueCents": 160100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I19"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 227600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L19"
+          },
+          "occupied": {
+            "valueCents": 182800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N19"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 234300,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q19"
+          },
+          "occupied": {
+            "valueCents": 190300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S19"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "11",
+      "zoneLabel": "Zone 11 - Scarborough (North)",
+      "zoneName": "Scarborough (North)",
+      "inCityOfToronto": true,
+      "sourceRow": 20,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B20"
+          },
+          "occupied": {
+            "valueCents": 132100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D20"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 196000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G20"
+          },
+          "occupied": {
+            "valueCents": 160700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I20"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 230100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L20"
+          },
+          "occupied": {
+            "valueCents": 177200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N20"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q20"
+          },
+          "occupied": {
+            "valueCents": 193500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S20"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "12",
+      "zoneLabel": "Zone 12 - Scarborough (East)",
+      "zoneName": "Scarborough (East)",
+      "inCityOfToronto": true,
+      "sourceRow": 21,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B21"
+          },
+          "occupied": {
+            "valueCents": 144200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D21"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 190000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G21"
+          },
+          "occupied": {
+            "valueCents": 162600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I21"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 236800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L21"
+          },
+          "occupied": {
+            "valueCents": 184300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N21"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 274600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q21"
+          },
+          "occupied": {
+            "valueCents": 206200,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S21"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "13",
+      "zoneLabel": "Zone 13 - North York (Southeast)",
+      "zoneName": "North York (Southeast)",
+      "inCityOfToronto": true,
+      "sourceRow": 23,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 166800,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B23"
+          },
+          "occupied": {
+            "valueCents": 117200,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D23"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 194900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G23"
+          },
+          "occupied": {
+            "valueCents": 162800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I23"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 239800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L23"
+          },
+          "occupied": {
+            "valueCents": 187600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N23"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 292000,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q23"
+          },
+          "occupied": {
+            "valueCents": 221100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S23"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "14",
+      "zoneLabel": "Zone 14 - North York (Northeast)",
+      "zoneName": "North York (Northeast)",
+      "inCityOfToronto": true,
+      "sourceRow": 24,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B24"
+          },
+          "occupied": {
+            "valueCents": 148900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D24"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 206700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G24"
+          },
+          "occupied": {
+            "valueCents": 180700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I24"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 261400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L24"
+          },
+          "occupied": {
+            "valueCents": 215100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N24"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 300200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q24"
+          },
+          "occupied": {
+            "valueCents": 234900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S24"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "15",
+      "zoneLabel": "Zone 15 - North York (Southwest)",
+      "zoneName": "North York (Southwest)",
+      "inCityOfToronto": true,
+      "sourceRow": 25,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 153400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B25"
+          },
+          "occupied": {
+            "valueCents": 137200,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D25"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 178200,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G25"
+          },
+          "occupied": {
+            "valueCents": 156200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I25"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!L25"
+          },
+          "occupied": {
+            "valueCents": 181400,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N25"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q25"
+          },
+          "occupied": {
+            "valueCents": 217300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S25"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "16",
+      "zoneLabel": "Zone 16 - North York (N.Central)",
+      "zoneName": "North York (N.Central)",
+      "inCityOfToronto": true,
+      "sourceRow": 26,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B26"
+          },
+          "occupied": {
+            "valueCents": 146500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D26"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 209800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G26"
+          },
+          "occupied": {
+            "valueCents": 175800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I26"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 239100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L26"
+          },
+          "occupied": {
+            "valueCents": 202400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N26"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 263000,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q26"
+          },
+          "occupied": {
+            "valueCents": 229900,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S26"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "17",
+      "zoneLabel": "Zone 17 - North York (Northwest)",
+      "zoneName": "North York (Northwest)",
+      "inCityOfToronto": true,
+      "sourceRow": 27,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 158800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B27"
+          },
+          "occupied": {
+            "valueCents": 113500,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D27"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 186300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G27"
+          },
+          "occupied": {
+            "valueCents": 150200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I27"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 238900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L27"
+          },
+          "occupied": {
+            "valueCents": 174200,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N27"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 254900,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q27"
+          },
+          "occupied": {
+            "valueCents": 199000,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S27"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "18",
+      "zoneLabel": "Zone 18 - Mississauga (South)",
+      "zoneName": "Mississauga (South)",
+      "inCityOfToronto": false,
+      "sourceRow": 31,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 165500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B31"
+          },
+          "occupied": {
+            "valueCents": 130500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D31"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 190400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G31"
+          },
+          "occupied": {
+            "valueCents": 167400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I31"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 232900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L31"
+          },
+          "occupied": {
+            "valueCents": 193000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N31"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 275400,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q31"
+          },
+          "occupied": {
+            "valueCents": 193900,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S31"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "19",
+      "zoneLabel": "Zone 19 - Mississauga (Northwest)",
+      "zoneName": "Mississauga (Northwest)",
+      "inCityOfToronto": false,
+      "sourceRow": 32,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B32"
+          },
+          "occupied": {
+            "valueCents": 155200,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D32"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 223500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G32"
+          },
+          "occupied": {
+            "valueCents": 197400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I32"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 264600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L32"
+          },
+          "occupied": {
+            "valueCents": 226600,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N32"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 285300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q32"
+          },
+          "occupied": {
+            "valueCents": 222700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S32"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "20",
+      "zoneLabel": "Zone 20 - Mississauga (Northeast)",
+      "zoneName": "Mississauga (Northeast)",
+      "inCityOfToronto": false,
+      "sourceRow": 33,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B33"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D33"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 207600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G33"
+          },
+          "occupied": {
+            "valueCents": 170000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I33"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 252600,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L33"
+          },
+          "occupied": {
+            "valueCents": 194400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N33"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 311100,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q33"
+          },
+          "occupied": {
+            "valueCents": 216400,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S33"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "21",
+      "zoneLabel": "Zone 21 - Brampton (West)",
+      "zoneName": "Brampton (West)",
+      "inCityOfToronto": false,
+      "sourceRow": 35,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": 169700,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!B35"
+          },
+          "occupied": {
+            "valueCents": 149800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D35"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 186900,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G35"
+          },
+          "occupied": {
+            "valueCents": 177800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I35"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 224000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L35"
+          },
+          "occupied": {
+            "valueCents": 204800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N35"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q35"
+          },
+          "occupied": {
+            "valueCents": 241800,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S35"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "22",
+      "zoneLabel": "Zone 22 - Brampton (East)",
+      "zoneName": "Brampton (East)",
+      "inCityOfToronto": false,
+      "sourceRow": 36,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B36"
+          },
+          "occupied": {
+            "valueCents": 131000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D36"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 214500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G36"
+          },
+          "occupied": {
+            "valueCents": 174800,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I36"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 255000,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L36"
+          },
+          "occupied": {
+            "valueCents": 197300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N36"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 283400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q36"
+          },
+          "occupied": {
+            "valueCents": 195300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S36"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "23",
+      "zoneLabel": "Zone 23 - Oakville",
+      "zoneName": "Oakville",
+      "inCityOfToronto": false,
+      "sourceRow": 38,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B38"
+          },
+          "occupied": {
+            "valueCents": 147300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D38"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 225900,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G38"
+          },
+          "occupied": {
+            "valueCents": 190400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I38"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 261200,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L38"
+          },
+          "occupied": {
+            "valueCents": 232500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N38"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q38"
+          },
+          "occupied": {
+            "valueCents": 242500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S38"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "24",
+      "zoneLabel": "Zone 24 - Caledon",
+      "zoneName": "Caledon",
+      "inCityOfToronto": false,
+      "sourceRow": 39,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B39"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D39"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!G39"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!I39"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!L39"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!N39"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q39"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!S39"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "25",
+      "zoneLabel": "Zone 25 - Richmond Hill/Vaughan/King",
+      "zoneName": "Richmond Hill/Vaughan/King",
+      "inCityOfToronto": false,
+      "sourceRow": 40,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B40"
+          },
+          "occupied": {
+            "valueCents": 132800,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!D40"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 184400,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G40"
+          },
+          "occupied": {
+            "valueCents": 157500,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I40"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 244200,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L40"
+          },
+          "occupied": {
+            "valueCents": 181700,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N40"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q40"
+          },
+          "occupied": {
+            "valueCents": 229200,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S40"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "26",
+      "zoneLabel": "Zone 26 - Aurora, Newmkt, Whit-St.",
+      "zoneName": "Aurora, Newmkt, Whit-St.",
+      "inCityOfToronto": false,
+      "sourceRow": 41,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B41"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D41"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 230100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G41"
+          },
+          "occupied": {
+            "valueCents": 184300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I41"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 270400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L41"
+          },
+          "occupied": {
+            "valueCents": 216300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N41"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q41"
+          },
+          "occupied": {
+            "valueCents": 297300,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S41"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "27",
+      "zoneLabel": "Zone 27 - Markham",
+      "zoneName": "Markham",
+      "inCityOfToronto": false,
+      "sourceRow": 42,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B42"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D42"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!G42"
+          },
+          "occupied": {
+            "valueCents": 187300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I42"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!L42"
+          },
+          "occupied": {
+            "valueCents": 199500,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N42"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q42"
+          },
+          "occupied": {
+            "valueCents": 194400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S42"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "28",
+      "zoneLabel": "Zone 28 - Pickering/Ajax/Uxbridge",
+      "zoneName": "Pickering/Ajax/Uxbridge",
+      "inCityOfToronto": false,
+      "sourceRow": 44,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B44"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D44"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!G44"
+          },
+          "occupied": {
+            "valueCents": 139600,
+            "quality": "d",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I44"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 209100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L44"
+          },
+          "occupied": {
+            "valueCents": 174100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N44"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": 240300,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!Q44"
+          },
+          "occupied": {
+            "valueCents": 185100,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S44"
+          },
+          "vacantHigherThanOccupied": "Y"
+        }
+      }
+    },
+    {
+      "zoneCode": "29",
+      "zoneLabel": "Zone 29 - Milton/Halton Hills",
+      "zoneName": "Milton/Halton Hills",
+      "inCityOfToronto": false,
+      "sourceRow": 45,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B45"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D45"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 181100,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G45"
+          },
+          "occupied": {
+            "valueCents": 150600,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I45"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!L45"
+          },
+          "occupied": {
+            "valueCents": 166400,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N45"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q45"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!S45"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "30",
+      "zoneLabel": "Zone 30 - Orangeville/Mono",
+      "zoneName": "Orangeville/Mono",
+      "inCityOfToronto": false,
+      "sourceRow": 46,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B46"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D46"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 180900,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G46"
+          },
+          "occupied": {
+            "valueCents": 144800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I46"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 210800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L46"
+          },
+          "occupied": {
+            "valueCents": 169300,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N46"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q46"
+          },
+          "occupied": {
+            "valueCents": 171400,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S46"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    },
+    {
+      "zoneCode": "31",
+      "zoneLabel": "Zone 31 - Bradford/West Gwillimbury/New Tecumseth",
+      "zoneName": "Bradford/West Gwillimbury/New Tecumseth",
+      "inCityOfToronto": false,
+      "sourceRow": 47,
+      "benchmarks": {
+        "studio": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!B47"
+          },
+          "occupied": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!D47"
+          },
+          "vacantHigherThanOccupied": "**"
+        },
+        "1br": {
+          "vacant": {
+            "valueCents": 156600,
+            "quality": "c",
+            "suppressed": false,
+            "cell": "Table 1.1.9!G47"
+          },
+          "occupied": {
+            "valueCents": 130500,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!I47"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "2br": {
+          "vacant": {
+            "valueCents": 179800,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!L47"
+          },
+          "occupied": {
+            "valueCents": 150100,
+            "quality": "b",
+            "suppressed": false,
+            "cell": "Table 1.1.9!N47"
+          },
+          "vacantHigherThanOccupied": "Y"
+        },
+        "3br+": {
+          "vacant": {
+            "valueCents": null,
+            "quality": null,
+            "suppressed": true,
+            "cell": "Table 1.1.9!Q47"
+          },
+          "occupied": {
+            "valueCents": 124400,
+            "quality": "a",
+            "suppressed": false,
+            "cell": "Table 1.1.9!S47"
+          },
+          "vacantHigherThanOccupied": "**"
+        }
+      }
+    }
+  ]
+}
