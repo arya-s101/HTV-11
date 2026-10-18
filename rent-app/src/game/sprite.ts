@@ -8,7 +8,7 @@ export const HAIR_COLOR = ["#1f1a17", "#4a2e1c", "#8a5a2b", "#d8a64a", "#b8432f"
 export const OUTFIT_COLOR = ["#3f6fd8", "#d64545", "#2f9e6a", "#e0a020", "#8a4fd0", "#30343f", "#e86fa6"] as const;
 export const HAIR_STYLES = ["short", "long", "bun", "curly", "buzz", "ponytail"] as const;
 export const OUTFITS = ["tee", "hoodie", "jacket", "dress"] as const;
-export const ACCESSORIES = ["none", "glasses", "cap", "headphones", "scarf", "headscarf", "turban", "kufi"] as const;
+export const ACCESSORIES = ["none", "glasses", "cap", "headphones", "scarf"] as const;
 
 export interface Appearance {
   skin: number;
@@ -186,28 +186,6 @@ const ACCESSORY: Record<Appearance["accessory"], { row: number; art: string[] }>
     art: ["....KKKKKKKK....", "...K........K...", "...K........K...", "..KK........KK..", "..KK........KK..", "..KK........KK.."],
   },
   scarf: { row: 9, art: ["....FFFFFFFF....", "....FFFFFFFF....", "......FF........", "......FF........"] },
-  // Headwear from several cultures: original, simple shapes, offered to everyone and cosmetic only.
-  headscarf: {
-    row: 0,
-    art: [
-      "..____________..",
-      "....FFFFFFFF....",
-      "...FFFFFFFFFF...",
-      "..FFFFFFFFFFFF..",
-      "..FFF......FFF..",
-      "..FF........FF..",
-      "..FF........FF..",
-      "..FF........FF..",
-      "..FFF......FFF..",
-      "...FFFF..FFFF...",
-      "....FFFFFFFF....",
-    ],
-  },
-  turban: {
-    row: 0,
-    art: ["..____CCCC____..", ".....CCCCCC.....", "....CCCCCCCC....", "...CCCCDDCCCC...", "...CC......CC..."],
-  },
-  kufi: { row: 0, art: ["..____________..", ".....CCCCCC.....", "....CWCCWCCW...."] },
 };
 
 export type Pixel = string | null;
@@ -232,7 +210,8 @@ export function composeSprite(a: Appearance): Pixel[][] {
   const o = OUTFIT[a.outfit];
   paint(grid, o.art, o.rows);
   paint(grid, HAIR[a.hairStyle], 0);
-  paint(grid, ACCESSORY[a.accessory].art, ACCESSORY[a.accessory].row);
+  const acc = ACCESSORY[a.accessory] ?? ACCESSORY.none; // characters saved with a since-removed accessory
+  paint(grid, acc.art, acc.row);
   const skin = SKIN[a.skin];
   const outfit = OUTFIT_COLOR[a.outfitColor];
   const palette: Record<string, string> = {
