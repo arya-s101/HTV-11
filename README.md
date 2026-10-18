@@ -2,7 +2,7 @@
 
 Play it at **[rentintorentino.casa](https://www.rentintorentino.casa)**.
 
-**Rentin' ToRentino** is a short browser game about renting a first apartment in Toronto, for the October 26, 2026 municipal election. Players move through a first-lease journey: spot a fake listing, compare places, apply, haggle, read the lease, move in, handle something that breaks, and move out.
+**Rentin' ToRentino** is a short browser game about renting a first apartment in Toronto. Players move through a first-lease journey: spot a fake listing, compare places, apply, haggle, read the lease, move in, handle something that breaks, and move out.
 
 The listings are illustrative, not available units. The numbers behind them come from City of Toronto, CMHC, and Census data. Players see the cash and commute tradeoff, including costs that were easy to miss, and sort each problem by who controls it: themselves, the landlord, the City, or another government. The game ends with one sourced, nonpartisan question they can ask a ward candidate.
 
