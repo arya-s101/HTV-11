@@ -463,6 +463,24 @@ a.prov:hover { filter: brightness(1.2); }
 .timer-badge.low { color: var(--bad); }
 .timer-badge.low .bar { background: var(--red); }
 .listing-card, .door, .lease-sheet, .question-card { width: 100%; max-width: 860px; background: var(--surface); box-shadow: 0 0 0 1px var(--line); padding: 18px 20px; display: grid; gap: 12px; }
+.house-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: min(920px, 100%); }
+.house-card { background: var(--surface); color: inherit; text-align: left; box-shadow: 0 0 0 1px var(--line); padding: 16px 16px 14px; display: grid; gap: 8px; min-width: 0; cursor: pointer; align-content: start; }
+.house-card.on { box-shadow: 0 0 0 2px var(--cyan); }
+.house-card h3 { margin: 0; font-family: var(--font-body), monospace; font-size: 1.05rem; font-weight: 700; line-height: 1.35; }
+.house-rent { font-size: clamp(1.15rem, 2.2vw, 1.45rem); color: var(--yellow); line-height: 1.3; }
+.house-where { font-size: 0.95rem; color: var(--text-soft); }
+.house-compare { font-size: 1rem; line-height: 1.4; }
+.house-compare.hot { color: var(--yellow); }
+.house-blurb { font-size: 1rem; line-height: 1.45; margin: 0; }
+.fiction-card { width: 100%; max-width: 860px; background: var(--surface); border-left: 4px solid var(--yellow); box-shadow: 0 0 0 1px var(--line); padding: 16px 18px; display: grid; gap: 6px; text-align: left; }
+.fiction-card p { margin: 0; font-size: 1.05rem; line-height: 1.45; }
+.fiction-kicker { font-size: 0.62rem; color: var(--yellow); letter-spacing: 0.04em; }
+.help-card { width: min(640px, 100%); text-align: left; background: var(--surface); border-left: 4px solid var(--bad); box-shadow: 0 0 0 1px var(--line); padding: 16px 18px; display: grid; gap: 10px; }
+.help-card h3 { margin: 0; color: var(--yellow); font-size: 0.85rem; }
+.help-steps { margin: 0; padding-left: 1.2rem; display: grid; gap: 8px; font-size: 1.05rem; line-height: 1.45; }
+.help-phone { margin: 0; font-size: 1.05rem; }
+.stat-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.stat-chip { background: var(--surface); box-shadow: 0 0 0 1px var(--line); padding: 10px 12px; display: grid; gap: 4px; text-align: left; }
 .listing-card .illus, .door .illus { margin: -18px -20px 4px; }
 .fineprint.dense { font-size: 0.68rem; line-height: 1.35; letter-spacing: 0.01em; text-transform: uppercase; background: var(--surface-3); padding: 8px 10px; box-shadow: 0 0 0 1px var(--line); margin: 0; }
 .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 14px; width: 100%; }
@@ -509,6 +527,7 @@ a.prov:hover { filter: brightness(1.2); }
   .bubble-host::before { display: none; }
   .podium-actions { margin-left: 0; }
   .choices { flex-direction: column; align-items: stretch; }
+  .house-grid, .stat-strip { grid-template-columns: 1fr; }
   .choice-big { max-width: none; flex: none; width: 100%; }
   .lifeline-name { display: none; }
   .podium-bar { gap: 8px 12px; padding: 8px 10px; }

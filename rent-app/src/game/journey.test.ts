@@ -10,6 +10,7 @@ import {
   judgeListing,
   leaseFor,
   levelCorrect,
+  boardFor,
   listingsFor,
   photoOutcome,
   reportCard,
@@ -24,7 +25,7 @@ const firstJob = STAGES.find((s) => s.id === "first-job")! as PlayableStage;
 
 describe("content (PRD v2 §8): nothing ships without an official source", () => {
   it("every item has a claim, an https source on an official domain, a retrieval date and a verifier", () => {
-    const official = /^https:\/\/(www\.)?(ontario\.ca|toronto\.ca|canada\.ca|cmhc-schl\.gc\.ca|tribunalsontario\.ca|ohrc\.on\.ca)\//;
+    const official = /^https:\/\/([a-z0-9-]+\.)*(ontario\.ca|toronto\.ca|canada\.ca|cmhc-schl\.gc\.ca|tribunalsontario\.ca|ohrc\.on\.ca)\//;
     for (const c of CONTENT) {
       expect(c.claim.length).toBeGreaterThan(10);
       expect(c.source_url).toMatch(official);
@@ -45,6 +46,10 @@ describe("content (PRD v2 §8): nothing ships without an official source", () =>
       J.moveOut.contentId,
       J.moveOut.depositContentId,
       "scam-report",
+      "scam-paid-bank",
+      "scam-paid-records",
+      "scam-paid-police",
+      "scam-paid-credit",
     ] as string[];
     for (const id of ids) expect(() => content(id)).not.toThrow();
   });
@@ -78,6 +83,25 @@ describe("phase 1: search", () => {
     expect(facts("normal")).toEqual(facts("easy"));
     const texts = (d: "easy" | "hard") => listingsFor(firstJob, d, DEMO_SEED).map((l) => l.text);
     expect(texts("hard")).not.toEqual(texts("easy"));
+  });
+  it("the opening board changes how many real and fake homes appear, and stays small", () => {
+    const mixes = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const board = boardFor(firstJob, "easy", seed);
+      const legit = board.filter((l) => l.answer === "legit").length;
+      const bad = board.length - legit;
+      expect(legit).toBeGreaterThanOrEqual(1);
+      expect(legit).toBeLessThanOrEqual(3);
+      expect(bad).toBeGreaterThanOrEqual(1);
+      expect(bad).toBeLessThanOrEqual(2);
+      expect(board.length).toBeLessThanOrEqual(5);
+      expect(board.every((l) => l.answer !== "legit" || l.offerId)).toBe(true);
+      mixes.add(`${legit} real, ${bad} fake`);
+    }
+    expect(mixes.size).toBeGreaterThan(1);
+    const board = boardFor(firstJob, "easy", DEMO_SEED);
+    expect(boardFor(firstJob, "easy", DEMO_SEED).map((l) => l.id)).toEqual(board.map((l) => l.id));
+    expect(boardFor(firstJob, "hard", DEMO_SEED).map((l) => l.id)).toEqual(board.map((l) => l.id));
   });
   it("judges flags fairly", () => {
     expect(judgeListing("scam", "scam")).toBe("correct");

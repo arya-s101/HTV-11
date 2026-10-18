@@ -25,6 +25,8 @@ export interface Character {
   appearance: Appearance;
   /** Job titles per stage; a preset also sets income and commute days. Never changes offers or score. */
   profession: Profession;
+  /** Player-set monthly income in cents. Absent means use the profession estimate. */
+  monthlyIncomeCents?: number;
 }
 
 export const DEMO_CHARACTER: Character = {

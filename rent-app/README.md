@@ -14,8 +14,8 @@
 
 > Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md` (PRD).
 
-An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
-through life stages. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
+A practice rental for newcomers to Toronto, for the 2026 municipal election (Monday, October 26). You create a pixel character and play
+a first rental. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
 the civic turn: you sort what you can verify yourself from what the City (or another government) controls. Each stage ends with a sourced,
 nonpartisan question for municipal candidates. The end screen collects your questions, shows a reasoning tracker, and lets you copy one question.
 

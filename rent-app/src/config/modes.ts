@@ -27,13 +27,13 @@ export interface ModeConfig {
 export const MODES: Record<Mode, ModeConfig> = {
   base: {
     label: "Base game",
-    blurb: "About 3 minutes. The vital lessons.",
-    rounds: ["search", "viewing", "movein", "live", "report"],
+    blurb: "Pick a home, then practise the rental: viewing, application, offer, lease.",
+    rounds: ["search", "viewing", "apply", "negotiate", "lease", "movein", "report"],
     listings: { legit: 2, bad: 1, scamsOnly: true },
     offerIds: ["s2-a", "s2-b"],
     scamReport: false,
-    viewingQuestions: 0,
-    revealIn: "viewing",
+    viewingQuestions: 2,
+    revealIn: "movein",
     insurance: false,
     events: ["leak"],
     apiCalls: false,
@@ -55,3 +55,6 @@ export const MODES: Record<Mode, ModeConfig> = {
 
 /** Base rounds that Extended can skip when the player has just finished Base with the same character. */
 export const SKIPPABLE_AFTER_BASE: RoundId[] = ["search"];
+
+/** Rounds the player can leave from the title card. Play resumes at the next round in the mode. */
+export const OPTIONAL_ROUNDS: RoundId[] = ["negotiate"];

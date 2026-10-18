@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PRESETS, presetProfession, stageForProfession, templatePath, type Profession } from "./career";
+import { estimateMonthly, livedStage, PRESETS, presetProfession, stageForProfession, templatePath, type Profession } from "./career";
 import { isPlayable, STAGES } from "./data";
 import { consequence, fareFor } from "./outcome";
 import { reasoningScore } from "./score";
@@ -58,6 +58,15 @@ describe("profession work details (income and trips)", () => {
   it("custom (template or LLM) professions never set numbers: stage defaults apply", () => {
     const custom: Profession = { id: "custom", label: "pharmacist", path: templatePath("pharmacist"), source: "template" };
     expect(stageForProfession(firstJob, custom)).toEqual(firstJob);
+  });
+
+  it("a player-set monthly income replaces the job estimate and changes burden only", () => {
+    expect(estimateMonthly(presetProfession("software"), 23).cents).toBe(458_333);
+    expect(estimateMonthly(presetProfession("software"), 19).cents).toBe(160_000);
+    const custom = consequence({ character: { ...DEMO_CHARACTER, monthlyIncomeCents: 200_000 }, stage: firstJob, offerId: "s2-a", revealed: false });
+    expect(custom.monthlyIncomeCents).toBe(200_000);
+    expect(custom.rentBurdenPct).toBe(80);
+    expect(livedStage(firstJob, { profession: presetProfession("software"), monthlyIncomeCents: 200_000 }).offers).toEqual(firstJob.offers);
   });
 
   it("the reasoning score has no income or trip input", () => {

@@ -96,6 +96,54 @@
           "monetary": false
         }
       ]
+    },
+    "s2-d": {
+      "landlord": "Elena at the rental office",
+      "persona": "Elena handles a few older houses for an owner who lives out of town; she's patient, likes clear questions, and would rather fill the basement than leave it empty.",
+      "concessions": [
+        {
+          "id": "utilities-included",
+          "label": "Hydro included in rent",
+          "monetary": true
+        },
+        {
+          "id": "fresh-paint",
+          "label": "Fresh paint before move-in",
+          "monetary": false
+        }
+      ]
+    },
+    "s2-e": {
+      "landlord": "Chris, the owner",
+      "persona": "Chris owns the shop downstairs and the apartment above it, answers texts quickly, and wants a tenant who will stay more than a year.",
+      "concessions": [
+        {
+          "id": "laundry-waived",
+          "label": "Laundry card topped up for the first month",
+          "monetary": false
+        },
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        }
+      ]
+    },
+    "s2-f": {
+      "landlord": "Amina, the owner",
+      "persona": "Amina lives on the first floor of the walk-up, shows the unit herself, and is careful but kind with first-time renters.",
+      "concessions": [
+        {
+          "id": "utilities-included",
+          "label": "Heat included in rent",
+          "monetary": true
+        },
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        }
+      ]
     }
   },
   "legalHelp": {

@@ -241,7 +241,7 @@
       "offers": [
         {
           "id": "s2-a",
-          "title": "1-bedroom apartment",
+          "title": "High-rise 1-bedroom",
           "neighbourhoodId": 24,
           "unitType": "1-bedroom",
           "cmhcBedroom": "1br",
@@ -289,7 +289,7 @@
         },
         {
           "id": "s2-b",
-          "title": "1-bedroom apartment",
+          "title": "Newer mid-rise 1-bedroom",
           "neighbourhoodId": 162,
           "unitType": "1-bedroom",
           "cmhcBedroom": "1br",
@@ -381,6 +381,96 @@
                 "label": "Subway to Union",
                 "minutes": 22
               }
+            ]
+          }
+        },
+        {
+          "id": "s2-d",
+          "title": "Basement 1-bedroom",
+          "neighbourhoodId": 24,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 148000,
+          "utilities": {
+            "status": "unknown",
+            "note": "Heat is included; hydro is extra and not priced"
+          },
+          "commuteMinutes": 50,
+          "unknowns": ["utilities", "fees"],
+          "reveal": {
+            "id": "utilities",
+            "headline": "Hydro wasn't in the rent",
+            "text": "In this scenario the landlord says hydro for the basement has averaged $70 a month, on top of rent.",
+            "extraMonthlyCents": 7000,
+            "lines": ["Surprise: hydro isn't included.", "It's averaged $70 a month, on top of rent."]
+          },
+          "presentation": {
+            "listingText": "Quiet basement 1-bed. $1,480 a month, heat included, hydro extra.",
+            "finePrint": "Bsmt 1BR. $1,480/mo. Heat incl. hydro extra. Viewings by appt.",
+            "routeLegs": [
+              { "mode": "walk", "label": "Walk to stop", "minutes": 8 },
+              { "mode": "bus", "label": "Bus to station", "minutes": 12 },
+              { "mode": "subway", "label": "Subway to Union", "minutes": 30 }
+            ]
+          }
+        },
+        {
+          "id": "s2-e",
+          "title": "1-bedroom near the streetcar",
+          "neighbourhoodId": 162,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 169000,
+          "utilities": {
+            "status": "unknown",
+            "note": "The ad doesn't price the laundry"
+          },
+          "commuteMinutes": 33,
+          "unknowns": ["utilities", "fees"],
+          "reveal": {
+            "id": "utilities",
+            "headline": "Laundry is extra",
+            "text": "In this scenario the card laundry in the building is $40 a month if you use it a few times a week.",
+            "extraMonthlyCents": 4000,
+            "lines": ["Surprise: laundry isn't in the rent.", "A typical month here is about $40."]
+          },
+          "presentation": {
+            "listingText": "1-bed above a shop. $1,690 a month, hydro extra.",
+            "finePrint": "1BR, 2nd fl. $1,690/mo + hydro. Lndry coin. 1st occ. 2019.",
+            "routeLegs": [
+              { "mode": "walk", "label": "Walk to stop", "minutes": 2 },
+              { "mode": "streetcar", "label": "Streetcar downtown", "minutes": 25 },
+              { "mode": "walk", "label": "Walk to office", "minutes": 6 }
+            ]
+          }
+        },
+        {
+          "id": "s2-f",
+          "title": "Walk-up 1-bedroom",
+          "neighbourhoodId": 56,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 158000,
+          "utilities": {
+            "status": "unknown",
+            "note": "The ad doesn't say whether heat or hydro is included"
+          },
+          "commuteMinutes": 47,
+          "unknowns": ["utilities", "rent-control"],
+          "reveal": {
+            "id": "utilities",
+            "headline": "Heat and hydro are both extra",
+            "text": "In this scenario heat and hydro together have averaged $80 a month, on top of rent.",
+            "extraMonthlyCents": 8000,
+            "lines": ["Surprise: heat and hydro aren't included.", "Together they've averaged $80 a month."]
+          },
+          "presentation": {
+            "listingText": "Third-floor walk-up. $1,580 a month, hydro extra.",
+            "finePrint": "1BR walk-up, 3rd fl. $1,580/mo + hydro. Viewings Sat.",
+            "routeLegs": [
+              { "mode": "walk", "label": "Walk to stop", "minutes": 7 },
+              { "mode": "bus", "label": "Bus to station", "minutes": 10 },
+              { "mode": "subway", "label": "Subway to Union", "minutes": 30 }
             ]
           }
         }

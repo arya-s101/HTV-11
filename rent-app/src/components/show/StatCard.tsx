@@ -19,6 +19,17 @@ export function StatRun({ children }: { children: React.ReactNode }) {
  * Wraps a "next" action: if this question has an unseen sourced stat (and stats are on), the card shows first.
  * Returns the card element to render (or null) and the wrapped action.
  */
+/** Takes the next unseen card for this question and remembers its group for the run. Null if stats are off or none remain. */
+export function useTakeStat() {
+  const shown = useContext(RunCtx);
+  const { showStats } = useSettings();
+  return useCallback((questionId: string): Card | null => {
+    const c = showStats && shown ? statFor(questionId, shown.current) : null;
+    if (c && shown) shown.current = [...shown.current, c.group];
+    return c;
+  }, [showStats, shown]);
+}
+
 export function useStatGate(questionId: string | undefined, next: () => void): [React.ReactNode, () => void] {
   const shown = useContext(RunCtx);
   const { showStats } = useSettings();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { stageForProfession } from "@/game/career";
+import { livedStage } from "@/game/career";
 import { CATEGORY_LABEL, judgeCivic, type CivicResult } from "@/game/civic";
 import { CMHC_TABLE, evidenceFor, lever, VERIFY_ITEMS } from "@/game/data";
 import { consequence, fareFor, money } from "@/game/outcome";
@@ -48,7 +48,7 @@ export function StageView(props: {
   onSkip: () => void;
 }) {
   const { age, character, difficulty, scriptedLandlord, onComplete, onSkip } = props;
-  const stage = useMemo(() => stageForProfession(props.stage, character.profession), [props.stage, character.profession]);
+  const stage = useMemo(() => livedStage(props.stage, character), [props.stage, character]);
   const work = character.profession.source === "preset" ? character.profession.work?.[stage.id] : undefined;
   const [step, setStep] = useState<Step>("Start");
   const [flagged, setFlagged] = useState<VerifyItemId[]>([]);
@@ -151,6 +151,9 @@ export function StageView(props: {
               ))}
             </div>
           </div>
+          <aside className="fiction-card">
+            <p>Illustrative scenario, not an available listing.</p>
+          </aside>
           <div className="offers">
             {stage.offers.map((o, i) => (
               <OfferCard
@@ -477,7 +480,6 @@ export function OfferCard(props: { o: Offer; letter: string; difficulty: Difficu
   const e = evidenceFor(o.neighbourhoodId);
   return (
     <article className="paper offer">
-      <div className="illus">Illustrative scenario, not an available listing</div>
       <h3>
         Offer {letter}: {o.title}
       </h3>

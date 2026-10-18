@@ -59,6 +59,53 @@
       "short": "Report rental fraud to the Canadian Anti-Fraud Centre or police."
     },
     {
+      "id": "scam-paid-bank",
+      "phase": 1,
+      "claim": "If you already sent money, notify the financial institution you sent it to and tell them you are reporting fraudulent activity.",
+      "jurisdiction": "personal",
+      "contact": "The bank, credit union, or payment service that moved the money",
+      "source_title": "Competition Bureau Canada: How to report fraud and scams in Canada",
+      "source_url": "https://competition-bureau.canada.ca/en/fraud-and-scams/tips-and-advice/how-report-fraud-and-scams-canada",
+      "retrieved": "2026-10-17",
+      "verified_by": "AI (Grok); needs teammate check",
+      "short": "Tell the bank you sent the money to that it was fraud."
+    },
+    {
+      "id": "scam-paid-records",
+      "phase": 1,
+      "claim": "Keep the listing, messages, screenshots and transfer receipts. Hold onto them in case police or the bank ask.",
+      "jurisdiction": "personal",
+      "source_title": "Competition Bureau Canada: How to report fraud and scams in Canada",
+      "source_url": "https://competition-bureau.canada.ca/en/fraud-and-scams/tips-and-advice/how-report-fraud-and-scams-canada",
+      "retrieved": "2026-10-17",
+      "verified_by": "AI (Grok); needs teammate check",
+      "short": "Save the ad, the messages and the transfer receipt."
+    },
+    {
+      "id": "scam-paid-police",
+      "phase": 1,
+      "claim": "If you lost money, report the fraud to your local police and keep the file number they give you.",
+      "jurisdiction": "personal",
+      "contact": "Local police",
+      "source_title": "Competition Bureau Canada: How to report fraud and scams in Canada",
+      "source_url": "https://competition-bureau.canada.ca/en/fraud-and-scams/tips-and-advice/how-report-fraud-and-scams-canada",
+      "retrieved": "2026-10-17",
+      "verified_by": "AI (Grok); needs teammate check",
+      "short": "Lost money? Report it to local police and keep the file number."
+    },
+    {
+      "id": "scam-paid-credit",
+      "phase": 1,
+      "claim": "If you shared banking or identity details, ask Equifax Canada and TransUnion Canada to put a fraud alert on your credit file.",
+      "jurisdiction": "personal",
+      "contact": "Equifax Canada and TransUnion Canada",
+      "source_title": "Competition Bureau Canada: How to report fraud and scams in Canada",
+      "source_url": "https://competition-bureau.canada.ca/en/fraud-and-scams/tips-and-advice/how-report-fraud-and-scams-canada",
+      "retrieved": "2026-10-17",
+      "verified_by": "AI (Grok); needs teammate check",
+      "short": "Shared banking info? Ask both credit bureaus for a fraud alert."
+    },
+    {
       "id": "view-water-damage",
       "phase": 2,
       "claim": "When viewing, look for mould and water damage: stains on walls, musty smells or rotting wood.",

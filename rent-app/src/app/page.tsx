@@ -7,7 +7,7 @@ import { ShowSettingsProvider } from "@/components/show/settings";
 import { ScoreBox, StageView, type StageRecord } from "@/components/StageView";
 import { MODES, type Mode } from "@/config/modes";
 import { DEMO_SEED, newSeed } from "@/game/journey";
-import { PRESETS, presetProfession } from "@/game/career";
+import { estimateMonthly, PRESETS, presetProfession } from "@/game/career";
 import { ELECTION_HUB, STAGES } from "@/game/data";
 import { money } from "@/game/outcome";
 import { DEFAULT_AGE, MAX_AGE, MIN_AGE, planLife, stageForAge, type LifePlan } from "@/game/life";
@@ -83,7 +83,8 @@ export default function Game() {
         <TitleScreen
           onNew={(m) => {
             setMode(m);
-            setCharacter({ ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE });
+            const next = { ...DEMO_CHARACTER, name: "", startAge: DEFAULT_AGE };
+            setCharacter({ ...next, monthlyIncomeCents: estimateMonthly(next.profession, next.startAge).cents });
             setScreen("create");
             top();
           }}
@@ -116,11 +117,11 @@ export default function Game() {
                 carry={carry}
                 onExtended={(from) => begin(character, false, "extended", from)}
                 stage={current.stage}
-                age={current.age}
+                age={character.startAge}
                 character={character}
                 difficulty={difficulty}
                 seed={seed}
-                scriptedLandlord={demo}
+                scriptedLandlord={demo || !MODES[mode].apiCalls}
                 onReplay={() => {
                   setCarry(undefined);
                   setSeed(newSeed());
@@ -197,7 +198,7 @@ function Hud(props: { character: Character; age: number; stageTitle: string; sta
 }
 
 function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () => void }) {
-  const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
+  const steps = ["Set your income", "Pick one home", "Apply and negotiate", "Spot the scam", "Leave with a question"];
   return (
     <div className="home">
       <section className="hero">
@@ -206,9 +207,10 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
           <h1>
             Toronto <span className="neon">Rent</span> Decisions
           </h1>
-          <p className="lede">
-            Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem
-            your next city council can actually change.
+          <p className="lede">For newcomers to Toronto, renting here for the first time.</p>
+          <p>
+            You don&apos;t have someone local to take to a viewing. Set your income, pick one home, and practise applying, negotiating and signing,
+            including what to do when a listing is a scam.
           </p>
           <div className="row">
             <button className="btn big" onClick={() => onNew("base")}>
@@ -250,8 +252,8 @@ function TitleScreen({ onNew, onDemo }: { onNew: (m: Mode) => void; onDemo: () =
           <p>Negotiate with a landlord before signing. The landlord&apos;s words may come from AI; the deal is always decided by game code.</p>
         </article>
         <article className="paper">
-          <h3>Leave with a question</h3>
-          <p>Every stage ends with a neutral, sourced question for municipal candidates, built from your own choices.</p>
+          <h3>For newcomers</h3>
+          <p>Made for people new to Toronto who are renting here for the first time. The homes are fictional. The rent rules and the Toronto figures are real.</p>
         </article>
       </section>
     </div>
@@ -312,8 +314,9 @@ function ProfessionPicker({ character, setCharacter, llm }: { character: Charact
   }
 
   function pickPreset(id: string) {
-    // Show the handwritten path at once, then let Gemini replace it with a fresh one.
-    setCharacter((c) => ({ ...c, profession: presetProfession(id) }));
+    const profession = presetProfession(id);
+    // Show the handwritten path at once, then let Gemini replace the story only.
+    setCharacter((c) => ({ ...c, profession, monthlyIncomeCents: estimateMonthly(profession, c.startAge).cents }));
     if (llm) request({ presetId: id });
   }
 
@@ -380,6 +383,8 @@ function Creator(props: {
 }) {
   const { mode, setMode, character, setCharacter, difficulty, setDifficulty, onBack, onStart } = props;
   const base = mode === "base";
+  const estimate = estimateMonthly(character.profession, character.startAge);
+  const pay = character.monthlyIncomeCents ?? estimate.cents;
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
   const plan = planLife(character.startAge);
@@ -426,6 +431,7 @@ function Creator(props: {
             {character.name.trim() || "Player"}, {character.startAge}
           </div>
           <div className="small">{character.profession.path[start.id]?.title ?? character.profession.label}</div>
+          <div className="small">{money(pay)}/mo</div>
           <button className="btn ghost small" onClick={randomize}>
             🎲 Randomize
           </button>
@@ -447,19 +453,50 @@ function Creator(props: {
               <h3>Name</h3>
               <input className="field-input" value={character.name} maxLength={16} placeholder="Player" onChange={(e) => setCharacter({ ...character, name: e.target.value })} />
             </div>
-            {!base && (
-              <div className="field">
-                <h3>Starting age: {character.startAge}</h3>
-                <input type="range" min={MIN_AGE} max={MAX_AGE} value={character.startAge} onChange={(e) => setCharacter({ ...character, startAge: Number(e.target.value) })} aria-label="Starting age" />
-                <p className="small">
-                  Starts at stage {start.order}: <b>{start.title}</b>.{" "}
-                  {plan.playable.length > 0
-                    ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
-                    : "That stage isn't playable yet (its civic lever still needs an official source). Pick 25 or younger to play."}
-                </p>
-              </div>
-            )}
+            <div className="field">
+              <h3>Age: {character.startAge}</h3>
+              <input
+                type="range"
+                min={MIN_AGE}
+                max={MAX_AGE}
+                value={character.startAge}
+                onChange={(e) => {
+                  const startAge = Number(e.target.value);
+                  setCharacter((c) => ({ ...c, startAge, monthlyIncomeCents: estimateMonthly(c.profession, startAge).cents }));
+                }}
+                aria-label="Starting age"
+              />
+              <p className="small">
+                {base
+                  ? "Students and new arrivals can start at any age. The practice rental uses the income you set below."
+                  : `Starts at stage ${start.order}: ${start.title}. ${
+                      plan.playable.length > 0
+                        ? `You'll play: ${plan.playable.map((p) => `${p.stage.title} (age ${p.age})`).join(" → ")}.`
+                        : "That stage isn't playable yet. Pick 25 or younger, or stay on the Base game."
+                    }`}
+              </p>
+            </div>
             <ProfessionPicker character={character} setCharacter={setCharacter} llm={MODES[mode].apiCalls} />
+            <div className="field">
+              <h3>Monthly income: {money(pay)}</h3>
+              <input
+                type="range"
+                min={80000}
+                max={1000000}
+                step={1}
+                value={Math.min(1000000, Math.max(80000, pay))}
+                onChange={(e) => setCharacter({ ...character, monthlyIncomeCents: Number(e.target.value) })}
+                aria-label="Monthly income"
+              />
+              <p className="small">
+                Estimated from {character.profession.label} at age {character.startAge}: {money(estimate.cents)}/mo {estimate.basis} ({estimate.note}). Move the slider if your real income is different. Illustrative, not a pay quote.
+              </p>
+              {pay !== estimate.cents && (
+                <button type="button" className="btn ghost small" onClick={() => setCharacter({ ...character, monthlyIncomeCents: estimate.cents })}>
+                  Use the job estimate
+                </button>
+              )}
+            </div>
           </fieldset>
 
           <fieldset className="paper group">

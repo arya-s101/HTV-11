@@ -9,8 +9,8 @@ import type { Difficulty } from "@/game/types";
 export const metadata: Metadata = { title: "How it works · Toronto Rent Decisions" };
 
 const LOOP = [
-  ["Search", "Flag listings as legit, suspicious or a scam. Rent far below the CMHC area average is a red flag."],
-  ["Viewing", "Compare the offers, then hunt for problems in a pixel apartment against the clock."],
+  ["Choose a home", "Pick one listing. Rent far below the area average, no viewing, or money before a lease are warning signs."],
+  ["Viewing", "A few short questions before you apply: water damage, smoke alarms, locks, pests, and what's included."],
   ["Apply", "Bring the right documents, refuse the risky asks, and decide what to do when someone outbids you."],
   ["Negotiate", "Optional. Haggle with a fictional landlord; game code decides the deal."],
   ["Read the lease", "Flag clauses that Ontario's rules make void, like no-pet bans or damage deposits."],
@@ -26,10 +26,10 @@ export default function HowItWorks() {
     <div className="page">
       <header className="page-head">
         <span className="eyebrow">How it works</span>
-        <h1>A flight simulator for your first Toronto apartment</h1>
+        <h1>A practice rental for newcomers</h1>
         <p className="lede">
-          Practise the whole renting process where mistakes are cheap: spot the scam, find what the landlord didn&apos;t mention, take the photos that
-          save you later, and learn who to call. Then see which problems your next city council can actually change.
+          For people new to Toronto, renting here for the first time, with no one local to take to a viewing. Set your income, pick one home,
+          then apply, negotiate and sign. A suspicious listing teaches you how to walk away — or shows what happens if you pay.
         </p>
       </header>
 

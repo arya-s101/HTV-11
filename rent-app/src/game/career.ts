@@ -1,7 +1,9 @@
 // Job paths and preset work details. Shared by the client (presets, display) and the server (LLM validation).
 // Story text may come from an LLM; income and trips come only from handwritten presets (PRD §5).
 import professionsJson from "../../data/game/professions.json";
+import { monthlyIncomeCents } from "./calc";
 import { STAGES } from "./data";
+import { stageForAge } from "./life";
 import type { PlayableStage, WorkDetails } from "./types";
 
 export interface PathStep {
@@ -34,6 +36,31 @@ export function stageForProfession(stage: PlayableStage, profession: Profession)
   const w = profession.source === "preset" ? profession.work?.[stage.id] : undefined;
   if (!w) return stage;
   return { ...stage, income: w.income, commuteDaysPerMonth: w.commuteDaysPerMonth };
+}
+
+/** Rough monthly pay for this job at this age. Presets only; a custom job uses the stage default. */
+export function estimateMonthly(profession: Profession, age: number): { cents: number; basis: "gross" | "net"; note: string } {
+  const stageId = stageForAge(age).id;
+  const w = profession.source === "preset" ? (profession.work?.[stageId] ?? profession.work?.["first-job"]) : undefined;
+  if (w) return { cents: monthlyIncomeCents(w.income), basis: w.income.basis, note: w.income.description };
+  const fallback = STAGES.find((s) => s.id === "first-job")?.income;
+  if (!fallback) return { cents: 0, basis: "gross", note: "no estimate" };
+  return { cents: monthlyIncomeCents(fallback), basis: fallback.basis, note: fallback.description };
+}
+
+/** Profession pay, then the player's own monthly amount if they moved the slider. */
+export function livedStage(stage: PlayableStage, who: { profession: Profession; monthlyIncomeCents?: number }): PlayableStage {
+  const s = stageForProfession(stage, who.profession);
+  if (who.monthlyIncomeCents == null || who.monthlyIncomeCents <= 0) return s;
+  return {
+    ...s,
+    income: {
+      ...s.income,
+      amountCents: who.monthlyIncomeCents,
+      period: "monthly",
+      description: `monthly amount you set, starting from the ${who.profession.label} estimate`,
+    },
+  };
 }
 
 const BLOCKED = /\b(sex|porn|drug dealer|hitman|terroris\w*|nazi|kill\w*|murder\w*|escort|stripper|scam\w*|fuck\w*|shit\w*)\b/i;

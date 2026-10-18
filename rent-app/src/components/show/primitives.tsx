@@ -127,7 +127,7 @@ export function Host({ lines, onDone, mood }: { lines: string[]; onDone?: () => 
 }
 
 // ---------- title card ----------
-export function TitleCard({ number, title, intro, onGo }: { number?: number; title: string; intro: string[]; onGo: () => void }) {
+export function TitleCard({ number, title, intro, onGo, onSkip, skipLabel }: { number?: number; title: string; intro: string[]; onGo: () => void; onSkip?: () => void; skipLabel?: string }) {
   const { still } = useSettings();
   const sfx = useSfx();
   const [ready, setReady] = useState(false);
@@ -145,6 +145,11 @@ export function TitleCard({ number, title, intro, onGo }: { number?: number; tit
         <button className="btn big" disabled={!ready} onClick={onGo} autoFocus={ready}>
           Let&apos;s play ▶
         </button>
+        {onSkip && (
+          <button className="btn ghost" disabled={!ready} onClick={onSkip}>
+            {skipLabel ?? "Skip this round"}
+          </button>
+        )}
       </div>
     </section>
   );
@@ -294,8 +299,10 @@ export function Reveal(props: {
   nextLabel?: string;
   /** Question id whose sourced stat card (if any) shows after this feedback. */
   stat?: string;
+  /** Extra block under the result, still on the game screen (used for the scam-help steps). */
+  footer?: React.ReactNode;
 }) {
-  const { ok, headline, lines, why, whyExtra, points, onNext, nextLabel, stat } = props;
+  const { ok, headline, lines, why, whyExtra, points, onNext, nextLabel, stat, footer } = props;
   const [statCard, next] = useStatGate(stat, onNext);
   const { still } = useSettings();
   const sfx = useSfx();
@@ -321,6 +328,7 @@ export function Reveal(props: {
       </div>
       {quips.length > 0 && <p className="quip">{SHOW.host.name}: “{quips[(lines.join("").length + (headline?.length ?? 0)) % quips.length]}”</p>}
       <LinePlayer lines={lines} onDone={() => setTimeout(() => setLinesDone(true), 250)} big />
+      {footer}
       <div className="reveal-actions">
         {(why?.length || whyExtra) && <Why ids={why} extra={whyExtra} />}
         <button className="btn big" disabled={!linesDone || !!statCard} onClick={next} autoFocus={linesDone}>

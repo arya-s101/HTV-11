@@ -7,21 +7,21 @@
   "welcome": [
     "Welcome to The Lease You Can Do!",
     "I'm your host, Mustafa.",
-    "Tonight: can you rent your first Toronto apartment?"
+    "For newcomers: a first Toronto rental, with no local guide."
   ],
   "rounds": {
     "search": {
-      "title": "Spot the Fake!",
+      "title": "Choose a Home",
       "intro": [
-        "Listings incoming.",
-        "Legit, suspicious or scam? Check the rent against the area average."
+        "Fictional listings. Any one could be a trap.",
+        "Read the rent and the ad, then pick one."
       ]
     },
     "viewing": {
-      "title": "Pick Your Place",
+      "title": "See the Place",
       "intro": [
-        "Choose what you'll double-check.",
-        "Then pick a place. Every choice trades money, time and unknowns."
+        "You picked a home.",
+        "Check it before you apply. Ask what's included."
       ]
     },
     "apply": {

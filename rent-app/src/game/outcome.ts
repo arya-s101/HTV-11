@@ -1,5 +1,5 @@
 // Consequence step: every number computed in code, each with its status and provenance.
-import { stageForProfession } from "./career";
+import { livedStage } from "./career";
 import { burden, cheapestFare, commuteHoursPerMonth, monthlyIncomeCents, oneWayTripsPerMonth, pct1 } from "./calc";
 import { FARES } from "./data";
 import type { Character } from "./sprite";
@@ -38,7 +38,7 @@ export function fareFor(stage: PlayableStage) {
  */
 export function consequence(input: { character: Character; stage: PlayableStage; offerId: string; revealed: boolean; terms?: NegotiatedTerms }): Consequence {
   const { revealed, terms } = input;
-  const stage = stageForProfession(input.stage, input.character.profession);
+  const stage = livedStage(input.stage, input.character);
   const listed = stage.offers.find((o) => o.id === input.offerId);
   if (!listed) throw new Error(`Unknown offer ${input.offerId}`);
   const offer: Offer = terms ? { ...listed, rentCents: terms.rentCents } : listed;

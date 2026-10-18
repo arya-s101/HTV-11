@@ -44,8 +44,7 @@ export function SiteFooter() {
         <div>
           <h4>About</h4>
           <p>
-            An 8-bit life sim about Toronto rental tradeoffs and which public levers shape them. Nonpartisan: it doesn&apos;t endorse candidates or predict
-            policy outcomes.
+            A practice rental for newcomers to Toronto. Nonpartisan: it doesn&apos;t endorse candidates or predict policy outcomes.
           </p>
         </div>
         <div>

@@ -75,8 +75,8 @@ export interface Listing {
   benchmarkCents: number | null;
 }
 
-export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, per: ModeConfig["listings"] = MODES.extended.listings): Listing[] {
-  const list = J.listings.map((l) => {
+function decorateListings(stage: PlayableStage, d: Difficulty): Listing[] {
+  return J.listings.map((l) => {
     const offer = l.offerId ? stage.offers.find((o) => o.id === l.offerId) : undefined;
     const base = offer
       ? {
@@ -101,6 +101,10 @@ export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, p
     const ev = evidenceFor(base.neighbourhoodId);
     return { id: l.id, answer: l.answer as Flag, offerId: l.offerId, redFlags: l.redFlags, benchmarkCents: ev.cmhcRent[base.cmhcBedroom]?.value ?? null, ...base };
   });
+}
+
+export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, per: ModeConfig["listings"] = MODES.extended.listings): Listing[] {
+  const list = decorateListings(stage, d);
   // A run shows a few legit listings and a few bad ones, always including at least one scam.
   const r = rng(sub(seed, "search"));
   const legit = shuffle(list.filter((l) => l.answer === "legit"), r).slice(0, per.legit);
@@ -108,6 +112,20 @@ export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, p
   const firstScam = bad.find((l) => l.answer === "scam")!;
   const pickedBad = [firstScam, ...bad.filter((l) => l !== firstScam)].slice(0, per.bad);
   return shuffle([...legit, ...pickedBad], r);
+}
+
+/**
+ * Opening board. The seed picks how many ordinary homes (1–3) and how many traps (1–2),
+ * then which ones, then the order. Same seed, same board. Never tells the player the mix.
+ */
+export function boardFor(stage: PlayableStage, d: Difficulty, seed: number): Listing[] {
+  const list = decorateListings(stage, d);
+  const r = rng(sub(seed, "board"));
+  const legit = shuffle(list.filter((l) => l.answer === "legit"), r);
+  const bad = shuffle(list.filter((l) => l.answer !== "legit"), r);
+  const legitN = 1 + Math.floor(r() * Math.min(3, legit.length));
+  const badN = 1 + Math.floor(r() * Math.min(2, bad.length));
+  return shuffle([...legit.slice(0, legitN), ...bad.slice(0, badN)], r);
 }
 
 export function judgeListing(answer: Flag, flag: Flag): ListingVerdict {

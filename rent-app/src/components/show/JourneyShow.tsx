@@ -4,23 +4,22 @@
 // src/game/journey.ts and the mode config (src/config/modes.ts); this file only sequences beats:
 // host lines → big choices → reveal → stat card → next.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { MODES, SKIPPABLE_AFTER_BASE, type Mode, type RoundId } from "@/config/modes";
+import { MODES, OPTIONAL_ROUNDS, SKIPPABLE_AFTER_BASE, type Mode, type RoundId } from "@/config/modes";
+import { estimateMonthly } from "@/game/career";
 import { ELECTION_HUB, evidenceFor, VERIFY_ITEMS } from "@/game/data";
 import {
   belowBenchmark,
+  boardFor,
   content,
   disputedDefect,
   eventsFor,
   J,
-  judgeListing,
   leaseFor,
   levelCorrect,
-  listingsFor,
   photoOutcome,
   reportCard,
   SCAM_REPORT_OPTIONS,
   viewingQuestionsFor,
-  type Flag,
   type JourneyEvent,
   type JourneyResult,
   type Level,
@@ -28,25 +27,23 @@ import {
   type ViewingQuestion,
 } from "@/game/journey";
 import { consequence, money } from "@/game/outcome";
+import type { StatCard as IndexCard } from "@/game/stats";
 import { buildCityQuestion, buildQuestion, type DraftQuestion } from "@/game/question";
 import { DIFFICULTY_INFO } from "@/game/score";
 import type { Character } from "@/game/sprite";
 import type { Difficulty, NegotiatedTerms, Offer, PlayableStage, VerifyItemId } from "@/game/types";
 import { Negotiation } from "../Negotiation";
 import { Sprite } from "../pixel";
-import { Choices, Confetti, Counter, Host, LinePlayer, ProvChip, Reveal, SHOW, TimerBadge, TitleCard, useCountdown, Why } from "./primitives";
+import { Choices, Confetti, Counter, Host, LinePlayer, ProvChip, Reveal, SHOW, TitleCard, Why } from "./primitives";
 import { useSettings, useSfx, type TextSpeed } from "./settings";
-import { StatRun, useStatGate } from "./StatCard";
+import { StatCardView, StatRun, useTakeStat } from "./StatCard";
 
 const ILLUS = { status: "illustrative" as const, geography: "Fictional scenario", reference_period: "2026 dollars", source_url: null };
 const DERIVED = { ...ILLUS, status: "derived" as const };
 type LifelineId = "hint" | "magnify" | "pass";
 const PTS = SHOW.points;
-const LISTING_SECONDS: Record<Difficulty, number> = { easy: 15, normal: 12, hard: 10 };
-
-/** Split text into on-screen lines at sentence ends. */
-const sentences = (t: string) => t.match(/[^.!?]+[.!?]*["”]?/g)?.map((x) => x.trim()).filter(Boolean) ?? [t];
 const isBest = (e: JourneyEvent, id?: string) => !!e.actions.find((a) => a.id === id && (a as { best?: boolean }).best);
+const PAID_HELP = ["scam-paid-bank", "scam-paid-records", "scam-paid-police", "scam-report"] as const;
 
 /** What a finished Base game hands to Extended, so the same player can skip what they already played. */
 export interface BaseCarry {
@@ -130,7 +127,8 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
   const [shake, setShake] = useState(false);
   const { still } = useSettings();
 
-  const listings = useMemo(() => listingsFor(stage, difficulty, seed, cfg.listings), [stage, difficulty, seed, cfg.listings]);
+  const listings = useMemo(() => boardFor(stage, difficulty, seed), [stage, difficulty, seed]);
+  const [trap, setTrap] = useState<Listing | null>(null);
   const offers = useMemo(() => (cfg.offerIds ? stage.offers.filter((o) => cfg.offerIds!.includes(o.id)) : stage.offers), [stage, cfg.offerIds]);
   const events = useMemo(() => eventsFor(cfg.events, seed, skipPlayed ? carry?.eventIds : []), [cfg.events, seed, skipPlayed, carry]);
   const viewingQs = useMemo(() => viewingQuestionsFor(seed, cfg.viewingQuestions), [seed, cfg.viewingQuestions]);
@@ -168,6 +166,21 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
     setRound(next);
     setIntro(true);
     window.scrollTo({ top: 0, behavior: still ? "auto" : "smooth" });
+  };
+  // One sourced index card when the round ends, picked from how the round went. Mid-round play stays a game.
+  const takeStat = useTakeStat();
+  const [closer, setCloser] = useState<IndexCard | null>(null);
+  const resume = useRef<() => void>(() => {});
+  const finishRound = (from: RoundId, questionIds: string[]) => {
+    let card: IndexCard | null = null;
+    for (const id of questionIds) {
+      card = takeStat(id);
+      if (card) break;
+    }
+    const go = () => after(from);
+    if (!card) return go();
+    resume.current = go;
+    setCloser(card);
   };
   const start = () => {
     setRound(rounds[0]);
@@ -207,7 +220,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
                 {character.name}, {age}
               </div>
               <div className="small muted">
-                {character.profession.path["first-job"]?.title} · {cfg.label}
+                {character.profession.path["first-job"]?.title} · {money(character.monthlyIncomeCents ?? estimateMonthly(character.profession, age).cents)}/mo · {cfg.label}
               </div>
             </div>
           </div>
@@ -276,37 +289,50 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
             </section>
           )}
           {round !== "welcome" && intro && round !== "report" && (
-            <TitleCard number={roundNo(round)} title={titleFor(round).title} intro={titleFor(round).intro} onGo={() => setIntro(false)} />
-          )}
-          {round === "search" && !intro && (
-            <SearchRound
-              listings={listings}
-              difficulty={difficulty}
-              askReport={cfg.scamReport}
-              onWrong={wrongShake}
-              onDone={(flags, scamReport) => {
-                const counted = listings.filter((l) => l.answer !== "legit" && flags[l.id] !== "skip");
-                const correct = counted.filter((l) => {
-                  const f = flags[l.id];
-                  return f && f !== "timeout" && f !== "skip" && judgeListing(l.answer, f) !== "missed";
-                }).length;
-                patch({ scams: { correct, total: counted.length }, ...(cfg.scamReport ? { scamReport } : {}) });
-                after("search");
-              }}
+            <TitleCard
+              number={roundNo(round)}
+              title={titleFor(round).title}
+              intro={titleFor(round).intro}
+              onGo={() => setIntro(false)}
+              onSkip={OPTIONAL_ROUNDS.includes(round) ? () => after(round) : undefined}
+              skipLabel={`Skip to ${titleFor(rounds[rounds.indexOf(round) + 1] ?? "report").title}`}
             />
           )}
+          {round === "search" && !intro &&
+            (trap ? (
+              <ScamEnding listing={trap} onBack={() => setTrap(null)} />
+            ) : (
+              <HouseBoard
+                listings={listings}
+                character={character}
+                age={age}
+                onPick={(l) => {
+                  if (l.answer === "legit" && l.offerId) {
+                    const bad = listings.filter((x) => x.answer !== "legit").length;
+                    patch({ offerId: l.offerId, scams: { correct: bad, total: bad } });
+                    finishRound("search", [`choose:${l.offerId}`, "listing:legit"]);
+                  } else {
+                    patch({ scams: { correct: 0, total: 1 } });
+                    setTrap(l);
+                  }
+                }}
+              />
+            ))}
           {round === "viewing" && !intro && (
             <PickRound
               stage={stage}
               character={character}
               offers={offers}
+              presetOfferId={res.offerId}
               difficulty={difficulty}
               questions={viewingQs}
               revealHere={cfg.revealIn === "viewing"}
               onWrong={wrongShake}
               onDone={(offerId, verify, viewing) => {
                 patch({ offerId, verify, viewing });
-                after("viewing");
+                const revealId = stage.offers.find((o) => o.id === offerId)!.reveal.id;
+                const missed = (viewing ? viewing.right < viewing.total : false) || !verify.includes(revealId);
+                finishRound("viewing", missed ? ["verify", `choose:${offerId}`, "listing:legit"] : [`choose:${offerId}`, "listing:legit", "verify"]);
               }}
             />
           )}
@@ -320,7 +346,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               }}
               onDone={(docs, rivalDelta) => {
                 patch({ docs, rivalDelta });
-                after("apply");
+                finishRound("apply", ["apply:rival"]);
               }}
             />
           )}
@@ -344,7 +370,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               onWrong={wrongShake}
               onDone={(lease) => {
                 patch({ lease });
-                after("lease");
+                finishRound("lease", ["lease:rent"]);
               }}
             />
           )}
@@ -361,7 +387,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               onWrong={wrongShake}
               onDone={(photos, insured) => {
                 patch({ photos, insured });
-                after("movein");
+                finishRound("movein", photos ? [`choose:${offer.id}`, "verify", "movein"] : ["movein", "verify", `choose:${offer.id}`]);
               }}
             />
           )}
@@ -373,7 +399,12 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               onWrong={wrongShake}
               onDone={(evs) => {
                 patch({ events: evs });
-                after("live");
+                const missed = events.find((e) => {
+                  const a = evs[e.id];
+                  return !!a?.action && !a.skipped && !isBest(e, a.action);
+                });
+                const last = [...events].reverse().find((e) => !evs[e.id]?.skipped) ?? events[events.length - 1];
+                finishRound("live", [...(missed ? [`event:${missed.id}:action`, `event:${missed.id}:level`] : []), ...(last ? [`event:${last.id}:level`, `event:${last.id}:action`] : [])]);
               }}
             />
           )}
@@ -384,7 +415,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
               onWrong={wrongShake}
               onDone={(notice) => {
                 patch({ notice });
-                after("moveout");
+                finishRound("moveout", ["moveout:notice"]);
               }}
             />
           )}
@@ -407,6 +438,15 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
             />
           )}
         </div>
+        {closer && (
+          <StatCardView
+            card={closer}
+            onDone={() => {
+              setCloser(null);
+              resume.current();
+            }}
+          />
+        )}
       </div>
     </Ctx.Provider>
   );
@@ -475,116 +515,130 @@ function WelcomeBeat({ character, difficulty, mode, carry, onGo }: { character: 
 }
 
 // =====================================================================
-// Spot the Fake
-function SearchRound({ listings, difficulty, askReport, onWrong, onDone }: { listings: Listing[]; difficulty: Difficulty; askReport: boolean; onWrong: () => void; onDone: (flags: Record<string, Flag | "skip" | "timeout">, scamReport: boolean) => void }) {
-  const { addPoints } = useShow();
-  const [i, setI] = useState(0);
-  const [flags, setFlags] = useState<Record<string, Flag | "skip" | "timeout">>({});
-  const [ready, setReady] = useState(false);
-  const [hint, setHint] = useState(false);
-  const [magnified, setMagnified] = useState(false);
-  const [report, setReport] = useState<string | null>(null);
-  const l = listings[i];
-  const answer = l ? flags[l.id] : undefined;
-  const timeUp = useCallback(() => l && setFlags((f) => (f[l.id] ? f : { ...f, [l.id]: "timeout" })), [l]);
-  const [left] = useCountdown(LISTING_SECONDS[difficulty], !!l && ready && !answer, timeUp);
-  useLifelines(
-    !l || answer
-      ? {}
-      : {
-          hint: () => setHint(true),
-          ...(difficulty === "hard" ? { magnify: () => setMagnified(true) } : {}),
-          pass: () => setFlags((f) => ({ ...f, [l.id]: "skip" })),
-        },
-    [l?.id, answer],
+/** What to do the moment a listing is a scam. Sourced steps; not a promise the money returns. */
+function ScamHelp({ personalInfo }: { personalInfo: boolean }) {
+  const ids = [...PAID_HELP, ...(personalInfo ? (["scam-paid-credit"] as const) : [])];
+  return (
+    <aside className="help-card">
+      <h3>What to do</h3>
+      <p>Don&apos;t send money. If you already did, do these steps.</p>
+      <ol className="help-steps">
+        {ids.map((id) => (
+          <li key={id}>{content(id).short}</li>
+        ))}
+      </ol>
+      <p className="help-phone">Canadian Anti-Fraud Centre: 1-888-495-8501</p>
+      <p>These steps report the scam. They don&apos;t promise your money back.</p>
+    </aside>
   );
-  const next = () => {
-    setI(i + 1);
-    setReady(false);
-    setHint(false);
-    setMagnified(false);
-  };
-  useEffect(() => {
-    if (!l && !askReport) onDone(flags, false);
-  }, [l, askReport]); // eslint-disable-line react-hooks/exhaustive-deps
+}
 
-  if (!l) {
-    if (!askReport) return null;
-    const ok = SCAM_REPORT_OPTIONS.find((o) => o.id === report)?.correct;
-    return report ? (
-      <Reveal ok={!!ok} lines={[content("scam-report").short]} why={["scam-report"]} points={ok ? PTS.answer : 0} stat="scam-report" onNext={() => onDone(flags, !!ok)} nextLabel="Next round ▶" />
-    ) : (
-      <>
-        <Host lines={["You spotted a scam listing.", "Who do you report it to?"]} onDone={() => setReady(true)} />
+// Choose one home. The seed decides how many are real and how many are traps. A bad pick teaches the scam.
+function HouseBoard({ listings, character, age, onPick }: { listings: Listing[]; character: Character; age: number; onPick: (l: Listing) => void }) {
+  const [ready, setReady] = useState(false);
+  const [id, setId] = useState<string | null>(null);
+  const monthly = character.monthlyIncomeCents ?? estimateMonthly(character.profession, age).cents;
+  const chosen = listings.find((l) => l.id === id);
+  return (
+    <div className="beat">
+      <Host lines={["Compare each rent with the area average.", "Then apply to one home."]} onDone={() => setReady(true)} />
+      <aside className="fiction-card">
+        <div className="pixel fiction-kicker">One note for the whole board</div>
+        <p>Illustrative scenario, not an available listing.</p>
+        <p>These homes are made up for the game.</p>
+        <p>Read the rent, the area average, and the ad.</p>
+      </aside>
+      <div className="house-grid">
+        {listings.map((l) => {
+          const ev = evidenceFor(l.neighbourhoodId);
+          const share = monthly > 0 ? Math.round((l.rentCents / monthly) * 100) : null;
+          const below = belowBenchmark(l.rentCents, l.benchmarkCents);
+          const hot = below !== null && below >= 0.3;
+          return (
+            <button key={l.id} type="button" className={`house-card ${id === l.id ? "on" : ""}`} aria-pressed={id === l.id} onClick={() => setId(l.id)}>
+              <h3>{l.title}</h3>
+              <span className="house-where">{ev.name}</span>
+              <span className="house-rent pixel">{money(l.rentCents)}/mo</span>
+              <span className={`house-compare ${hot ? "hot" : ""}`}>
+                {l.benchmarkCents ? `Area average ${money(l.benchmarkCents)}` : "Area average unpublished"}
+                {hot ? ` · ${Math.round(below * 100)}% under` : ""}
+              </span>
+              <p className="house-blurb">{l.text}</p>
+              {share !== null && <span className="house-where">About {share}% of your monthly income</span>}
+            </button>
+          );
+        })}
+      </div>
+      <div className="choices">
+        <button className="btn big" disabled={!ready || !chosen} onClick={() => chosen && onPick(chosen)}>
+          Apply for this home ▶
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ScamEnding({ listing, onBack }: { listing: Listing; onBack: () => void }) {
+  const { addPoints } = useShow();
+  const [sent, setSent] = useState<boolean | null>(null);
+  const [report, setReport] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const flags = listing.redFlags.map((id) => content(id).short);
+  const headline = listing.answer === "scam" ? "This one is a scam" : "This one is suspicious";
+  const help = <ScamHelp personalInfo={listing.redFlags.includes("scam-personal-info")} />;
+
+  if (sent === null) {
+    return (
+      <div className="beat">
+        <Host lines={[`${headline}.`, flags[0] ?? "Something in this ad is a warning.", "Don't send money. If you already did, follow the steps."]} onDone={() => setReady(true)} />
+        {help}
         <Choices
-          options={SCAM_REPORT_OPTIONS.map((o) => ({ id: o.id, label: o.label }))}
           disabled={!ready}
+          options={[
+            { id: "walk", label: "Walk away. Don't send money." },
+            { id: "pay", label: "Send the deposit anyway." },
+          ]}
           onPick={(id) => {
-            setReport(id);
-            if (SCAM_REPORT_OPTIONS.find((o) => o.id === id)?.correct) addPoints(PTS.answer);
-            else onWrong();
+            setReady(false);
+            setSent(id === "pay");
           }}
         />
-      </>
+      </div>
     );
   }
 
-  const below = belowBenchmark(l.rentCents, l.benchmarkCents);
-  const ev = evidenceFor(l.neighbourhoodId);
-  if (answer) {
-    const verdict = answer === "skip" ? null : answer === "timeout" ? "missed" : judgeListing(l.answer, answer);
-    const ok = verdict === null ? null : verdict === "correct" || verdict === "caught";
-    const headline = l.answer === "scam" ? "It's a scam!" : l.answer === "suspicious" ? "Suspicious!" : "Legit!";
-    const lines =
-      answer === "skip"
-        ? ["Free Pass used. No harm done."]
-        : [...(answer === "timeout" ? ["Time's up!"] : []), ...(l.redFlags.length ? l.redFlags.slice(0, answer === "timeout" ? 2 : 3).map((id) => content(id).short) : ["Nothing odd: viewings offered, no money up front."])];
-    return <Reveal key={l.id} ok={ok} headline={headline} lines={lines} why={l.redFlags.length ? l.redFlags : undefined} points={ok ? PTS.answer : 0} stat={`listing:${l.answer}`} onNext={next} />;
+  if (report) {
+    const ok = !!SCAM_REPORT_OPTIONS.find((o) => o.id === report)?.correct;
+    return (
+      <Reveal
+        ok={ok}
+        lines={[content("scam-report").short, sent ? "The money may already be gone. Do these steps anyway." : "You kept your money. Now pick a place that will show you inside."]}
+        why={[...listing.redFlags, ...(sent ? PAID_HELP : ["scam-report"])]}
+        points={ok ? PTS.answer : 0}
+        stat={sent ? `listing:${listing.answer}` : "scam-report"}
+        footer={help}
+        onNext={onBack}
+        nextLabel="Back to the listings ▶"
+      />
+    );
   }
 
   return (
-    <div className="beat" key={l.id}>
-      <div className="beat-head">
-        <span className="pixel small">
-          Listing {i + 1} of {listings.length}
-        </span>
-        {ready && <TimerBadge left={left} total={LISTING_SECONDS[difficulty]} />}
-      </div>
-      <article className="listing-card">
-        <div className="illus">Illustrative, not a real listing</div>
-        <h3>
-          {l.title} · {ev.name}
-        </h3>
-        {difficulty === "hard" && !magnified ? (
-          <p className="fineprint dense">{l.text}</p>
-        ) : (
-          <LinePlayer lines={sentences(l.text)} onDone={() => setReady(true)} />
-        )}
-        {difficulty === "hard" && !magnified && !ready && (
-          <button className="btn small ghost" onClick={() => setReady(true)}>
-            I&apos;ve read it
-          </button>
-        )}
-        <div className="counters">
-          <Counter label="Rent" value={l.rentCents} format={(n) => `${money(Math.round(n))}`} f={ILLUS} />
-          <Counter label="Area average (CMHC)" value={l.benchmarkCents} format={(n) => `${money(Math.round(n))}`} f={ev.cmhcRent[l.cmhcBedroom]} />
-          {(difficulty === "easy" || hint) && below !== null && (
-            <Counter label={below >= 0 ? "Below average" : "Above average"} value={Math.abs(Math.round(below * 100))} format={(n) => `${Math.round(n)}%`} f={DERIVED} />
-          )}
-        </div>
-      </article>
+    <div className="beat">
+      <Host
+        lines={
+          sent
+            ? ["Bad ending. The ad is gone and so is the deposit.", "There is no apartment.", "Who do you report rental fraud to?"]
+            : ["You walked away. That's the right move.", "Who do you report a scam listing to?"]
+        }
+        onDone={() => setReady(true)}
+      />
       <Choices
         disabled={!ready}
-        options={[
-          { id: "legit", label: "✓ Legit" },
-          { id: "suspicious", label: "? Suspicious" },
-          { id: "scam", label: "✗ Scam" },
-        ]}
-        onPick={(f) => {
-          const v = judgeListing(l.answer, f as Flag);
-          if (v === "correct" || v === "caught") addPoints(PTS.answer);
-          else onWrong();
-          setFlags({ ...flags, [l.id]: f as Flag });
+        options={SCAM_REPORT_OPTIONS.map((o) => ({ id: o.id, label: o.label }))}
+        onPick={(id) => {
+          setReport(id);
+          if (SCAM_REPORT_OPTIONS.find((o) => o.id === id)?.correct) addPoints(PTS.answer);
         }}
       />
     </div>
@@ -598,16 +652,17 @@ function PickRound(props: {
   stage: PlayableStage;
   character: Character;
   offers: Offer[];
+  presetOfferId?: string | null;
   difficulty: Difficulty;
   questions: ViewingQuestion[];
   revealHere: boolean;
   onWrong: () => void;
   onDone: (offerId: string, verify: VerifyItemId[], viewing?: { right: number; total: number }) => void;
 }) {
-  const { stage, character, offers, difficulty, questions, revealHere, onWrong, onDone } = props;
+  const { stage, character, offers, presetOfferId, difficulty, questions, revealHere, onWrong, onDone } = props;
   const [step, setStep] = useState<"verify" | "choose" | "questions" | "reveal">("verify");
   const [verify, setVerify] = useState<VerifyItemId[]>([]);
-  const [offerId, setOfferId] = useState<string | null>(null);
+  const [offerId, setOfferId] = useState<string | null>(presetOfferId ?? null);
   const [decoded, setDecoded] = useState(false);
   const [ready, setReady] = useState(false);
   useLifelines(step === "choose" && difficulty === "hard" ? { magnify: () => setDecoded(true) } : {}, [step]);
@@ -616,7 +671,7 @@ function PickRound(props: {
   if (step === "verify")
     return (
       <div className="beat">
-        <Host lines={["Before you look: what will you double-check?", "Pick any. Then choose a place."]} onDone={() => setReady(true)} />
+        <Host lines={presetOfferId ? ["You're going to see the place.", "What will you check before you apply?"] : ["Before you look: what will you double-check?", "Pick any. Then choose a place."]} onDone={() => setReady(true)} />
         <div className="choices n4 toggles">
           {VERIFY_ITEMS.map((v) => (
             <button key={v.id} className={`btn choice-big ${verify.includes(v.id) ? "picked" : ""}`} disabled={!ready} aria-pressed={verify.includes(v.id)} onClick={() => setVerify(verify.includes(v.id) ? verify.filter((x) => x !== v.id) : [...verify, v.id])}>
@@ -625,8 +680,20 @@ function PickRound(props: {
           ))}
         </div>
         <div className="choices">
-          <button className="btn big" disabled={!ready} onClick={() => (setReady(false), setStep("choose"))}>
-            See the places ▶
+          <button
+            className="btn big"
+            disabled={!ready}
+            onClick={() => {
+              setReady(false);
+              if (presetOfferId) {
+                setOfferId(presetOfferId);
+                if (questions.length) setStep("questions");
+                else if (revealHere) setStep("reveal");
+                else finish(presetOfferId);
+              } else setStep("choose");
+            }}
+          >
+            {presetOfferId ? "Go to the viewing ▶" : "See the places ▶"}
           </button>
         </div>
       </div>
@@ -636,6 +703,9 @@ function PickRound(props: {
     return (
       <div className="beat">
         <Host lines={[`${offers.length === 2 ? "Two" : "Three"} places. Each trades money, time and unknowns.`, "Which one do you take?"]} onDone={() => setReady(true)} />
+        <aside className="fiction-card">
+          <p>Illustrative scenario, not an available listing.</p>
+        </aside>
         <div className={`doors n${offers.length}`}>
           {offers.map((o, n) => (
             <DoorCard
@@ -676,7 +746,6 @@ function DoorCard({ o, letter, difficulty, decoded, onPick, disabled }: { o: Off
   const ev = evidenceFor(o.neighbourhoodId);
   return (
     <article className="door">
-      <div className="illus">Illustrative, not a real listing</div>
       <div className="door-letter pixel">{letter}</div>
       <h3>{o.title}</h3>
       <div className="small muted">
@@ -736,7 +805,6 @@ function QuestionSet({ questions, onWrong, onDone }: { questions: ViewingQuestio
         lines={a === "skip" ? ["Free Pass used."] : [ok ? q.feedback.right : q.feedback.wrong]}
         why={[q.contentId]}
         points={ok ? PTS.answer : 0}
-        stat={`viewing:${q.id}`}
         onNext={() => (setI(i + 1), setReady(false), setHidden(null))}
       />
     );
@@ -768,7 +836,6 @@ function MonthReveal({ stage, character, offer, terms, verify, onDone }: { stage
   const [ready, setReady] = useState(false);
   const c = consequence({ character, stage, offerId: offer.id, revealed: step === "surprise", terms });
   const field = (label: string) => c.fields.find((f) => f.label.startsWith(label))!;
-  const [statCard, toSurprise] = useStatGate(`choose:${offer.id}`, () => setStep("surprise"));
   const flagged = verify.includes(offer.reveal.id);
 
   const counters = (
@@ -786,11 +853,10 @@ function MonthReveal({ stage, character, offer, terms, verify, onDone }: { stage
         <Host lines={["Here's your first month.", "Money and time, kept separate."]} onDone={() => setReady(true)} />
         {counters}
         <div className="choices">
-          <button className="btn big blue" disabled={!ready || !!statCard} onClick={toSurprise}>
+          <button className="btn big blue" disabled={!ready} onClick={() => setStep("surprise")}>
             Reveal a surprise ▶
           </button>
         </div>
-        {statCard}
       </div>
     );
   return (
@@ -802,7 +868,6 @@ function MonthReveal({ stage, character, offer, terms, verify, onDone }: { stage
         lines={[...offer.reveal.lines, flagged ? "You flagged this one. Nice!" : "You didn't flag this. Now you know."]}
         whyExtra={<p>{offer.reveal.text}</p>}
         points={flagged ? PTS.answer : 0}
-        stat="verify"
         onNext={onDone}
       />
     </div>
@@ -868,7 +933,6 @@ function ApplyRound({ onWrong, onWalk, onDone }: { onWrong: () => void; onWalk: 
         headline={o.id === "match" ? "Rent +$100" : o.id === "stick" ? "You got it!" : ""}
         lines={o.outcome as unknown as string[]}
         why={[J.apply.infoContentId]}
-        stat="apply:rival"
         onNext={() => (o.id === "walk" ? onWalk() : onDone(docs, o.rentDeltaCents))}
         nextLabel={o.id === "walk" ? "Back to the places ▶" : "Next ▶"}
       />
@@ -957,7 +1021,7 @@ function LeaseRound({ clauses, difficulty, onWrong, onDone }: { clauses: ReturnT
   if (a) {
     const ok = a === "skip" ? null : (a === "problem") === c.problem;
     const lines = a === "skip" ? ["Free Pass used."] : c.problem ? [c.why ?? "This clause is a problem."] : ["This one's a normal clause.", ...(c.contentId ? [content(c.contentId).short] : [])];
-    return <Reveal key={c.id} ok={ok} headline={c.problem ? "Problem clause" : "Fine"} lines={lines} why={c.contentId ? [c.contentId] : undefined} points={ok ? PTS.answer : 0} stat={`lease:${c.id}`} onNext={() => setI(i + 1)} />;
+    return <Reveal key={c.id} ok={ok} headline={c.problem ? "Problem clause" : "Fine"} lines={lines} why={c.contentId ? [c.contentId] : undefined} points={ok ? PTS.answer : 0} onNext={() => setI(i + 1)} />;
   }
   return (
     <div className="beat" key={c.id}>
@@ -1041,7 +1105,6 @@ function MoveInRound(props: {
         lines={(q.feedback as Record<string, string[]>)[pick!]}
         why={[J.moveIn.contentId]}
         points={photos ? PTS.answer : 0}
-        stat="movein"
         onNext={advance}
       />
     );
@@ -1130,7 +1193,6 @@ function LiveRound({ events, photos, insured, onWrong, onDone }: { events: Journ
         lines={lines}
         why={[e.contentId, ...(photoLine ? [J.moveIn.contentId] : [])]}
         points={best ? PTS.answer : 0}
-        stat={`event:${e.id}:action`}
         onNext={() => setStep("level")}
         nextLabel="Who fixes this? ▶"
       />
@@ -1163,7 +1225,6 @@ function LiveRound({ events, photos, insured, onWrong, onDone }: { events: Journ
       lines={[e.levelWhy]}
       why={[e.contentId, ...((e as { extraContentIds?: string[] }).extraContentIds ?? [])]}
       points={ok ? PTS.answer : 0}
-      stat={`event:${e.id}:level`}
       onNext={() => {
         setI(i + 1);
         setStep("action");
@@ -1202,7 +1263,7 @@ function MoveOutRound({ photos, seed, onWrong, onDone }: { photos: boolean; seed
     );
   if (step === "noticeReveal") {
     const ok = !!J.moveOut.options.find((o) => o.id === notice && (o as { best?: boolean }).best);
-    return <Reveal ok={ok} lines={(J.moveOut.feedback as unknown as Record<string, string[]>)[notice!]} why={[J.moveOut.contentId]} points={ok ? PTS.answer : 0} stat="moveout:notice" onNext={() => (setReady(false), setStep("dispute"))} nextLabel="Final walkthrough ▶" />;
+    return <Reveal ok={ok} lines={(J.moveOut.feedback as unknown as Record<string, string[]>)[notice!]} why={[J.moveOut.contentId]} points={ok ? PTS.answer : 0} onNext={() => (setReady(false), setStep("dispute"))} nextLabel="Final walkthrough ▶" />;
   }
   if (step === "dispute")
     return (
@@ -1218,6 +1279,88 @@ function MoveOutRound({ photos, seed, onWrong, onDone }: { photos: boolean; seed
 }
 
 // =====================================================================
+function wrapCanvas(g: CanvasRenderingContext2D, text: string, max: number): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = "";
+  for (const w of words) {
+    const next = line ? `${line} ${w}` : w;
+    if (g.measureText(next).width > max && line) {
+      lines.push(line);
+      line = w;
+    } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+
+/** A shareable picture of the report card. Figures are the same ones already on screen. */
+async function paintReport(data: { meta: string; readiness: number; score: number; lines: { label: string; value: string }[] }): Promise<Blob> {
+  await Promise.all([document.fonts.load("16px 'Press Start 2P'"), document.fonts.load("22px 'IBM Plex Mono'")]).catch(() => undefined);
+  const w = 900;
+  const pad = 48;
+  const max = w - pad * 2;
+  const probe = document.createElement("canvas").getContext("2d")!;
+  probe.font = "18px 'IBM Plex Mono', monospace";
+  const rows = data.lines.map((l) => ({ value: l.value.split(" (")[0], label: wrapCanvas(probe, l.label, max - 32) }));
+  const rowH = (r: { label: string[] }) => 72 + r.label.length * 26;
+  const h = 320 + rows.reduce((n, r) => n + rowH(r) + 12, 0) + 24;
+  const canvas = document.createElement("canvas");
+  canvas.width = w * 2;
+  canvas.height = h * 2;
+  const g = canvas.getContext("2d")!;
+  g.setTransform(2, 0, 0, 2, 0, 0);
+  g.fillStyle = "#0f0b22";
+  g.fillRect(0, 0, w, h);
+  g.fillStyle = "#f2b136";
+  g.fillRect(0, 0, w, 8);
+  g.font = "16px 'Press Start 2P', monospace";
+  g.fillText("THE LEASE YOU CAN DO", pad, 56);
+  g.fillStyle = "#ece6f7";
+  g.font = "28px 'Press Start 2P', monospace";
+  g.fillText("Report card", pad, 108);
+  g.font = "20px 'IBM Plex Mono', monospace";
+  g.fillStyle = "#b3a9cc";
+  for (const [i, line] of wrapCanvas(g, data.meta, max).entries()) g.fillText(line, pad, 150 + i * 28);
+  g.fillStyle = "#24e0ff";
+  g.font = "42px 'Press Start 2P', monospace";
+  g.fillText(`${data.readiness}%`, pad, 230);
+  g.font = "16px 'IBM Plex Mono', monospace";
+  g.fillStyle = "#b3a9cc";
+  g.fillText("ready to rent", pad, 258);
+  g.fillStyle = "#f2b136";
+  g.font = "28px 'Press Start 2P', monospace";
+  g.fillText(String(data.score), w - pad - g.measureText(String(data.score)).width, 230);
+  g.font = "16px 'IBM Plex Mono', monospace";
+  g.fillStyle = "#b3a9cc";
+  g.fillText("show score", w - pad - g.measureText("show score").width, 258);
+  let y = 300;
+  for (const row of rows) {
+    const block = rowH(row);
+    g.fillStyle = "#1d1638";
+    g.fillRect(pad, y, max, block);
+    g.fillStyle = "#f2b136";
+    g.font = "600 26px 'IBM Plex Mono', monospace";
+    g.fillText(row.value, pad + 16, y + 36);
+    g.fillStyle = "#ece6f7";
+    g.font = "18px 'IBM Plex Mono', monospace";
+    row.label.forEach((line, i) => g.fillText(line, pad + 16, y + 64 + i * 26));
+    y += block + 12;
+  }
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+  if (!blob) throw new Error("Could not build the report image");
+  return blob;
+}
+
+function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // Finale
 function ReportRound(props: {
   stage: PlayableStage;
@@ -1302,6 +1445,37 @@ function ReportRound(props: {
     setCopied(what);
   }
   const toExtended = () => onExtended({ scams: result.scams, photos: result.photos, eventIds: events.map((e) => e.id) });
+  const reportImage = () =>
+    paintReport({
+      meta: `${character.name}, ${age} · ${MODES[mode].label} · ${DIFFICULTY_INFO[difficulty].label}`,
+      readiness: rc.readiness,
+      score,
+      lines: rc.lines,
+    });
+  async function shareReport() {
+    try {
+      const blob = await reportImage();
+      const file = new File([blob], "lease-report-card.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Rental report card", text: `${character.name}: ${rc.readiness}% ready to rent` });
+        setCopied("shared");
+        return;
+      }
+      saveBlob(blob, file.name);
+      setCopied("saved");
+    } catch (e) {
+      if ((e as Error).name === "AbortError") return;
+      setCopied("image-failed");
+    }
+  }
+  async function downloadReport() {
+    try {
+      saveBlob(await reportImage(), "lease-report-card.png");
+      setCopied("saved");
+    } catch {
+      setCopied("image-failed");
+    }
+  }
 
   if (step === "drum") return <Reveal ok={null} headline="The results are in…" lines={["Drumroll, please!"]} onNext={() => setStep("card")} nextLabel="Show me! ▶" />;
 
@@ -1321,6 +1495,7 @@ function ReportRound(props: {
         <p className="big-line">
           {character.name}, {age} · {MODES[mode].label} · {DIFFICULTY_INFO[difficulty].label} · seed {seed}
         </p>
+        <p>You have a place. This lease is fictional. The checks you just practised are the real lesson.</p>
         <div className="tiles">
           {rc.lines.map((l) => (
             <div key={l.label} className={`tile ${l.score >= 0.99 ? "full" : l.score < 0.5 ? "low" : ""}`}>
@@ -1344,7 +1519,16 @@ function ReportRound(props: {
           <button className="btn ghost" onClick={() => copy([`Rental readiness: ${rc.readiness}% · score ${score} (${MODES[mode].label}, ${DIFFICULTY_INFO[difficulty].label}, seed ${seed})`, ...rc.lines.map((l) => `- ${l.label}: ${l.value}`)].join("\n"), "report")}>
             📋 Copy report card
           </button>
+          <button className="btn ghost" onClick={downloadReport}>
+            Save image
+          </button>
+          <button className="btn ghost" onClick={shareReport}>
+            Share
+          </button>
           {copied === "report" && <span className="yes">Copied!</span>}
+          {copied === "saved" && <span className="yes">Image saved.</span>}
+          {copied === "shared" && <span className="yes">Shared.</span>}
+          {copied === "image-failed" && <span className="no">Couldn&apos;t make the image. Copy still works.</span>}
           <button className="btn big" onClick={() => setStep("civic")}>
             One more thing ▶
           </button>

@@ -11,7 +11,7 @@ const body = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600", "700"], 
 export const metadata: Metadata = {
   // Working title; rename after the core loop works (PRD).
   title: "Toronto Rent Decisions",
-  description: "An 8-bit life sim about Toronto rental tradeoffs, which public levers shape them, and one sourced question to ask municipal candidates.",
+  description: "A practice rental for newcomers to Toronto: the cash and commute tradeoff, and one sourced question for a municipal candidate.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
