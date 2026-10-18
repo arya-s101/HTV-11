@@ -13,6 +13,7 @@ import type { Profile } from "@/game/profile";
 import { fill } from "@/game/scenario";
 import { tailorStage } from "@/game/tailor";
 import { ProfileForm } from "../ProfileForm";
+import { narrator, setNarratorSettings, useNarratorSettings, useNarratorSupported } from "@/narrator";
 import { consequence, money } from "@/game/outcome";
 import { buildCityQuestion, buildQuestion, type DraftQuestion } from "@/game/question";
 import { DIFFICULTY_INFO, hagglePoints } from "@/game/score";
@@ -278,7 +279,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
             })}
           </div>
           <div className="podium-actions">
-            <button className="btn ghost small" onClick={() => setShowSettings(!showSettings)} aria-expanded={showSettings}>
+            <button className="btn ghost small" onClick={() => (narrator().cancel(), setShowSettings(!showSettings))} aria-expanded={showSettings}>
               <Icon name="gear" /> Settings
             </button>
             <button className="btn ghost small" onClick={() => setShowProfile(true)} aria-haspopup="dialog">
@@ -499,9 +500,61 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
         <input type="checkbox" checked={s.skipAnimations} onChange={(e) => s.set({ skipAnimations: e.target.checked })} /> Skip animations
       </label>
       <SoundControls />
+      <NarratorControls />
       {s.reducedMotion && <p className="small muted">Your device asks for reduced motion, so movement is replaced with fades.</p>}
       <button className="btn small" onClick={onClose}>
         Done
+      </button>
+    </div>
+  );
+}
+
+/** A quick on/off on the first screen, so screen-reader users can avoid double reading straight away. */
+function ReadAloudToggle() {
+  const supported = useNarratorSupported();
+  const { on } = useNarratorSettings();
+  if (!supported) return null;
+  return (
+    <label className="toggle read-aloud-toggle">
+      <input type="checkbox" checked={on} onChange={(e) => setNarratorSettings({ on: e.target.checked })} /> Read questions aloud
+    </label>
+  );
+}
+
+/** Read-aloud settings (PRD v5); hidden when this browser can't speak. */
+export function NarratorControls() {
+  const supported = useNarratorSupported();
+  const n = useNarratorSettings();
+  if (!supported) return null;
+  const voices = narrator().voices();
+  return (
+    <div className="sound-controls">
+      <label className="toggle">
+        <input type="checkbox" checked={n.on} onChange={(e) => setNarratorSettings({ on: e.target.checked })} /> Read aloud
+      </label>
+      <label className="toggle">
+        <input type="checkbox" checked={n.readOptions} disabled={!n.on} onChange={(e) => setNarratorSettings({ readOptions: e.target.checked })} /> Read options
+      </label>
+      <label className="slider">
+        <span>Voice</span>
+        <select value={n.voice} disabled={!n.on} onChange={(e) => setNarratorSettings({ voice: e.target.value })} aria-label="Voice">
+          <option value="">Automatic (Canadian English if available)</option>
+          {voices.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name} ({v.lang})
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="seg" aria-label="Speech speed">
+        {(["slow", "normal", "fast"] as const).map((sp) => (
+          <button key={sp} className={`choice ${n.speed === sp ? "on" : ""}`} aria-pressed={n.speed === sp} disabled={!n.on} onClick={() => setNarratorSettings({ speed: sp })}>
+            {sp}
+          </button>
+        ))}
+      </div>
+      <button className="btn ghost small" disabled={!n.on} onClick={() => void narrator().sample()}>
+        <Icon name="volume-3" /> Test voice
       </button>
     </div>
   );
@@ -538,6 +591,7 @@ function WelcomeBeat({ character, difficulty, mode, carry, profile, onGo }: { ch
   return (
     <>
       <Host lines={lines} onDone={() => setReady(true)} />
+      <ReadAloudToggle />
       <div className="choices">
         {carry ? (
           <>
@@ -582,9 +636,10 @@ function TemplateQuestion({ id, header, onWrong, onAnswer }: { id: string; heade
           <span className="pixel small">{header}</span>
         </div>
       )}
-      <Host lines={lines} onDone={() => setReady(true)} />
+      <Host lines={lines} onDone={() => setReady(true)} narrate={lines.length - 1} />
       <Choices
         disabled={!ready}
+        narrate={{ lines: [t.prompt] }}
         options={q.options.map((o) => ({ id: o.id, label: o.label, hidden: o.id === hidden }))}
         onPick={(pick) => {
           if (isCorrect(plan, id, pick)) right(PTS.answer);
@@ -684,13 +739,14 @@ function SearchRound({ listings, difficulty, askReport, onWrong, onDone }: { lis
               )}
             </>
           ) : (
-            <ListingText id={l.id} fallback={difficulty === "easy" ? l.text : undefined} rentCents={l.rentCents} onDone={() => setReady(true)} />
+            <ListingText id={l.id} fallback={difficulty === "easy" ? l.text : undefined} rentCents={l.rentCents} onDone={() => setReady(true)} narrate />
           )
         }
       />
       <Choices
         disabled={!ready}
         options={LISTING_CHOICES}
+        narrate={difficulty === "hard" && !magnified ? undefined : { lines: [`${l.title}. ${money(l.rentCents)} a month.`, "Legit, suspicious or scam?"] }}
         onPick={(f) => {
           const v = judgeListing(l.answer, f as Flag);
           if (v === "correct" || v === "caught") right(PTS.answer);
@@ -736,10 +792,10 @@ export const LISTING_CHOICES = [
  * Listing prose: a validated Gemini rewrite when one arrived, else this game's reviewed fallback (Easy keeps its plainer
  * wording). Code fills {rent}; the features that make it legit, suspicious or a scam were chosen by code.
  */
-function ListingText({ id, fallback, rentCents, onDone }: { id: string; fallback?: string; rentCents: number; onDone: () => void }) {
+function ListingText({ id, fallback, rentCents, onDone, narrate }: { id: string; fallback?: string; rentCents: number; onDone: () => void; narrate?: boolean }) {
   const { plan, scenarios } = useRun();
   const [text] = useState(() => fill(scenarios[id]?.scenario ?? fallback ?? plan.prose[id] ?? "", { rent: money(rentCents) }));
-  return <LinePlayer lines={sentences(text)} onDone={onDone} />;
+  return <LinePlayer lines={sentences(text)} onDone={onDone} narrate={narrate} />;
 }
 
 // =====================================================================
@@ -989,9 +1045,10 @@ function ApplyRound({ onWrong, onWalk, onDone }: { onWrong: () => void; onWalk: 
       );
     return (
       <div className="beat" key={d.id}>
-        <Host lines={i === 0 ? ["What goes in your application folder?", `Item ${i + 1}: ${d.label}.`] : [`Item ${i + 1}: ${d.label}.`]} onDone={() => setReady(true)} />
+        <Host lines={i === 0 ? ["What goes in your application folder?", `Item ${i + 1}: ${d.label}.`] : [`Item ${i + 1}: ${d.label}.`]} onDone={() => setReady(true)} narrate={i === 0 ? 1 : 0} />
         <Choices
           disabled={!ready}
+          narrate={{ lines: [`Item ${i + 1}: ${d.label}.`] }}
           options={[
             { id: "bring", label: "Bring it", icon: "folder" },
             { id: "leave", label: "Leave it", icon: "cancel" },
@@ -1122,10 +1179,11 @@ function LeaseRound({ clauses, difficulty, onWrong, onDone }: { clauses: ReturnT
         </span>
       </div>
       <div className="lease-sheet">
-        {difficulty === "hard" && !magnified ? <p className="fineprint dense">{c.text}</p> : <LinePlayer lines={[magnified ? plain : c.text]} onDone={() => setReady(true)} big />}
+        {difficulty === "hard" && !magnified ? <p className="fineprint dense">{c.text}</p> : <LinePlayer lines={[magnified ? plain : c.text]} onDone={() => setReady(true)} big narrate />}
       </div>
       <Choices
         disabled={!ready}
+        narrate={difficulty === "hard" && !magnified ? undefined : { lines: [magnified ? plain : c.text] }}
         options={[
           { id: "fine", label: "Fine", icon: "thumbs-up" },
           { id: "problem", label: "Problem", icon: "flag" },
@@ -1264,9 +1322,10 @@ function LiveRound({ events, photos, insured, onWrong, onDone }: { events: strin
   if (step === "level")
     return (
       <div className="beat" key={`${id}-l`}>
-        <Host lines={["If it isn't sorted, which level can act?"]} onDone={() => setReady(true)} />
+        <Host lines={["If it isn't sorted, which level can act?"]} onDone={() => setReady(true)} narrate />
         <Choices
           disabled={!ready}
+          narrate={{ lines: ["If it isn't sorted, which level can act?"] }}
           options={levels.map((lv) => ({ id: lv, label: J.levels[lv] }))}
           onPick={(lv) => {
             if (levelCorrect(t, lv)) right(PTS.answer);

@@ -1,4 +1,4 @@
-# Toronto Rent Decisions Game — Hack the Valley 11
+# ToRento — Hack the Valley 11
 
 ## Goal
 

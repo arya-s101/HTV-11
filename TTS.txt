@@ -1,0 +1,126 @@
+# Change PRD v5 — Read questions and options aloud (Web Speech API)
+
+> Applies on top of `PRD.md`, `PRD-changes-v3.md` and `PRD-changes-v4.md`. Newest wins (v5 > v4 > v3 > PRD.md). Everything not mentioned here stays as specified.
+
+## Summary
+
+Add a game-show voiceover that reads each **question and its answer options** aloud, using the browser's built-in **Web Speech API** (`speechSynthesis`). No API key, no cost, no network dependency. Built behind a `Narrator` interface so a higher-quality TTS provider can replace it later without touching game code.
+
+**In scope:** question text (scenario + prompt) and answer options, in single-player and multiplayer.
+**Out of scope for now:** host intros, round title cards, feedback, stat cards, report card, negotiation chat. (The interface should make these easy to add later.)
+
+---
+
+## Behaviour
+
+### What gets read, in order
+1. The question's on-screen lines, one utterance per line, as each line appears.
+2. Then each option: "A: {option text}", "B: …", etc. While an option is read, its button gets a subtle highlight (no layout shift).
+
+Reading never blocks play: **the player can answer or skip at any time**, and doing so stops the voice immediately.
+
+### Stopping and replaying
+Speech is cancelled (`speechSynthesis.cancel()`) on: answering, Skip, tap-to-advance past the question, round/stage change, opening settings, the tab being hidden, leaving or restarting the game.
+
+A **Replay** button (speaker icon) on each question screen re-reads the question and options; keyboard shortcut `R`.
+
+### Text sync
+- Each line's typewriter animation starts when that line's utterance starts (`onstart`).
+- If the voice finishes before the animation, the animation completes instantly; if the animation finishes first, the next line waits for the voice to end (`onend`), with a safety timeout (line length × ~90ms + 1.5s) in case `onend` never fires.
+- Word-level sync via `onboundary` is **not required** (unreliable across browsers/voices).
+- With read-aloud off, the existing text-speed behaviour is unchanged.
+
+### What is never read
+Provenance chips, "Why?" drawer content, source links, hidden Hard-mode fine print before it's decoded, and other players' names or answers in multiplayer.
+
+---
+
+## Text preparation
+
+Speak exactly what's on screen after placeholders are filled, passed through a small pronunciation pass (`src/narrator/pronounce.ts`):
+
+| On screen | Spoken as |
+|---|---|
+| `TTC` | "T T C" |
+| `CMHC` | "C M H C" |
+| `LTB` | "L T B" |
+| `311` | "three one one" |
+| `$1,750` / `$1,750/mo` | "1,750 dollars" / "1,750 dollars a month" |
+| `38.2%` | "38.2 percent" |
+| `A/C`, `+ hydro` | "air conditioning", "plus hydro" |
+
+Keep the map in one file so the team can add entries. Strip emoji and decorative symbols before speaking. Unit-test the transforms.
+
+---
+
+## Voice selection and settings
+
+- Voices load asynchronously: wait for `speechSynthesis.getVoices()` to be non-empty or the `voiceschanged` event (timeout ~2s).
+- Default voice preference: `en-CA`, then `en-US`, then `en-GB`, then any `en-*`; prefer voices marked `localService` (no network, lower latency). Fall back to the browser default.
+- Defaults: rate 1.05, pitch 1.0, volume 1.0.
+- **Settings** (persisted in `localStorage`, wrapped in try/catch):
+  - **Read aloud:** on / off (**default on**)
+  - **Read options:** on / off (default on)
+  - **Voice:** dropdown of available English voices, with a "Test voice" button
+  - **Speed:** slow (0.85) / normal (1.05) / fast (1.25)
+- A **Read aloud** toggle also appears on the first screen after character creation, so screen-reader users can turn it off immediately (to avoid double reading with their screen reader).
+
+---
+
+## Audio mix
+
+- Speech can't be routed through Web Audio, so mix around it: **duck the background music** (from v4 Change 1) to ~30% while an utterance is playing (`onstart` → duck, `onend`/`cancel` → restore over ~300ms).
+- Sound effects still play over speech. Answering cancels speech, so correct/wrong effects are never fighting the voice.
+- Master mute (v4 Change 1) also mutes the voice (cancel + don't speak).
+
+---
+
+## Browser quirks to handle
+
+- **User gesture:** some browsers (Chrome, iOS Safari) only allow speech after a user interaction. Speak a silent/empty utterance on the first tap (same moment audio is unlocked in v4 Change 1). Never attempt speech before that.
+- **Chrome long-utterance cut-off:** keep one utterance per on-screen line (lines are short already); never queue one big utterance.
+- **Stuck queue:** call `speechSynthesis.cancel()` before starting a new question's queue.
+- **Tab hidden:** cancel on `visibilitychange` (some browsers pause and resume unpredictably).
+- **Unsupported or no voices:** if `window.speechSynthesis` is missing or no English voice loads, hide the Read aloud settings and the Replay button; the game plays silently with no errors.
+
+---
+
+## Multiplayer
+
+Each client reads aloud locally using its own settings. The host doesn't control anyone's voice. Questions are identical across clients (v4 Change 5), so everyone hears the same words, possibly in different voices.
+
+---
+
+## Code structure
+
+```ts
+// src/narrator/Narrator.ts
+interface Narrator {
+  isSupported(): boolean;
+  speakLines(lines: string[], opts?: { onLineStart?(i: number): void; onLineEnd?(i: number): void }): Promise<void>;
+  speakOptions(options: string[], opts?: { onOptionStart?(i: number): void }): Promise<void>;
+  cancel(): void;
+  setSettings(s: NarratorSettings): void;
+}
+```
+
+- `src/narrator/WebSpeechNarrator.ts` — the Web Speech implementation.
+- `src/narrator/NullNarrator.ts` — no-op, used when unsupported or turned off.
+- `src/narrator/pronounce.ts` — text preparation.
+- The game-show shell (`src/show/`) calls the `Narrator` from its line player and question screen. **Rounds never call `speechSynthesis` directly.** A later provider (Gemini TTS, ElevenLabs, pre-recorded audio) is a new class implementing `Narrator`.
+
+---
+
+## Acceptance criteria
+
+- [ ] With Read aloud on, every question's lines and options are read in order, and each option button highlights while read without shifting layout.
+- [ ] Answering, Skip, advancing, settings, round change and tab hide all stop speech immediately; no voice carries into the next screen.
+- [ ] Replay button and `R` re-read the current question and options.
+- [ ] Typewriter lines start with their utterance; the game never hangs if `onend` doesn't fire (safety timeout tested).
+- [ ] Pronunciation unit tests pass for the table above.
+- [ ] Settings (on/off, read options, voice, speed) work and persist; Test voice plays a sample.
+- [ ] Music ducks while speaking and restores afterwards; master mute silences the voice.
+- [ ] Tested on current Chrome, Edge, Firefox, Safari (macOS) and Safari (iOS): speech works after the first tap, or the game degrades silently with no console errors.
+- [ ] With speech unsupported (simulate by stubbing `window.speechSynthesis` as undefined), Read aloud controls are hidden and the game is fully playable.
+- [ ] Base demo preset still finishes in ≤3 minutes with Read aloud on (the presenter answers without waiting for options to finish).
+- [ ] No game code outside `src/narrator/` references `speechSynthesis`.

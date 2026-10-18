@@ -294,7 +294,7 @@ function TitleScreen({ character, onNew, onDemo, onParty }: { character: Charact
         <div className="hero-copy">
           <span className="eyebrow">Toronto municipal election · Monday, Oct 26, 2026</span>
           <h1>
-            Toronto <span className="neon">Rent</span> Decisions
+            To<span className="neon">Rent</span>o
           </h1>
           <p className="lede">
             Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem

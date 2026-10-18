@@ -68,6 +68,9 @@ let sfxBus: GainNode | null = null;
 let music: HTMLAudioElement | null = null;
 let musicFound: Promise<HTMLAudioElement | null> | null = null;
 let duck = 1;
+/** Speech can't go through Web Audio, so music ducks to ~30% while the narrator talks (PRD v5). */
+let speechDuck = false;
+const SPEECH_DUCK = 0.3;
 let restoreTimer: ReturnType<typeof setTimeout> | undefined;
 let restoreRaf = 0;
 const unlockListeners = new Set<() => void>();
@@ -82,7 +85,7 @@ export function onUnlock(cb: () => void): () => void {
 function applyLevels() {
   if (sfxBus) sfxBus.gain.value = prefs.muted ? 0 : prefs.sfx;
   if (music) {
-    music.volume = prefs.muted ? 0 : clamp(prefs.music * duck);
+    music.volume = prefs.muted ? 0 : clamp(prefs.music * Math.min(duck, speechDuck ? SPEECH_DUCK : 1));
     if (prefs.muted || prefs.music === 0) music.pause();
     else if (ctx && music.paused) music.play().catch(() => {});
   }
@@ -204,3 +207,18 @@ export function play(id: SoundId) {
 
 /** Test hook: whether a music file was found (resolves after unlock). */
 export const musicAvailable = () => findMusic().then((a) => !!a);
+
+/** Narrator hook: hold music at ~30% while speaking; restore over ~300ms after. */
+export function setSpeechDuck(on: boolean) {
+  if (speechDuck === on) return;
+  speechDuck = on;
+  if (on || typeof requestAnimationFrame === "undefined") return applyLevels();
+  const start = performance.now();
+  const from = SPEECH_DUCK;
+  const step = (t: number) => {
+    const k = Math.min(1, (t - start) / RESTORE_MS);
+    if (music) music.volume = prefs.muted ? 0 : clamp(prefs.music * Math.min(duck, from + (1 - from) * k));
+    if (k < 1 && !speechDuck) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}

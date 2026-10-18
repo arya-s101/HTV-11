@@ -3,6 +3,7 @@
 // Game-show settings (PRD v2 §5.10): text speed, skip animations, stat cards, plus the OS reduced-motion preference.
 // Sound lives in src/components/audio.ts (PRD v4 Change 1: on by default, shared with the navbar).
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { narrator } from "@/narrator";
 
 export type TextSpeed = "slow" | "normal" | "fast" | "instant";
 
@@ -32,6 +33,8 @@ export const LINE_PAUSE_MS: Record<TextSpeed, number> = { slow: 1500, normal: 90
 
 export function ShowSettingsProvider({ children, initial }: { children: React.ReactNode; initial?: Partial<ShowSettings> }) {
   const [s, setS] = useState<ShowSettings>({ ...DEFAULTS, ...initial });
+  // Start loading speech voices now, so they're ready by the first question (PRD v5).
+  useEffect(() => void narrator(), []);
   useEffect(() => {
     try {
       const { textSpeed, skipAnimations, showStats } = JSON.parse(localStorage.getItem(KEY) ?? "{}");

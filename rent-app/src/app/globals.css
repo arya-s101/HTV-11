@@ -1,5 +1,5 @@
 /* =========================================================================
-   Toronto Rent Decisions: 8-bit UI on a retro neon grid
+   ToRento: 8-bit UI on a retro neon grid
    1. Tokens  2. Base  3. Layout & chrome  4. Neon background
    5. Primitives  6. Home & pages  7. Creator  8. Game  9. Responsive
    ========================================================================= */
@@ -571,3 +571,7 @@ a.prov:hover { filter: brightness(1.2); }
 
 .hero-art .char-card { margin-left: auto; }
 .char-card { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0 4px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); width: fit-content; max-width: 100%; }
+
+/* Read-aloud highlight (PRD v5): an outline, so nothing moves. */
+.choice-big.reading { outline: 3px solid var(--cyan); outline-offset: 2px; }
+.read-aloud-toggle { justify-self: center; }

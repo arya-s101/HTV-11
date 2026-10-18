@@ -68,7 +68,7 @@ real ones. Here every listing is labelled "Fictional listing", and the footer ex
 - A test caught a float bug: the 30% budget for $80k came out as $1,999.99. Fixed with integer math.
 - Browser smoke test: a full 5-round game, the final summary, phone width, `/explore`, and no console errors.
 
-## Pivot 2: PRD "Toronto Rent Decisions Game" (newmessage.txt, 2026-10-17 ~00:45 Toronto)
+## Pivot 2: PRD "ToRento" (newmessage.txt, 2026-10-17 ~00:45 Toronto)
 
 Replaced the listing-pick game with the PRD's 8-bit life sim, Tier 1 only. The old game, `/explore` and the API routes were removed
 because the old game scored picking the cheapest listing, which breaks PRD §5. They remain in git history (`first commit`).
@@ -178,13 +178,13 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
 
 - New show shell in `src/components/show/`:
   - **Text:** line player (typewriter; tap finishes, then advances; auto-advances after a pause).
-  - **Show pieces:** host "Mustafa" (an original, generic cartoon presenter in 8-bit pixel art, plus his own name and script), round title cards with a pixel-dissolve entrance, a podium bar (score with fly-up points, receipts, lifelines, settings, quit), and a round strip.
+  - **Show pieces:** host "Dominic ToRento" (an original, generic cartoon presenter in 8-bit pixel art, plus his own name and script), round title cards with a pixel-dissolve entrance, a podium bar (score with fly-up points, receipts, lifelines, settings, quit), and a round strip.
   - **Numbers and answers:** animated counters with provenance chips that open their sources, a "Why? · Source" drawer, big 2–4 choice buttons, and reveals (drumroll → ✓/✗ with words, not just colour → host quip → lesson lines). Confetti on the report card.
   - **Settings:** text speed (slow/normal/fast/instant), skip animations, and sound effects (Web Audio; off by default). Reduced motion turns off movement, shake and confetti. The demo runs at "fast".
 - Every phase is now a round: Spot the Fake (timed, one listing at a time, 4 per run), The Viewing (verify picks → three "doors" → timed hunt),
   Paperwork (one document at a time + rival), Haggle Time (optional), Read the Fine Print (no timer; Hard stays tiny until Magnifier), Moving Day (photos,
   insurance, first-month counters, surprise, real data), Life Happens (action → who fixes it, 4 levels), Moving Out, and the report card + candidate question.
-- Lifelines: Ask Mustafa (hint: shows the % vs average, flashes an unfound issue, or hides a wrong answer), Magnifier (decodes Hard fine print), Free Pass (skip; excluded from totals).
+- Lifelines: Ask Dominic (hint: shows the % vs average, flashes an unfound issue, or hides a wrong answer), Magnifier (decodes Hard fine print), Free Pass (skip; excluded from totals).
   Each unused lifeline earns a bonus.
 - Text rules are enforced by tests: every content `short`, host line, event, feedback, outcome, reveal line and question ask is ≤15 words, ≤3 lines.
   Hard fine print is the deliberate exception. Round titles were renamed to avoid real TV show names ("Let's Make a Deal" was caught); a test bans known show names and catchphrases.
@@ -199,3 +199,12 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
 - **Fresh questions:** reviewed templates in `data/game/questions.json` (≥2 correct variants, ≥4 distractors, ≥3 fallback scenarios each; drafted by Claude from sourced content, team to verify). Code samples the answer, distractors and order per seed and prefers templates unseen in the last 3 games. Gemini (server-side `/api/scenarios`) writes only scene text with placeholders; anything with digits, unknown placeholders, missing features, legal-claim wording or profanity is rejected (one retry), and the reviewed fallback is used. Pre-fetched in the background while the player builds their character. Demo preset: fallbacks only.
 - **Profile:** Quick start (name, look, age, career) plus "Tell us more" (`src/components/ProfileForm.tsx`), saved on the device with a Clear button. Workplace uses the r5py travel-time snapshot (derived), schedule changes trip counts, an income band is a `player_input` field. Pets add the no-pets clause; newcomers get the no-credit-history question. Headscarf, turban and kufi sprite options (cosmetic). Identity fields never change numbers (tested). An optional Extended event shows a landlord asking an unfair question (OHRC-sourced, random, labelled not legal advice).
 - **Multiplayer (feature flag):** `src/multiplayer/` + `src/components/Multiplayer.tsx` + `firestore.rules`. Not yet run against a live Firebase project or the rules emulator (needs a project and Java). Known limitations: host client computes scores; no scheduled cleanup function (rooms are treated as expired after 2 hours); room size is checked client-side.
+
+## 2026-10-17: Read aloud (PRD v5, TTS.txt) and the ToRento name
+
+- Site renamed **ToRento**; host renamed **Dominic ToRento** ("Ask Dominic" lifeline).
+- `src/narrator/`: `Narrator` interface, `WebSpeechNarrator` (browser speechSynthesis; the only code that touches it), `NullNarrator` (unsupported/no English voice), `pronounce.ts` (TTC, CMHC, LTB, 311, money, percent, A/C, "+ hydro"; strips emoji), settings store.
+- Question screens (listings, viewing checks, documents, lease clauses, move-in, events, level of government, scam report, move-out) read their lines, then "A: …, B: …" options with an outline highlight. Typewriter lines start with their utterance; the next waits for the voice, with a safety timeout (length × 90 ms + 1.5 s). Answering, Skip, tapping past, Settings, leaving the screen and hiding the tab all cancel speech. Replay button and R re-read.
+- Settings: Read aloud (default on), Read options, voice (en-CA → en-US → en-GB → any English, local voices first), speed (0.85/1.05/1.25), Test voice; a Read aloud toggle on the welcome screen. Music ducks to ~30% while speaking; master mute silences the voice; speech is unlocked on the first tap.
+- Multiplayer uses the same game, so each client reads aloud with its own settings.
+- Not yet checked by hand across Chrome, Edge, Firefox, Safari and iOS Safari.

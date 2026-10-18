@@ -10,6 +10,7 @@ import { HostAvatar } from "./HostAvatar";
 import { play } from "../audio";
 import { CHAR_MS, LINE_PAUSE_MS, useSettings } from "./settings";
 import { useStatGate } from "./StatCard";
+import { narrator, useNarratorSettings, useNarratorSupported } from "@/narrator";
 
 export const SHOW = showJson;
 
@@ -18,31 +19,96 @@ export const SHOW = showJson;
  * Lines appear one at a time with a typewriter. Tap (or Enter/Space) finishes the current line;
  * tapping again advances. After a short pause it also advances on its own. Shows the last 3 lines.
  */
-export function LinePlayer({ lines, onDone, big }: { lines: string[]; onDone?: () => void; big?: boolean }) {
+/**
+ * Types lines one at a time. With `narrate` (question screens, PRD v5) each line starts typing when its utterance
+ * starts, and the next line waits for the voice; if the voice ends first, the line completes at once. Off, muted or
+ * unsupported speech falls straight back to the normal text-speed behaviour.
+ */
+export function LinePlayer({ lines, onDone, big, narrate }: { lines: string[]; onDone?: () => void; big?: boolean; narrate?: boolean | number }) {
   const { textSpeed, skipAnimations } = useSettings();
+  const voice = useNarratorSettings();
   const instant = textSpeed === "instant" || skipAnimations;
+  // `narrate` may name the first line to speak, so a host's lead-in is shown but only the question is read.
+  const from = narrate === true ? 0 : typeof narrate === "number" ? Math.min(narrate, lines.length - 1) : -1;
+  const speaks = from >= 0 && voice.on;
   const [i, setI] = useState(0);
   const [chars, setChars] = useState(instant ? Infinity : 0);
+  // Narration: "pending" before the first spoken line, "waiting" until its utterance starts (1.5s fallback), then "on".
+  const [narration, setNarration] = useState<"off" | "pending" | "waiting" | "on">(speaks ? (from > 0 ? "pending" : "waiting") : "off");
+  const [voiced, setVoiced] = useState(-1); // last line whose utterance ended
   const done = useRef(false);
   const line = lines[i] ?? "";
   const typed = chars >= line.length;
   const last = i >= lines.length - 1;
+  const narrating = narration === "on";
+  const key = lines.join("|");
 
   useEffect(() => {
     setI(0);
     setChars(instant ? Infinity : 0);
     done.current = false;
+    setVoiced(-1);
+    setNarration(speaks ? (from > 0 ? "pending" : "waiting") : "off");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lines.join("|")]);
+  }, [key, speaks, from]);
+
+  // Start speaking when the first spoken line comes up.
+  const speakingStarted = narration === "waiting" || narration === "on";
+  useEffect(() => {
+    if (narration === "pending" && i === from) setNarration("waiting");
+  }, [narration, i, from]);
+  useEffect(() => {
+    if (!speakingStarted) return;
+    let started = false;
+    const n = narrator();
+    const fallback = setTimeout(() => {
+      if (!started) {
+        n.cancel();
+        setNarration("off");
+      }
+    }, 1500);
+    void n
+      .speakLines(lines.slice(from), {
+        onLineStart: (k) => {
+          started = true;
+          setNarration("on");
+          setI(from + k);
+          setChars(instant ? Infinity : 0);
+        },
+        onLineEnd: (k) => {
+          setVoiced(from + k);
+          setI((cur) => {
+            if (cur === from + k) setChars(Infinity); // the voice finished first: complete the line now
+            return cur;
+          });
+        },
+      })
+      .then(() => {
+        if (!started) setNarration("off");
+      });
+    return () => {
+      clearTimeout(fallback);
+      n.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speakingStarted, key]);
 
   useEffect(() => {
-    if (typed) return;
+    if (typed || narration === "waiting") return;
     const t = setTimeout(() => setChars((c) => c + 1), CHAR_MS[textSpeed]);
     return () => clearTimeout(t);
-  }, [chars, typed, textSpeed]);
+  }, [chars, typed, textSpeed, narration]);
 
   useEffect(() => {
-    if (!typed) return;
+    if (!typed || narration === "waiting") return;
+    // While narrating, the voice paces the lines: the next one starts on its utterance, and done waits for the last.
+    if (narrating) {
+      if (last && voiced >= i && !done.current) {
+        done.current = true;
+        onDone?.();
+      }
+      return;
+    }
     if (last) {
       if (!done.current) {
         done.current = true;
@@ -55,13 +121,20 @@ export function LinePlayer({ lines, onDone, big }: { lines: string[]; onDone?: (
       setChars(instant ? Infinity : 0);
     }, instant ? 0 : LINE_PAUSE_MS[textSpeed]);
     return () => clearTimeout(t);
-  }, [typed, last, instant, textSpeed, onDone]);
+  }, [typed, last, instant, textSpeed, onDone, narration, narrating, voiced, i]);
 
   const tap = () => {
     if (!typed) setChars(Infinity);
-    else if (!last) {
-      setI(i + 1);
-      setChars(instant ? Infinity : 0);
+    else {
+      // Advancing past a line stops the voice; the rest plays as normal text.
+      if (narration !== "off") {
+        narrator().cancel();
+        setNarration("off");
+      }
+      if (!last) {
+        setI(i + 1);
+        setChars(instant ? Infinity : 0);
+      }
     }
   };
 
@@ -114,7 +187,7 @@ export function LinePlayer({ lines, onDone, big }: { lines: string[]; onDone?: (
 }
 
 // ---------- host ----------
-export function Host({ lines, onDone, mood }: { lines: string[]; onDone?: () => void; mood?: "happy" | "sad" }) {
+export function Host({ lines, onDone, mood, narrate }: { lines: string[]; onDone?: () => void; mood?: "happy" | "sad"; narrate?: boolean | number }) {
   return (
     <div className={`host ${mood ?? ""}`}>
       <div className="host-sprite" aria-hidden="true">
@@ -122,7 +195,7 @@ export function Host({ lines, onDone, mood }: { lines: string[]; onDone?: () => 
         <span className="host-name pixel">{SHOW.host.name}</span>
       </div>
       <div className="bubble-host">
-        <LinePlayer lines={lines} onDone={onDone} big />
+        <LinePlayer lines={lines} onDone={onDone} big narrate={narrate} />
       </div>
     </div>
   );
@@ -256,6 +329,31 @@ export function Why({ ids, extra }: { ids?: string[]; extra?: React.ReactNode })
 }
 
 // ---------- choices ----------
+/** Re-reads the question and its options (PRD v5), by button or the R key. Hidden when speech can't work here. */
+export function ReplayButton({ lines, options, onOption, disabled }: { lines: string[]; options: string[]; onOption: (i: number) => void; disabled?: boolean }) {
+  const supported = useNarratorSupported();
+  const { on } = useNarratorSettings();
+  const replay = useCallback(() => {
+    const n = narrator();
+    n.cancel();
+    void n.speakLines(lines).then(() => n.speakOptions(options, { onOptionStart: onOption }));
+  }, [lines, options, onOption]);
+  useEffect(() => {
+    if (!supported || !on || disabled) return;
+    const key = (e: KeyboardEvent) => {
+      if ((e.key === "r" || e.key === "R") && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) replay();
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [supported, on, disabled, replay]);
+  if (!supported || !on) return null;
+  return (
+    <button className="btn ghost skip-btn" disabled={disabled} onClick={replay} aria-keyshortcuts="R" title="Read it again (R)">
+      <Icon name="volume-3" /> Replay
+    </button>
+  );
+}
+
 /** Skip, by button or the S key (PRD v4 Change 3). `locked` shares the answer lock, so it can't double-fire. */
 export function SkipButton({ onSkip, disabled, label = "Skip" }: { onSkip: () => void; disabled?: boolean; label?: string }) {
   const done = useRef(false);
@@ -278,24 +376,56 @@ export function SkipButton({ onSkip, disabled, label = "Skip" }: { onSkip: () =>
   );
 }
 
-export function Choices({ options, onPick, onSkip, disabled }: { options: { id: string; label: string; hidden?: boolean; icon?: IconName }[]; onPick: (id: string) => void; onSkip?: () => void; disabled?: boolean }) {
+export function Choices({
+  options,
+  onPick,
+  onSkip,
+  disabled,
+  narrate,
+}: {
+  options: { id: string; label: string; hidden?: boolean; icon?: IconName }[];
+  onPick: (id: string) => void;
+  onSkip?: () => void;
+  disabled?: boolean;
+  /** Read the options aloud once enabled (PRD v5); `lines` is the question, for Replay. */
+  narrate?: { lines: string[] };
+}) {
   // Locks on the first pick or skip so a fast double tap can't answer twice (audit A7).
   const [locked, setLocked] = useState(false);
+  const [reading, setReading] = useState(-1);
   const optionKey = options.map((o) => o.id).join("|");
+  const shown = options.filter((o) => !o.hidden);
   useEffect(() => setLocked(false), [optionKey]);
+  // Once the question is on screen, read the options; answering or leaving stops the voice.
+  useEffect(() => {
+    if (!narrate || disabled || locked) return;
+    const n = narrator();
+    void n.speakOptions(
+      shown.map((o) => o.label),
+      { onOptionStart: setReading },
+    );
+    return () => {
+      n.cancel();
+      setReading(-1);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!narrate, disabled, locked, optionKey]);
+  const stopVoice = () => {
+    if (narrate) narrator().cancel();
+    setReading(-1);
+  };
   return (
     <>
-      <div className={`choices n${options.filter((o) => !o.hidden).length}`}>
-        {options
-          .filter((o) => !o.hidden)
-          .map((o) => (
+      <div className={`choices n${shown.length}`}>
+        {shown.map((o, k) => (
             <button
               key={o.id}
-              className="btn choice-big"
+              className={`btn choice-big ${reading === k ? "reading" : ""}`}
               disabled={disabled || locked}
               onClick={() => {
                 if (locked) return;
                 setLocked(true);
+                stopVoice();
                 onPick(o.id);
               }}
             >
@@ -303,16 +433,20 @@ export function Choices({ options, onPick, onSkip, disabled }: { options: { id: 
             </button>
           ))}
       </div>
-      {onSkip && (
+      {(onSkip || narrate) && (
         <div className="skip-row">
-          <SkipButton
-            key={optionKey}
-            disabled={disabled || locked}
-            onSkip={() => {
-              setLocked(true);
-              onSkip();
-            }}
-          />
+          {narrate && <ReplayButton lines={narrate.lines} options={shown.map((o) => o.label)} onOption={setReading} disabled={locked} />}
+          {onSkip && (
+            <SkipButton
+              key={optionKey}
+              disabled={disabled || locked}
+              onSkip={() => {
+                setLocked(true);
+                stopVoice();
+                onSkip();
+              }}
+            />
+          )}
         </div>
       )}
     </>

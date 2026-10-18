@@ -1,12 +1,12 @@
 {
   "_note": "Game-show script (PRD v2 §5.10). Original host (a generic cartoon presenter drawn in src/components/show/HostAvatar.tsx) and wording: no real TV show names, hosts, logos or catchphrases. Every line is at most 15 words.",
   "host": {
-    "name": "Mustafa"
+    "name": "Dominic ToRento"
   },
   "showName": "The Lease You Can Do",
   "welcome": [
     "Welcome to The Lease You Can Do!",
-    "I'm your host, Mustafa.",
+    "I'm your host, Dominic ToRento.",
     "Tonight: can you rent your first Toronto apartment?"
   ],
   "rounds": {
@@ -97,7 +97,7 @@
   "lifelines": [
     {
       "id": "hint",
-      "name": "Ask Mustafa",
+      "name": "Ask Dominic",
       "icon": "lightbulb",
       "help": "A hint for this question."
     },
