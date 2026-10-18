@@ -128,8 +128,24 @@ function ProfessionPicker({ character, setCharacter, llm }: { character: Charact
 export function CharacterCreator(props: {
   character: Character;
   setCharacter: SetCharacter;
+  /** Set when the player came here on the way into a game: shows "Continue to game" (base, extended or party). */
+  then?: string | null;
 }) {
-  const { character, setCharacter } = props;
+  const { character, setCharacter, then } = props;
+  const back = then ? (
+    <>
+      <Link className="btn big" href={`/?play=${then}`}>
+        <Icon name="play" /> Continue to game
+      </Link>
+      <Link className="btn ghost" href="/">
+        Back to main menu
+      </Link>
+    </>
+  ) : (
+    <Link className="btn big" href="/">
+      Back to main menu
+    </Link>
+  );
   const [minAge, maxAge] = [MIN_AGE, MAX_AGE];
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
@@ -156,9 +172,7 @@ export function CharacterCreator(props: {
         <span className="eyebrow">Your character · used in every game, single-player and multiplayer · saved automatically</span>
         <h1>Your character</h1>
         <div className="row quick-start">
-          <Link className="btn big" href="/">
-            Back to main menu
-          </Link>
+          {back}
           <button className="btn ghost" onClick={randomize}>
             <Icon name="dice" /> Randomize
           </button>
@@ -178,11 +192,7 @@ export function CharacterCreator(props: {
             <Icon name="dice" /> Randomize
           </button>
           <p className="note">Appearance is cosmetic only. It never changes income, offers, outcomes or feedback.</p>
-          <div className="preview-actions">
-            <Link className="btn big" href="/">
-              Back to main menu
-            </Link>
-          </div>
+          <div className="preview-actions">{back}</div>
         </aside>
 
         <div className="options">

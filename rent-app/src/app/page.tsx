@@ -75,7 +75,13 @@ export default function Game() {
     const next = new URLSearchParams(window.location.search).get("play");
     if (c && (next === "base" || next === "extended" || next === "party")) {
       window.history.replaceState(null, "", "/");
-      startGame(next, c, s, {});
+      if (next === "party") startGame(next, c, s, {});
+      else {
+        // Back from making a character: pick a difficulty, then play.
+        prepare("base", s, { character: c, profile: {} });
+        setMode(next);
+        setScreen("setup");
+      }
     } else prepare("base", s, { character: c ?? character, profile: {} });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -83,7 +89,8 @@ export default function Game() {
   /** Starts a game with the saved character; without one, the character page comes first. */
   function startGame(choice: Mode | "party", c: Character | null = saved, s0?: number, p: Profile = profile) {
     if (!c) {
-      window.location.href = "/character";
+      // First visit: make a character, then come straight back into this game (it's saved for next time).
+      window.location.href = `/character?then=${choice}`;
       return;
     }
     if (choice === "party") {

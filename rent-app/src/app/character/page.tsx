@@ -10,7 +10,10 @@ import { play } from "@/components/audio";
 export default function CharacterPage() {
   const [character, setCharacter] = useState<Character>(NEW_CHARACTER);
   const [loaded, setLoaded] = useState(false);
+  const [then, setThen] = useState<string | null>(null);
   useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("then");
+    setThen(t === "base" || t === "extended" || t === "party" ? t : null);
     setCharacter(loadCharacter() ?? NEW_CHARACTER);
     setLoaded(true);
   }, []);
@@ -24,6 +27,7 @@ export default function CharacterPage() {
       <CharacterCreator
         character={character}
         setCharacter={setCharacter}
+        then={then}
       />
     </div>
   );
