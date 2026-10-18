@@ -32,7 +32,8 @@ service cloud.firestore {
       allow delete: if false;
 
       match /players/{uid} {
-        allow read: if signedIn() && isMember(code);
+        // Joiners read the list before they're members (room size, unique names); it holds only names, sprites and scores.
+        allow read: if signedIn();
         allow create: if signedIn() && uid == request.auth.uid && room(code).status == 'lobby' && fresh(code)
           && request.resource.data.keys().hasOnly(['displayName', 'sprite', 'score', 'round', 'done', 'joinedAt', 'connected', 'lastSeen'])
           && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 16
