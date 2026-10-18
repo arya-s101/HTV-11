@@ -27,7 +27,7 @@ Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md`.
 
 The listings are illustrative, not available units. The numbers behind them come from City of Toronto, CMHC, and Census data. Players see the cash and commute tradeoff, including costs that were easy to miss, and sort each problem by who controls it: themselves, the landlord, the City, or another government. The game ends with one sourced, nonpartisan question they can ask a ward candidate.
 
-**Tier 1 is built:** character creator (6 layers, age picker, demo preset), Stage 1 Student, Stage 2 First job, and the end screen.
+**Tier 1 is built:** character creator (6 layers, age picker), Stage 1 Student, Stage 2 First job, and the end screen.
 Stages 3–6 show "coming soon" because their civic levers don't have an official source yet (PRD §5).
 
 **Difficulty (Easy / Normal / Hard)** changes how information is shown, never what is true. Easy shows plain line items. Normal hides
@@ -38,7 +38,6 @@ score multiplies by 1 / 1.25 / 1.5 and never depends on the home chosen.
 (Extended game only; the Base game makes no API calls). A preset shows its handwritten path instantly and keeps it as the fallback; custom titles
 fall back to a template; any number or money talk is rejected. Each preset also sets its own illustrative income and commute days per stage
 (`work` in `professions.json`; software keeps the hero values). Custom professions use the stage defaults. Offers and score never change.
-The demo preset keeps a fixed path so the judged demo is repeatable.
 
 **Site structure:** shared navbar and footer, a neon-grid background, and pages `/` (game), `/how-it-works` and `/sources`
 (rendered from the same data files the game uses).
@@ -47,7 +46,7 @@ The demo preset keeps a fixed path so the judged demo is repeatable.
 It loops quietly and starts on the first click (browsers block autoplay), and a ♪ toggle appears in the navbar. Use only music you have the rights to share.
 
 **Optional landlord negotiation:** code decides the deal (`src/game/negotiate.ts`). Gemini only writes the landlord's words and is
-validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`, and always for the demo preset,
+validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`,
 a scripted landlord is used. Gemini also writes story text for a custom job title. Income, commute days, rents, and the candidate question are computed in code.
 Starting at age 26 or older therefore can't be played yet, and the creator explains why.
 

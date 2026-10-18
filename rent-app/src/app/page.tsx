@@ -46,7 +46,6 @@ export default function Game() {
   const [records, setRecords] = useState<StageRecord[]>([]);
   const [skipped, setSkipped] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
-  const [demo, setDemo] = useState(false);
   const [seed, setSeed] = useState(DEMO_SEED);
   const [mode, setMode] = useState<Mode>("base");
   const [carry, setCarry] = useState<BaseCarry | undefined>(undefined);
@@ -103,20 +102,20 @@ export default function Game() {
     setSeed(s);
     const r = s0 === undefined && choice === "base" && s === run.seed ? run : prepare(choice, s, { character: c, profile: p });
     rememberGame(planIds(r));
-    begin(c, false, choice);
+    begin(c, choice);
   }
 
   const top = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  /** Plans a game for (mode, seed) and, unless it's the demo, starts fetching fresh scenarios for it. */
-  function prepare(m: Mode, s: number, opts: { demo?: boolean; exclude?: string[]; character?: Character; profile?: Profile } = {}) {
+  /** Plans a game for (mode, seed) and starts fetching fresh scenarios for it. */
+  function prepare(m: Mode, s: number, opts: { exclude?: string[]; character?: Character; profile?: Profile } = {}) {
     const p = opts.profile ?? profile;
-    const r = planRun(s, m, opts.demo ? [] : loadRecent(), opts.exclude, opts.demo ? {} : { newcomer: p.background === "newcomer" || p.background === "international-student" });
+    const r = planRun(s, m, loadRecent(), opts.exclude, { newcomer: p.background === "newcomer" || p.background === "international-student" });
     runToken.current++;
     fetchedFor.current = "";
     setRun(r);
     setScenarios({});
-    if (!opts.demo) fetchScenarios(r, m, opts.character ?? character, opts.profile ?? profile);
+    fetchScenarios(r, m, opts.character ?? character, opts.profile ?? profile);
     return r;
   }
   /** One request per round; skipped when the same plan and profile were already requested. Fallbacks cover any gap. */
@@ -134,16 +133,10 @@ export default function Game() {
     });
   }
 
-  function begin(c: Character, isDemo = false, m: Mode = mode, from?: BaseCarry) {
-    setDemo(isDemo);
+  function begin(c: Character, m: Mode = mode, from?: BaseCarry) {
     setMode(m);
     setCarry(from);
-    if (isDemo) {
-      // The demo preset is reproducible: fixed seed, reviewed fallback scenarios only, no API calls.
-      setSeed(DEMO_SEED);
-      prepare("base", DEMO_SEED, { demo: true });
-      setDifficulty("easy");
-    } else if (from) {
+    if (from) {
       // Extended after Base: same character and seed, new questions for the rounds already played.
       prepare("extended", seed, { exclude: from.played, character: c });
     }
@@ -190,7 +183,6 @@ export default function Game() {
             setScreen("setup");
             top();
           }}
-          onDemo={() => begin(DEMO_CHARACTER, true, "base")}
           onParty={multiplayerEnabled() ? () => startGame("party") : undefined}
         />
       )}
@@ -230,8 +222,8 @@ export default function Game() {
         <>
           {!current.stage.journey && <Timeline plan={plan} index={index} records={records} skipped={skipped} between={screen === "between"} character={character} />}
           {screen === "stage" && current.stage.journey && (
-            // Game-show presentation (PRD v2 §5.10). The demo preset is the Base game with stat cards on a 3-second auto-advance.
-            <ShowSettingsProvider initial={demo ? { textSpeed: "normal", showStats: true, statMs: 3000 } : undefined}>
+            // Game-show presentation (PRD v2 §5.10).
+            <ShowSettingsProvider>
               <JourneyShow
                 key={`${current.stage.id}-${seed}-${mode}`}
                 mode={mode}
@@ -239,24 +231,23 @@ export default function Game() {
                 plan={run}
                 scenarios={scenarios}
                 values={scenarioValues(profile)}
-                profile={demo ? {} : profile}
+                profile={profile}
                 onProfile={(p) => {
                   setProfile(p);
                   saveProfile(p);
                 }}
-                onExtended={(from) => begin(character, false, "extended", from)}
+                onExtended={(from) => begin(character, "extended", from)}
                 stage={current.stage}
                 age={current.age}
                 character={character}
                 difficulty={difficulty}
                 seed={seed}
-                scriptedLandlord={demo}
+                scriptedLandlord={false}
                 onReplay={() => {
-                  const s = demo ? DEMO_SEED + Math.floor(Math.random() * 1000) + 1 : newSeed();
+                  const s = newSeed();
                   setCarry(undefined);
                   setSeed(s);
-                  const r = prepare(mode, s, { demo });
-                  if (!demo) rememberGame(planIds(r));
+                  rememberGame(planIds(prepare(mode, s)));
                   top();
                 }}
                 onQuit={() => {
@@ -273,7 +264,7 @@ export default function Game() {
               age={current.age}
               character={character}
               difficulty={difficulty}
-              scriptedLandlord={demo}
+              scriptedLandlord={false}
               onComplete={(r) => {
                 setRecords([...records, r]);
                 setScreen("between");
@@ -329,8 +320,8 @@ function Hud(props: { character: Character; age: number; stageTitle: string; sta
   );
 }
 
-function TitleScreen(props: { character: Character | null; onNew: (m: Mode) => void; onDemo: () => void; onParty?: () => void }) {
-  const { character, onNew, onDemo, onParty } = props;
+function TitleScreen(props: { character: Character | null; onNew: (m: Mode) => void; onParty?: () => void }) {
+  const { character, onNew, onParty } = props;
   const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
   return (
     <div className="home">
@@ -350,9 +341,6 @@ function TitleScreen(props: { character: Character | null; onNew: (m: Mode) => v
             </button>
             <button className="btn blue big" onClick={() => onNew("extended")}>
               Extended game
-            </button>
-            <button className="btn ghost" onClick={onDemo}>
-              Demo preset
             </button>
             {onParty && (
               <button className="btn ghost" onClick={onParty}>

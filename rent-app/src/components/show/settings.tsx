@@ -12,7 +12,7 @@ export interface ShowSettings {
   skipAnimations: boolean;
   /** Stat cards after answers (PRD v3 Change 4). */
   showStats: boolean;
-  /** Stat card auto-advance; the demo preset shortens it. Not saved. */
+  /** Stat card auto-advance. Not saved. */
   statMs: number;
   /** From prefers-reduced-motion: movement becomes fades; no shake or flashing. */
   reducedMotion: boolean;

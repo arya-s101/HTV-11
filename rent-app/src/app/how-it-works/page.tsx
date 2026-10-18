@@ -99,7 +99,7 @@ export default function HowItWorks() {
             </li>
             <li>Evidence works only when it&apos;s true: if the rent is already under the CMHC area average, the landlord says so.</li>
             <li>The landlord never gives legal advice. Ask about rules and you&apos;ll get the official Ontario page.</li>
-            <li>No key, a timeout or the demo preset? A scripted landlord answers instead.</li>
+            <li>No key or a timeout? A scripted landlord answers instead.</li>
           </ul>
         </div>
         <div className="paper">
