@@ -15,12 +15,16 @@ describe("pronunciation (PRD v5)", () => {
     ["CMHC average", "C M H C average"],
     ["Apply to the LTB", "Apply to the L T B"],
     ["Then call 311.", "Then call three one one."],
-    ["$1,750", "1,750 dollars"],
-    ["$1,750/mo", "1,750 dollars a month"],
-    ["38.2%", "38.2 percent"],
+    ["$1,750", "one thousand seven hundred fifty dollars"],
+    ["$1,750/mo", "one thousand seven hundred fifty dollars a month"],
+    ["$1,050 a month", "one thousand fifty dollars a month"],
+    ["$3.30 fare", "three dollars and thirty cents fare"],
+    ["38.2%", "thirty-eight point two percent"],
+    ["About 45 minutes", "About forty-five minutes"],
+    ["Built in 1974", "Built in nineteen seventy-four"],
     ["Has A/C", "Has air conditioning"],
-    ["$2,100/month + hydro", "2,100 dollars a month plus hydro"],
-    ["$638M lost", "638 million dollars lost"],
+    ["$2,100/month + hydro", "two thousand one hundred dollars a month plus hydro"],
+    ["$638M lost", "six hundred thirty-eight million dollars lost"],
   ])("%s → %s", (on, spoken) => expect(pronounce(on)).toBe(spoken));
   it("strips emoji and decorative symbols", () => {
     expect(pronounce("Receipt earned 📷 ✓ ▶ · done")).toBe("Receipt earned done");
