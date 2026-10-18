@@ -1,7 +1,7 @@
 "use client";
 
 // Game-show building blocks. Phases supply lines and choices; these own the layout and the juice.
-import { Icon, type IconName } from "@/components/icons";
+import { Icon } from "@/components/icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 import showJson from "../../../data/game/show.json";
 import { content, CONTENT_DISCLAIMER } from "@/game/journey";
@@ -24,7 +24,7 @@ export const SHOW = showJson;
  * starts, and the next line waits for the voice; if the voice ends first, the line completes at once. Off, muted or
  * unsupported speech falls straight back to the normal text-speed behaviour.
  */
-export function LinePlayer({ lines, onDone, big, narrate }: { lines: string[]; onDone?: () => void; big?: boolean; narrate?: boolean | number }) {
+export function LinePlayer({ lines, onDone, big, narrate, preface = [] }: { lines: string[]; onDone?: () => void; big?: boolean; narrate?: boolean | number; preface?: string[] }) {
   const { textSpeed, skipAnimations } = useSettings();
   const voice = useNarratorSettings();
   const instant = textSpeed === "instant" || skipAnimations;
@@ -60,35 +60,46 @@ export function LinePlayer({ lines, onDone, big, narrate }: { lines: string[]; o
   useEffect(() => {
     if (!speakingStarted) return;
     let started = false;
+    let detached = false;
+    // A run that has been cleaned up (unmount, or React running effects twice in development) must never touch
+    // state: its late "nothing was spoken" used to switch narration off and cancel the live run.
+    let active = true;
     const n = narrator();
+    // If the first clip is slow (a network voice), the text carries on by itself, but the voice keeps reading.
     const fallback = setTimeout(() => {
       if (!started) {
-        n.cancel();
+        detached = true;
         setNarration("off");
       }
-    }, 1500);
+    }, 4000);
+    // `preface`: spoken first but not shown in the lines (e.g. the host's reaction or a round title).
+    const p = from === 0 ? preface.length : 0;
     void n
-      .speakLines(lines.slice(from), {
+      .speakLines([...(p ? preface : []), ...lines.slice(from)], {
         onLineStart: (k) => {
+          if (!active) return;
           started = true;
+          if (detached || k < p) return; // text already moved on, or still on the preface
           setNarration("on");
-          setI(from + k);
+          setI(from + k - p);
           setChars(instant ? Infinity : 0);
         },
         onLineEnd: (k) => {
-          setVoiced(from + k);
+          if (!active || detached || k < p) return;
+          setVoiced(from + k - p);
           setI((cur) => {
-            if (cur === from + k) setChars(Infinity); // the voice finished first: complete the line now
+            if (cur === from + k - p) setChars(Infinity); // the voice finished first: complete the line now
             return cur;
           });
         },
       })
       .then(() => {
-        if (!started) setNarration("off");
+        if (active && !started) setNarration("off");
       });
     return () => {
+      active = false;
       clearTimeout(fallback);
-      n.cancel();
+      if (!detached) n.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speakingStarted, key]);
@@ -187,7 +198,8 @@ export function LinePlayer({ lines, onDone, big, narrate }: { lines: string[]; o
 }
 
 // ---------- host ----------
-export function Host({ lines, onDone, mood, narrate }: { lines: string[]; onDone?: () => void; mood?: "happy" | "sad"; narrate?: boolean | number }) {
+/** The host's speech bubble. Everything the host says is read aloud (narrate defaults to on). */
+export function Host({ lines, onDone, mood, narrate = true, preface }: { lines: string[]; onDone?: () => void; mood?: "happy" | "sad"; narrate?: boolean | number; preface?: string[] }) {
   return (
     <div className={`host ${mood ?? ""}`}>
       <div className="host-sprite" aria-hidden="true">
@@ -195,7 +207,7 @@ export function Host({ lines, onDone, mood, narrate }: { lines: string[]; onDone
         <span className="host-name pixel">{SHOW.host.name}</span>
       </div>
       <div className="bubble-host">
-        <LinePlayer lines={lines} onDone={onDone} big narrate={narrate} />
+        <LinePlayer lines={lines} onDone={onDone} big narrate={narrate} preface={preface} />
       </div>
     </div>
   );
@@ -214,7 +226,7 @@ export function TitleCard({ number, title, intro, onGo }: { number?: number; tit
         {number !== undefined && <div className="pixel round-no">Round {number}</div>}
         <h2 className="round-title">{title}</h2>
       </div>
-      <Host lines={intro} onDone={() => setReady(true)} />
+      <Host lines={intro} onDone={() => setReady(true)} preface={[number !== undefined ? `Round ${number}: ${title}.` : `${title}.`]} />
       <div className="choices">
         <button className="btn big" disabled={!ready} onClick={onGo} autoFocus={ready}>
           Let&apos;s play <Icon name="chevron-right" />
@@ -383,7 +395,7 @@ export function Choices({
   disabled,
   narrate,
 }: {
-  options: { id: string; label: string; hidden?: boolean; icon?: IconName }[];
+  options: { id: string; label: string; hidden?: boolean }[];
   onPick: (id: string) => void;
   onSkip?: () => void;
   disabled?: boolean;
@@ -400,11 +412,13 @@ export function Choices({
   useEffect(() => {
     if (!narrate || disabled || locked) return;
     const n = narrator();
+    let active = true;
     void n.speakOptions(
       shown.map((o) => o.label),
-      { onOptionStart: setReading },
+      { onOptionStart: (i) => active && setReading(i) },
     );
     return () => {
+      active = false;
       n.cancel();
       setReading(-1);
     };
@@ -429,7 +443,7 @@ export function Choices({
                 onPick(o.id);
               }}
             >
-              {o.icon && <Icon name={o.icon} />} {o.label}
+              {o.label}
             </button>
           ))}
       </div>
@@ -491,15 +505,20 @@ export function Reveal(props: {
     return () => clearTimeout(t);
   }, [skipped, linesDone, statCard, next]);
   if (stage === "drum") return <div className="reveal-drum pixel" aria-live="polite"><Icon name="music" /> …</div>;
-  const quips = ok === true ? SHOW.reactions.correct : ok === false ? SHOW.reactions.wrong : [];
   return (
     <div className={`reveal ${ok === true ? "good" : ok === false ? "bad" : ""} ${still ? "still" : ""}`}>
       <div className="reveal-big pixel" role="status">
-        {(skipped || ok !== null) && <Icon name={skipped ? "next" : ok ? "check" : "close"} />} {skipped ? "Skipped" : ok === true ? "Correct!" : ok === false ? "Not quite" : ""} {headline && <span className="reveal-head">{headline}</span>}
+        {(skipped || ok !== null) && <Icon name={skipped ? "next" : ok ? "check" : "close"} />} {skipped ? "Skipped" : ok === true ? "Correct!" : ok === false ? "Wrong!" : ""} {headline && <span className="reveal-head">{headline}</span>}
         {!!points && points > 0 && <span className="points-fly">+{points}</span>}
       </div>
-      {quips.length > 0 && <p className="quip">{SHOW.host.name}: “{quips[(lines.join("").length + (typeof headline === "string" ? headline.length : 0)) % quips.length]}”</p>}
-      <LinePlayer lines={lines} onDone={() => setTimeout(() => setLinesDone(true), 250)} big />
+      <LinePlayer
+        lines={lines}
+        onDone={() => setTimeout(() => setLinesDone(true), 250)}
+        big
+        narrate
+        // Read only the verdict word; the headline and any host reaction are not spoken.
+        preface={skipped ? ["Skipped."] : ok === true ? ["Correct!"] : ok === false ? ["Wrong!"] : []}
+      />
       <div className="reveal-actions">
         {(why?.length || whyExtra) && <Why ids={why} extra={whyExtra} />}
         <button className="btn big" disabled={!linesDone || !!statCard} onClick={next} autoFocus={linesDone}>

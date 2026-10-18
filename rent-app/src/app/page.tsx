@@ -4,6 +4,8 @@ import { Icon } from "@/components/icons";
 import { useEffect, useRef, useState } from "react";
 import { Legend, Sprite, TitleScene } from "@/components/pixel";
 import { play } from "@/components/audio";
+import { SHOW } from "@/components/show/primitives";
+import { narrator } from "@/narrator";
 import { Multiplayer } from "@/components/Multiplayer";
 import { multiplayerEnabled } from "@/multiplayer/firebase";
 import { JourneyShow, type BaseCarry } from "@/components/show/JourneyShow";
@@ -57,6 +59,9 @@ export default function Game() {
   // The character is made on /character and shared by single-player and multiplayer games.
   const [saved, setSaved] = useState<Character | null>(null);
   useEffect(() => {
+    // Warm up the host's voice on the title screen, so Dominic is heard from his very first line.
+    const rounds = SHOW.rounds as Record<string, { title: string; intro: string[] }>;
+    narrator().prefetch([...SHOW.welcome, `Round 1: ${rounds.search.title}.`, ...rounds.search.intro]);
     const c = loadCharacter();
     const p = loadProfile();
     setSaved(c);

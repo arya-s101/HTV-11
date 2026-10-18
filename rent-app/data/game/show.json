@@ -73,22 +73,6 @@
       ]
     }
   },
-  "reactions": {
-    "correct": [
-      "Nailed it!",
-      "Sharp eyes!",
-      "That's the one!",
-      "Look at you go!",
-      "Textbook!"
-    ],
-    "wrong": [
-      "Ooh, not quite.",
-      "So close!",
-      "Tricky one!",
-      "Not this time.",
-      "Happens to the best of us."
-    ]
-  },
   "points": {
     "answer": 100,
     "small": 50,

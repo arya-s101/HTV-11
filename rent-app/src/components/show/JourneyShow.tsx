@@ -13,7 +13,7 @@ import type { Profile } from "@/game/profile";
 import { fill } from "@/game/scenario";
 import { tailorStage } from "@/game/tailor";
 import { ProfileForm } from "../ProfileForm";
-import { narrator, setNarratorSettings, useNarratorSettings, useNarratorSupported } from "@/narrator";
+import { narrator, setNarratorSettings, useNarratorSettings, useNarratorSupported, usingElevenLabs } from "@/narrator";
 import { consequence, money } from "@/game/outcome";
 import { buildCityQuestion, buildQuestion, type DraftQuestion } from "@/game/question";
 import { DIFFICULTY_INFO, hagglePoints } from "@/game/score";
@@ -320,11 +320,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
                 <h2 className="round-title">{SHOW.showName}</h2>
               </div>
               <WelcomeBeat
-                character={character}
-                difficulty={difficulty}
-                mode={mode}
                 carry={carry}
-                profile={props.profile}
                 onGo={(skip) => {
                   if (skip && carry) {
                     setSkipPlayed(true);
@@ -527,6 +523,7 @@ export function NarratorControls() {
   const n = useNarratorSettings();
   if (!supported) return null;
   const voices = narrator().voices();
+  const eleven = usingElevenLabs();
   return (
     <div className="sound-controls">
       <label className="toggle">
@@ -535,6 +532,9 @@ export function NarratorControls() {
       <label className="toggle">
         <input type="checkbox" checked={n.readOptions} disabled={!n.on} onChange={(e) => setNarratorSettings({ readOptions: e.target.checked })} /> Read options
       </label>
+      {eleven ? (
+        <p className="small">Voice: Dominic (ElevenLabs).</p>
+      ) : (
       <label className="slider">
         <span>Voice</span>
         <select value={n.voice} disabled={!n.on} onChange={(e) => setNarratorSettings({ voice: e.target.value })} aria-label="Voice">
@@ -546,6 +546,7 @@ export function NarratorControls() {
           ))}
         </select>
       </label>
+      )}
       <div className="seg" aria-label="Speech speed">
         {(["slow", "normal", "fast"] as const).map((sp) => (
           <button key={sp} className={`choice ${n.speed === sp ? "on" : ""}`} aria-pressed={n.speed === sp} disabled={!n.on} onClick={() => setNarratorSettings({ speed: sp })}>
@@ -580,14 +581,10 @@ export function SoundControls() {
   );
 }
 
-function WelcomeBeat({ character, difficulty, mode, carry, profile, onGo }: { character: Character; difficulty: Difficulty; mode: Mode; carry?: BaseCarry; profile: Profile; onGo: (skipPlayed: boolean) => void }) {
+function WelcomeBeat({ carry, onGo }: { carry?: BaseCarry; onGo: (skipPlayed: boolean) => void }) {
   const [ready, setReady] = useState(false);
-  // Only what the player told us: pronouns as given, and a stated interest as light flavour.
-  const who = `${character.name}${profile.pronouns ? ` (${profile.pronouns})` : ""}`;
-  const fan = profile.interests?.length ? ` Big ${profile.interests[0].toLowerCase()} fan!` : "";
-  const lines = carry
-    ? ["Welcome back! This is the Extended game.", `${who} returns, same character.`, "Skip Spot the Fake, which you just played?"]
-    : [SHOW.welcome[0], `Our contestant: ${who}.${fan}`, `${MODES[mode].label}, ${DIFFICULTY_INFO[difficulty].label}. I'm your host, ${SHOW.host.name}.`];
+  // Just the show's welcome: no contestant introduction, mode or difficulty read out.
+  const lines = carry ? ["Welcome back! This is the Extended game.", "Skip Spot the Fake, which you just played?"] : SHOW.welcome;
   return (
     <>
       <Host lines={lines} onDone={() => setReady(true)} />
@@ -636,10 +633,10 @@ function TemplateQuestion({ id, header, onWrong, onAnswer }: { id: string; heade
           <span className="pixel small">{header}</span>
         </div>
       )}
-      <Host lines={lines} onDone={() => setReady(true)} narrate={lines.length - 1} />
+      <Host lines={lines} onDone={() => setReady(true)} />
       <Choices
         disabled={!ready}
-        narrate={{ lines: [t.prompt] }}
+        narrate={{ lines }}
         options={q.options.map((o) => ({ id: o.id, label: o.label, hidden: o.id === hidden }))}
         onPick={(pick) => {
           if (isCorrect(plan, id, pick)) right(PTS.answer);
@@ -783,9 +780,9 @@ export function ListingCard({ l, body, hint }: { l: Listing; body: React.ReactNo
 
 /** The three verdict buttons for a listing, with pixel icons. Shared with multiplayer. */
 export const LISTING_CHOICES = [
-  { id: "legit", label: "Legit", icon: "check" as const },
-  { id: "suspicious", label: "Suspicious", icon: "alert" as const },
-  { id: "scam", label: "Scam", icon: "close" as const },
+  { id: "legit", label: "Legit" },
+  { id: "suspicious", label: "Suspicious" },
+  { id: "scam", label: "Scam" },
 ];
 
 /**
@@ -1032,8 +1029,8 @@ function ApplyRound({ onWrong, onWalk, onDone }: { onWrong: () => void; onWalk: 
       return (
         <div className="beat">
           <div className={`quick-verdict ${last.ok === null ? "" : last.ok ? "good" : "bad"}`} role="status">
-            <span className="pixel"><Icon name={last.ok === null ? "next" : last.ok ? "check" : "close"} /> {last.ok === null ? "Skipped" : last.ok ? "Good call" : "Hmm"}</span>
-            <p className="big-line">{last.line}</p>
+            <span className="pixel"><Icon name={last.ok === null ? "next" : last.ok ? "check" : "close"} /> {last.ok === null ? "Skipped" : last.ok ? "Correct!" : "Wrong!"}</span>
+            <LinePlayer lines={[last.line]} big narrate preface={[last.ok === null ? "Skipped." : last.ok ? "Correct!" : "Wrong!"]} />
           </div>
           <div className="reveal-actions">
             <Why ids={[d.contentId]} />
@@ -1045,13 +1042,13 @@ function ApplyRound({ onWrong, onWalk, onDone }: { onWrong: () => void; onWalk: 
       );
     return (
       <div className="beat" key={d.id}>
-        <Host lines={i === 0 ? ["What goes in your application folder?", `Item ${i + 1}: ${d.label}.`] : [`Item ${i + 1}: ${d.label}.`]} onDone={() => setReady(true)} narrate={i === 0 ? 1 : 0} />
+        <Host lines={i === 0 ? ["What goes in your application folder?", `Item ${i + 1}: ${d.label}.`] : [`Item ${i + 1}: ${d.label}.`]} onDone={() => setReady(true)} />
         <Choices
           disabled={!ready}
           narrate={{ lines: [`Item ${i + 1}: ${d.label}.`] }}
           options={[
-            { id: "bring", label: "Bring it", icon: "folder" },
-            { id: "leave", label: "Leave it", icon: "cancel" },
+            { id: "bring", label: "Bring it" },
+            { id: "leave", label: "Leave it" },
           ]}
           onPick={(c) => {
             const bring = c === "bring";
@@ -1127,8 +1124,8 @@ function NegotiateRound({ stageId, offer, difficulty, scripted, rivalDelta, onDo
       <Choices
         disabled={!ready}
         options={[
-          { id: "chat", label: "Haggle", icon: "message" },
-          { id: "accept", label: "Take it as listed", icon: "check" },
+          { id: "chat", label: "Haggle" },
+          { id: "accept", label: "Take it as listed" },
         ]}
         onPick={(c) => (c === "chat" ? setMode("chat") : onDone(undefined))}
       />
@@ -1185,8 +1182,8 @@ function LeaseRound({ clauses, difficulty, onWrong, onDone }: { clauses: ReturnT
         disabled={!ready}
         narrate={difficulty === "hard" && !magnified ? undefined : { lines: [magnified ? plain : c.text] }}
         options={[
-          { id: "fine", label: "Fine", icon: "thumbs-up" },
-          { id: "problem", label: "Problem", icon: "flag" },
+          { id: "fine", label: "Fine" },
+          { id: "problem", label: "Problem" },
         ]}
         onPick={(x) => {
           const ok = (x === "problem") === c.problem;
@@ -1253,7 +1250,7 @@ function MoveInRound(props: {
         <Choices
           disabled={!ready}
           options={[
-            { id: "yes", label: "Yes, insure it", icon: "shield" },
+            { id: "yes", label: "Yes, insure it" },
             { id: "no", label: "Skip it" },
           ]}
           onPick={(x) => (setInsured(x === "yes"), advance())}
@@ -1547,7 +1544,7 @@ function ReportRound(props: {
       )}
       <div className="question-card">
         <span className="draft-tag">Draft question · not an endorsement or prediction</span>
-        <LinePlayer key={q.stageId} lines={q.short} big />
+        <LinePlayer key={q.stageId} lines={q.short} big narrate />
       </div>
       <div className="reveal-actions">
         <Why

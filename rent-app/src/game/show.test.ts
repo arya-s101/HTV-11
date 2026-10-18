@@ -23,7 +23,6 @@ describe("game-show text rules (PRD v2 §5.10): ≤3 lines of ≤15 words outsid
   it("host script", () => {
     ok(showJson.welcome, "welcome");
     for (const [id, r] of Object.entries(showJson.rounds)) ok([r.title, ...r.intro], id);
-    for (const q of [...showJson.reactions.correct, ...showJson.reactions.wrong]) ok([q], "reaction");
   });
   it("listings on Easy and Normal (Hard fine print is the deliberate exception)", () => {
     for (const d of ["easy", "normal"] as const) for (const l of listingsFor(firstJob, d, 1).concat(listingsFor(firstJob, d, 2))) ok(sentences(l.text), `${d} ${l.id}`);

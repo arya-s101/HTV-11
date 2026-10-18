@@ -3,6 +3,7 @@
 // The app's one narrator plus its saved settings (PRD v5). Rounds use this module, never speechSynthesis.
 import { useSyncExternalStore } from "react";
 import { NARRATOR_DEFAULTS, type Narrator, type NarratorSettings } from "./Narrator";
+import { ElevenLabsNarrator } from "./ElevenLabsNarrator";
 import { NullNarrator } from "./NullNarrator";
 import { WebSpeechNarrator } from "./WebSpeechNarrator";
 
@@ -28,11 +29,13 @@ function load() {
   }
 }
 
-/** The Web Speech narrator when the browser has speech, otherwise a silent stand-in. */
+/** The host's voice: ElevenLabs (via /api/tts) when configured, falling back to the browser voice, then silence. */
 export function narrator(): Narrator {
   if (instance) return instance;
   load();
-  instance = typeof window !== "undefined" && window.speechSynthesis && typeof window.SpeechSynthesisUtterance === "function" ? new WebSpeechNarrator(window.speechSynthesis) : new NullNarrator();
+  if (typeof window === "undefined") return new NullNarrator();
+  const browser = window.speechSynthesis && typeof window.SpeechSynthesisUtterance === "function" ? new WebSpeechNarrator(window.speechSynthesis) : new NullNarrator();
+  instance = typeof window.Audio === "function" && typeof fetch === "function" ? new ElevenLabsNarrator(browser) : browser;
   instance.setSettings(settings);
   return instance;
 }
@@ -76,3 +79,6 @@ export function useNarratorSupported(): boolean {
 }
 
 export type { Narrator, NarratorSettings } from "./Narrator";
+
+/** Whether the ElevenLabs voice is active (for the settings label). */
+export const usingElevenLabs = () => (narrator() as { usingRemote?: () => boolean }).usingRemote?.() ?? false;

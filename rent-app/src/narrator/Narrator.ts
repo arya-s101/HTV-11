@@ -27,4 +27,6 @@ export interface Narrator {
   voices(): VoiceInfo[];
   /** Reads a short sample with the current settings ("Test voice"). */
   sample(): Promise<void>;
+  /** Fetch these lines ahead of time (a network voice), so they play without a delay. No-op for local voices. */
+  prefetch(lines: string[]): void;
 }

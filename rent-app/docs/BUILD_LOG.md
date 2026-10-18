@@ -208,3 +208,8 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
 - Settings: Read aloud (default on), Read options, voice (en-CA → en-US → en-GB → any English, local voices first), speed (0.85/1.05/1.25), Test voice; a Read aloud toggle on the welcome screen. Music ducks to ~30% while speaking; master mute silences the voice; speech is unlocked on the first tap.
 - Multiplayer uses the same game, so each client reads aloud with its own settings.
 - Not yet checked by hand across Chrome, Edge, Firefox, Safari and iOS Safari.
+
+## 2026-10-17: ElevenLabs host voice; the host reads everything
+
+- `ElevenLabsNarrator` (implements `Narrator`) plays clips from `/api/tts` (server-only `src/server/tts.ts`: key in `ELEVENLABS_API_KEY`, voice `ELEVENLABS_VOICE_ID`, model eleven_flash_v2_5, in-memory clip cache, per-IP rate limit). All lines of a screen are fetched in parallel; clips are cached client-side too. No key, quota or network → the browser voice (`WebSpeechNarrator`), then silence.
+- Dominic now reads everything he says: every host bubble (welcome, round intros with "Round N: title", scenes, questions, outros), reveal verdicts with his reaction and feedback, application verdicts, the civic question, plus options and listing ads.

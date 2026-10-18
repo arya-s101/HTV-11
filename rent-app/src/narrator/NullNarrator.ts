@@ -13,4 +13,5 @@ export class NullNarrator implements Narrator {
     return [];
   }
   async sample() {}
+  prefetch() {}
 }

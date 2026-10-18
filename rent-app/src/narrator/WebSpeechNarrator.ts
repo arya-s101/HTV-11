@@ -147,6 +147,10 @@ export class WebSpeechNarrator implements Narrator {
     setSpeechDuck(false);
   }
 
+  prefetch() {
+    // local voices need no fetching
+  }
+
   /** Reads a sample with the current settings (the "Test voice" button). */
   async sample() {
     this.unlocked = true;
