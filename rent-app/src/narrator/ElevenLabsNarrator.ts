@@ -6,7 +6,7 @@ import { NARRATOR_DEFAULTS, RATES, type Narrator, type NarratorSettings, type Vo
 import { pronounce } from "./pronounce";
 
 const LETTERS = "ABCDEFGH";
-const SAMPLE = "Hi, I'm Dominic ToRento. Welcome to The Lease You Can Do!";
+const SAMPLE = "Hi, I'm Dominic ToRento. Welcome to Rentin' ToRentino!";
 
 export class ElevenLabsNarrator implements Narrator {
   private settings: NarratorSettings = NARRATOR_DEFAULTS;

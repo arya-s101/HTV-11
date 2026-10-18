@@ -7,7 +7,7 @@
 > newcomer, wants nearby, interests; identity fields never change numbers), and party-mode multiplayer behind `NEXT_PUBLIC_MULTIPLAYER`
 > (Firebase anonymous auth + room codes; rules in `firestore.rules`; scores computed by the host client, a known hackathon limitation).
 >
-> **Game-show presentation (gameshow.txt, PRD v2 §5.10):** after character creation, the journey runs as "The Lease You Can Do", hosted by
+> **Game-show presentation (gameshow.txt, PRD v2 §5.10):** after character creation, the journey runs as "Rentin' ToRentino", hosted by
 > the original 8-bit cartoon host Dominic ToRento. Each phase is a round with a title card. Lines type in one at a time (tap finishes, then advances), there are at most
 > 3 lines of 15 words per screen, and details sit behind "Why? · Source". Big choice buttons, animated number counters with provenance chips, a podium with
 > score, receipts and three lifelines (Ask Dominic, Magnifier, Free Pass), and reveals with a drumroll, chime/buzzer, shake and confetti. Settings: text speed, skip
