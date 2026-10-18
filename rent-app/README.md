@@ -19,12 +19,11 @@
 > report card + civic question. Teaching content lives in `data/game/content.json`, each item with an official source, retrieval date and
 > verifier. Journey data is in `data/game/journey.json` and the logic in `src/game/journey.ts` (seeded; the demo uses seed 2026). Student and later stages are roadmap.
 
-> Working title. Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md` (PRD).
+Don't use "RentShield" (rentshield.ca exists). The product spec is `../prd.md`.
 
-An 8-bit life sim for the 2026 Toronto municipal election (Monday, October 26). You create a pixel character and play
-through life stages. At each stage you make a rental choice, see its consequences, and get the Toronto evidence. Then comes
-the civic turn: you sort what you can verify yourself from what the City (or another government) controls. Each stage ends with a sourced,
-nonpartisan question for municipal candidates. The end screen collects your questions, shows a reasoning tracker, and lets you copy one question.
+**Rentin' ToRentino** is a short browser game about renting a first apartment in Toronto, for the October 26, 2026 municipal election. Players move through a first-lease journey: spot a fake listing, compare places, apply, haggle, read the lease, move in, handle something that breaks, and move out.
+
+The listings are illustrative, not available units. The numbers behind them come from City of Toronto, CMHC, and Census data. Players see the cash and commute tradeoff, including costs that were easy to miss, and sort each problem by who controls it: themselves, the landlord, the City, or another government. The game ends with one sourced, nonpartisan question they can ask a ward candidate.
 
 **Tier 1 is built:** character creator (6 layers, age picker, demo preset), Stage 1 Student, Stage 2 First job, and the end screen.
 Stages 3–6 show "coming soon" because their civic levers don't have an official source yet (PRD §5).
@@ -47,10 +46,12 @@ It loops quietly and starts on the first click (browsers block autoplay), and a 
 
 **Optional landlord negotiation:** code decides the deal (`src/game/negotiate.ts`). Gemini only writes the landlord's words and is
 validated against code's decision; it runs server-side in `/api/negotiate`. Without `GEMINI_API_KEY`, and always for the demo preset,
-a scripted landlord is used. Copy `.env.example` to `.env.local` to enable Gemini (optional).
+a scripted landlord is used. Gemini also writes story text for a custom job title. Income, commute days, rents, and the candidate question are computed in code.
 Starting at age 26 or older therefore can't be played yet, and the creator explains why.
 
-## Run it (Node 20+; no Java, Python or API keys needed; Gemini key optional)
+**Host voice:** ElevenLabs speaks Dominic ToRento via `/api/tts` (`ELEVENLABS_API_KEY`, optional `ELEVENLABS_VOICE_ID`). No key, quota, or network falls back to the browser voice, then silence. Copy `.env.example` to `.env.local` to enable Gemini and ElevenLabs (both optional).
+
+## Run it (Node 20+; no Java, Python or API keys needed; Gemini and ElevenLabs keys optional)
 
 ```bash
 cd rent-app
@@ -87,8 +88,9 @@ npm run build:evidence  # rebuild data/game/evidence.json from raw downloads (ma
 | `data/game/negotiation.json`, `src/server/negotiation.ts`, `src/app/api/negotiate/route.ts` | **Server-only** hidden landlord configs, the Gemini call (key never sent to the browser), and the API route that replays the player's messages |
 | `data/game/professions.json`, `src/game/career.ts`, `src/server/career.ts`, `src/app/api/career/route.ts` | Preset job paths, validation, and the custom-profession Gemini call |
 | `src/server/gemini.ts` | Shared server-only Gemini client (8 s timeout, JSON output) |
+| `src/server/tts.ts`, `src/app/api/tts/route.ts`, `src/narrator/` | **Server-only** ElevenLabs host voice. The key never reaches the browser. Fallback: browser speech, then silence. |
 | `src/components/SiteChrome.tsx` | Navbar, footer, neon background |
-| `src/components/`, `src/app/page.tsx`, `src/app/how-it-works`, `src/app/sources` | UI; the only server code is the two API routes |
+| `src/components/`, `src/app/page.tsx`, `src/app/how-it-works`, `src/app/sources` | UI. Server routes: negotiate, career, scenarios, and tts. |
 
 Older pipeline (kept for provenance): `scripts/import-sources.ts` builds `data/snapshots/` (CMHC zones and rents, neighbourhood→zone
 assignment), and `scripts/routing/precompute_travel_times.py` (r5py) builds `travel-times.json`. Those times are only a cross-check;
@@ -124,4 +126,4 @@ The GTFS feed only covers service through 2026-10-31. Before that date, refresh 
 - Contains information licensed under the [Open Government Licence – Toronto](https://open.toronto.ca/open-data-license/).
 - Adapted from Canada Mortgage and Housing Corporation (CMHC) Rental Market Survey data. This product has not been reviewed or endorsed by CMHC. (Check the CMHC data reuse licence wording before public release.)
 - Walking network © OpenStreetMap contributors, ODbL.
-- AI use: see `docs/BUILD_LOG.md`.
+- AI use: Gemini writes landlord lines, custom job-title story text, and optional scene rewrites. Code decides every number and validates the wording. ElevenLabs speaks the host. Details in `docs/BUILD_LOG.md`.
