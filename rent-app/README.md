@@ -1,5 +1,7 @@
 # Rentin' ToRentino
 
+Play it at **[rentintorentino.casa](https://www.rentintorentino.casa)**.
+
 > **PRD v4 (overhaul.txt):** sound is on by default (music and effects channels; music ducks under effects; every button taps), no timers
 > anywhere and a Skip button (or S) on every question, fresh questions each game (code picks reviewed templates, answers and distractors from
 > `data/game/questions.json`; Gemini only rewrites the scene via `/api/scenarios`, validated, with reviewed fallbacks and none in the demo),
