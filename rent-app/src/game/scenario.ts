@@ -52,10 +52,22 @@ export const sentencesOf = (t: string) =>
     .filter(Boolean) ?? [];
 const words = (t: string) => t.trim().split(/\s+/).filter(Boolean).length;
 
+/** Flattens a bulleted or multi-line answer into plain sentences ("• Rent {rent}" → "Rent {rent}."), so lists never reach the screen. */
+export function flattenBullets(t: string): string {
+  return t
+    .split(/\r?\n|\s+[•▪●◦·]\s+/)
+    .map((x) => x.replace(/^\s*(?:[-*•▪●◦·–—]+|\d+[.)])\s*/, "").trim())
+    .filter(Boolean)
+    .map((x) => (/[.!?]["”']?$/.test(x) ? x : `${x}.`))
+    .join(" ");
+}
+
 /** Checks one Gemini output against a spec. */
 export function validateScenario(raw: unknown, spec: ScenarioSpec): Verdict {
   if (!raw || typeof raw !== "object") return { ok: false, reason: "not an object" };
-  const { scenario, host_line } = raw as Record<string, unknown>;
+  const r = raw as Record<string, unknown>;
+  const scenario = typeof r.scenario === "string" ? flattenBullets(r.scenario) : r.scenario;
+  const host_line = typeof r.host_line === "string" ? flattenBullets(r.host_line) : r.host_line;
   if (typeof scenario !== "string" || !scenario.trim()) return { ok: false, reason: "missing scenario" };
   if (host_line !== undefined && typeof host_line !== "string") return { ok: false, reason: "bad host_line" };
   const texts = [scenario, ...(typeof host_line === "string" && host_line.trim() ? [host_line] : [])];

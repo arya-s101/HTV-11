@@ -89,7 +89,7 @@ export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, p
               ? `${offer.utilities.includedInRent ? "Utilities included" : "Hydro extra"}. About ${offer.commuteMinutes} minutes to work by TTC. Viewings any evening.`
               : d === "normal"
                 ? offer.presentation.listingText
-                : `${offer.presentation.finePrint} Viewings by appt.`,
+                : `${offer.title}, $${(offer.rentCents / 100).toLocaleString("en-CA")} a month. ${offer.utilities.includedInRent ? "Most bills are taken care of." : "Some bills are yours to sort out."} Viewings by arrangement.`,
         }
       : {
           title: l.title!,

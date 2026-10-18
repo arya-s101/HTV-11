@@ -29,7 +29,7 @@
       "text": {
         "easy": "Gorgeous 1-bed, $1,050/month! I'm overseas, so no viewings. E-transfer the first month and I'll mail the keys.",
         "normal": "Bright 1-bed, $1,050/month, utilities included. Owner is abroad. Keys couriered once your deposit clears.",
-        "hard": "1BR, $1,050/mo all-incl. Owner o/s on contract; virtual tour only. Reserve w/ deposit; keys by courier."
+        "hard": "Bright one-bed, $1,050 a month, everything included. The owner handles things from afar. A deposit gets the keys on their way."
       },
       "redFlags": [
         "scam-below-market",
@@ -47,7 +47,7 @@
       "text": {
         "easy": "Luxury condo, only $1,150/month! Book a viewing through our online form. Banking details required first.",
         "normal": "Condo 1-bed, $1,150/month. Our pre-approval form unlocks viewing times. Banking info required.",
-        "hard": "1BR condo $1,150. Pre-screening portal: ID + online banking verification req'd before showings."
+        "hard": "Modern condo, $1,150 a month. Showings open up after a quick online check. Keep your banking login handy."
       },
       "redFlags": [
         "scam-below-market",
@@ -64,7 +64,7 @@
       "text": {
         "easy": "1-bed, $1,575/month. Viewing on Saturday. Send a $200 holding fee by e-transfer first.",
         "normal": "1-bed, $1,575/month. Saturday viewings. A small e-transfer holding fee secures your slot.",
-        "hard": "1BR $1,575. Viewings Sat. Holding fee (e-transfer) to confirm slot; non-refundable."
+        "hard": "One-bed, $1,575 a month. Saturday viewings fill up fast. A little something up front holds your spot."
       },
       "redFlags": [
         "scam-deposit-first"

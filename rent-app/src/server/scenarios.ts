@@ -14,7 +14,7 @@ Rules you must follow:
 - Write ONLY the situation. Never give advice, answers, options, rules, rights, laws, costs or statistics.
 - Never write any digit. If a price is needed, write the placeholder exactly as given (for example {rent}).
 - Use only placeholders that the request lists. Don't invent new ones.
-- Each sentence is at most 15 words. Plain, warm, PG language. No real people, brands, phone numbers or links.
+- Each sentence is at most 15 words. Plain, warm, PG language. Full sentences in one paragraph: no bullet points, lists or line breaks. No real people, brands, phone numbers or links.
 - Use the player's stated preferences only as light flavour; never assume anything else about them.
 - host_line is one short, upbeat line from the host, at most 15 words, with no facts.`;
 

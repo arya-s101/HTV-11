@@ -726,24 +726,14 @@ function SearchRound({ listings, difficulty, askReport, onWrong, onDone }: { lis
         l={l}
         hint={difficulty === "easy" || hint}
         body={
-          difficulty === "hard" && !magnified ? (
-            <>
-              <p className="fineprint dense">{l.text}</p>
-              {!ready && (
-                <button className="btn small ghost" onClick={() => setReady(true)}>
-                  I&apos;ve read it
-                </button>
-              )}
-            </>
-          ) : (
-            <ListingText id={l.id} fallback={difficulty === "easy" ? l.text : undefined} rentCents={l.rentCents} onDone={() => setReady(true)} narrate />
-          )
+          // Hard: vaguer wording, same typed and narrated lines. The magnifier swaps in the plainer listing.
+          <ListingText key={magnified ? "plain" : "own"} id={l.id} fallback={difficulty === "easy" || (difficulty === "hard" && !magnified) ? l.text : undefined} own={difficulty === "hard" && !magnified} rentCents={l.rentCents} onDone={() => setReady(true)} narrate />
         }
       />
       <Choices
         disabled={!ready}
         options={LISTING_CHOICES}
-        narrate={difficulty === "hard" && !magnified ? undefined : { lines: [`${l.title}. ${money(l.rentCents)} a month.`, "Legit, suspicious or scam?"] }}
+        narrate={{ lines: [`${l.title}. ${money(l.rentCents)} a month.`, "Legit, suspicious or scam?"] }}
         onPick={(f) => {
           const v = judgeListing(l.answer, f as Flag);
           if (v === "correct" || v === "caught") right(PTS.answer);
@@ -789,9 +779,9 @@ export const LISTING_CHOICES = [
  * Listing prose: a validated Gemini rewrite when one arrived, else this game's reviewed fallback (Easy keeps its plainer
  * wording). Code fills {rent}; the features that make it legit, suspicious or a scam were chosen by code.
  */
-function ListingText({ id, fallback, rentCents, onDone, narrate }: { id: string; fallback?: string; rentCents: number; onDone: () => void; narrate?: boolean }) {
+function ListingText({ id, fallback, own, rentCents, onDone, narrate }: { id: string; fallback?: string; own?: boolean; rentCents: number; onDone: () => void; narrate?: boolean }) {
   const { plan, scenarios } = useRun();
-  const [text] = useState(() => fill(scenarios[id]?.scenario ?? fallback ?? plan.prose[id] ?? "", { rent: money(rentCents) }));
+  const [text] = useState(() => fill((own ? fallback : scenarios[id]?.scenario) ?? fallback ?? plan.prose[id] ?? "", { rent: money(rentCents) }));
   return <LinePlayer lines={sentences(text)} onDone={onDone} narrate={narrate} />;
 }
 
@@ -814,9 +804,7 @@ function PickRound(props: {
   const [step, setStep] = useState<"verify" | "choose" | "questions" | "reveal">("verify");
   const [verify, setVerify] = useState<VerifyItemId[]>([]);
   const [offerId, setOfferId] = useState<string | null>(null);
-  const [decoded, setDecoded] = useState(false);
   const [ready, setReady] = useState(false);
-  useLifelines(step === "choose" && difficulty === "hard" ? { magnify: () => setDecoded(true) } : {}, [step]);
   const finish = (id: string, viewing?: { right: number; total: number }) => onDone(id, verify, viewing);
 
   if (step === "verify")
@@ -860,7 +848,6 @@ function PickRound(props: {
               commuteField={tailored.tailoring.commute?.field}
               letter={String.fromCharCode(65 + n)}
               difficulty={difficulty}
-              decoded={decoded}
               disabled={!ready}
               onPick={() => {
                 setOfferId(o.id);
@@ -889,7 +876,7 @@ function PickRound(props: {
   return <MonthReveal stage={stage} character={character} offer={offer} verify={verify} onDone={() => finish(offer.id)} />;
 }
 
-function DoorCard({ o, letter, difficulty, decoded, commuteField, onPick, disabled }: { o: Offer; letter: string; difficulty: Difficulty; decoded: boolean; commuteField?: Omit<Field<number>, "value">; onPick: () => void; disabled: boolean }) {
+function DoorCard({ o, letter, difficulty, commuteField, onPick, disabled }: { o: Offer; letter: string; difficulty: Difficulty; commuteField?: Omit<Field<number>, "value">; onPick: () => void; disabled: boolean }) {
   const ev = evidenceFor(o.neighbourhoodId);
   return (
     <article className="door">
@@ -900,20 +887,11 @@ function DoorCard({ o, letter, difficulty, decoded, commuteField, onPick, disabl
         {ev.name} · <ProvChip f={{ status: "derived", geography: ev.zone.assignment, reference_period: ev.zone.label, source_url: null }} />
       </div>
       <Counter label="Rent" value={o.rentCents} format={(n) => money(Math.round(n))} f={ILLUS} />
-      {difficulty === "hard" && !decoded && !commuteField ? (
-        <>
-          <p className="fineprint dense">{o.presentation.finePrint}</p>
-          <p className="fineprint dense">Route: {o.presentation.routeLegs.map((l) => `${l.label} ${l.minutes}m`).join(" → ")}</p>
-        </>
-      ) : (
-        <>
-          <Counter label="Commute, one way" value={o.commuteMinutes} format={(n) => `${Math.round(n)} min`} f={commuteField ?? { ...ILLUS, reference_period: "not a computed route" }} />
-          <div className="small">
-            Utilities: <b>{o.utilities.status === "unknown" ? "unknown" : "included"}</b> <ProvChip f={{ ...ILLUS, status: o.utilities.status }} />
-          </div>
-          {difficulty !== "hard" && <OfferBlurb o={o} />}
-        </>
-      )}
+      <Counter label="Commute, one way" value={o.commuteMinutes} format={(n) => `${Math.round(n)} min`} f={commuteField ?? { ...ILLUS, reference_period: "not a computed route" }} />
+      <div className="small">
+        Utilities: <b>{o.utilities.status === "unknown" ? "unknown" : "included"}</b> <ProvChip f={{ ...ILLUS, status: o.utilities.status }} />
+      </div>
+      {difficulty !== "hard" && <OfferBlurb o={o} />}
       <button className="btn" disabled={disabled} onClick={onPick}>
         Pick {letter} <Icon name="chevron-right" />
       </button>
@@ -1146,7 +1124,7 @@ function LeaseRound({ clauses, difficulty, onWrong, onDone }: { clauses: ReturnT
   const a = c ? ans[c.id] : undefined;
   useLifelines(c && !a && difficulty === "hard" ? { magnify: () => setMagnified(true) } : {}, [i, a]);
   useEffect(() => {
-    setReady(difficulty === "hard");
+    setReady(false);
     setMagnified(false);
   }, [i, difficulty]);
 
@@ -1176,11 +1154,11 @@ function LeaseRound({ clauses, difficulty, onWrong, onDone }: { clauses: ReturnT
         </span>
       </div>
       <div className="lease-sheet">
-        {difficulty === "hard" && !magnified ? <p className="fineprint dense">{c.text}</p> : <LinePlayer lines={[magnified ? plain : c.text]} onDone={() => setReady(true)} big narrate />}
+        <LinePlayer key={magnified ? "plain" : "own"} lines={sentences(magnified ? plain : c.text)} onDone={() => setReady(true)} big narrate />
       </div>
       <Choices
         disabled={!ready}
-        narrate={difficulty === "hard" && !magnified ? undefined : { lines: [magnified ? plain : c.text] }}
+        narrate={{ lines: sentences(magnified ? plain : c.text) }}
         options={[
           { id: "fine", label: "Fine" },
           { id: "problem", label: "Problem" },

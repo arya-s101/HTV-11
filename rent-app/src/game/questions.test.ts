@@ -76,6 +76,10 @@ describe("validation: anything off falls back", () => {
   it("accepts a clean scenario", () => {
     expect(validateScenario({ scenario: "The fridge hums, then goes quiet.", host_line: "Uh oh!" }, q).ok).toBe(true);
   });
+  it("bulleted output is flattened into plain sentences", () => {
+    const v = validateScenario({ scenario: "• The fridge hums\n- Then it goes quiet" }, q);
+    expect(v).toEqual({ ok: true, value: { scenario: "The fridge hums. Then it goes quiet." } });
+  });
   it.each([
     ["digits", { scenario: "The fridge broke after 3 days." }, q],
     ["unknown placeholder", { scenario: "The {fridge} broke." }, q],
