@@ -1,5 +1,5 @@
 /* =========================================================================
-   ToRento: 8-bit UI on a retro neon grid
+   Rentin' ToRentino: 8-bit UI on a retro neon grid
    1. Tokens  2. Base  3. Layout & chrome  4. Neon background
    5. Primitives  6. Home & pages  7. Creator  8. Game  9. Responsive
    ========================================================================= */
@@ -574,3 +574,6 @@ a.prov:hover { filter: brightness(1.2); }
 /* Read-aloud highlight (PRD v5): an outline, so nothing moves. */
 .choice-big.reading { outline: 3px solid var(--cyan); outline-offset: 2px; }
 .read-aloud-toggle { justify-self: center; }
+
+.title-difficulty { margin: 8px 0 12px; max-width: 520px; }
+.title-difficulty .muted { color: var(--text-soft); }

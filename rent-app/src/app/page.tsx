@@ -15,7 +15,7 @@ import { MODES, type Mode } from "@/config/modes";
 import { prefetchScenarios, batchesFor } from "@/components/show/scenarios";
 import { DEMO_SEED, listingsFor, newSeed } from "@/game/journey";
 import Link from "next/link";
-import { loadCharacter, loadDifficulty } from "@/game/character-store";
+import { loadCharacter, loadDifficulty, saveDifficulty } from "@/game/character-store";
 import { DifficultyPicker } from "@/components/CharacterCreator";
 import { loadProfile, saveProfile, scenarioProfile, WORKPLACES, type Profile } from "@/game/profile";
 import { loadRecent, planIds, planRun, rememberGame, type RunPlan, type ScenarioMap } from "@/game/questions";
@@ -26,7 +26,7 @@ import { DIFFICULTY_INFO } from "@/game/score";
 import type { Difficulty, PlayableStage } from "@/game/types";
 import { DEMO_CHARACTER, type Character } from "@/game/sprite";
 
-type Screen = "title" | "create" | "stage" | "between" | "end" | "party";
+type Screen = "title" | "setup" | "stage" | "between" | "end" | "party";
 
 const JOURNEY_STAGE = STAGES.find((s) => s.journey)! as PlayableStage;
 
@@ -176,10 +176,41 @@ export default function Game() {
       {screen === "title" && (
         <TitleScreen
           character={saved}
-          onNew={startGame}
+          onNew={(m) => {
+            // Pick a difficulty after choosing a mode, before the game begins.
+            if (!saved) return startGame(m);
+            setMode(m);
+            setScreen("setup");
+            top();
+          }}
           onDemo={() => begin(DEMO_CHARACTER, true, "base")}
           onParty={multiplayerEnabled() ? () => startGame("party") : undefined}
         />
+      )}
+
+      {screen === "setup" && (
+        <section className="page setup">
+          <span className="eyebrow">{MODES[mode].label}</span>
+          <h1>Choose a difficulty</h1>
+          {(profile.renting === "first" || profile.renting === "before") && (
+            <p className="small">Suggested for {profile.renting === "first" ? "first-time renters: Easy" : "experienced renters: Normal"}.</p>
+          )}
+          <DifficultyPicker
+            value={difficulty}
+            onChange={(d) => {
+              setDifficulty(d);
+              saveDifficulty(d);
+            }}
+          />
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn big" onClick={() => startGame(mode)}>
+              <Icon name="play" /> Start
+            </button>
+            <button className="btn ghost" onClick={() => (setScreen("title"), top())}>
+              Back
+            </button>
+          </div>
+        </section>
       )}
 
       {screen === "party" && (
@@ -291,7 +322,8 @@ function Hud(props: { character: Character; age: number; stageTitle: string; sta
   );
 }
 
-function TitleScreen({ character, onNew, onDemo, onParty }: { character: Character | null; onNew: (m: Mode) => void; onDemo: () => void; onParty?: () => void }) {
+function TitleScreen(props: { character: Character | null; onNew: (m: Mode) => void; onDemo: () => void; onParty?: () => void }) {
+  const { character, onNew, onDemo, onParty } = props;
   const steps = ["Choose a home", "See what you missed", "Read the evidence", "Find who has power", "Ask a better question"];
   return (
     <div className="home">
@@ -299,7 +331,7 @@ function TitleScreen({ character, onNew, onDemo, onParty }: { character: Charact
         <div className="hero-copy">
           <span className="eyebrow">Toronto municipal election · Monday, Oct 26, 2026</span>
           <h1>
-            To<span className="neon">Rent</span>o
+            Rentin&apos; To<span className="neon">Rent</span>ino
           </h1>
           <p className="lede">
             Live a Toronto life one rental at a time. Weigh rent against commute, find what you didn&apos;t know, then work out which parts of the problem

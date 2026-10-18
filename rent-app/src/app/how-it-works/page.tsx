@@ -7,7 +7,7 @@ import { RULES } from "@/game/negotiate";
 import { DIFFICULTY_INFO, DIFFICULTY_MULTIPLIER } from "@/game/score";
 import type { Difficulty } from "@/game/types";
 
-export const metadata: Metadata = { title: "How it works · ToRento" };
+export const metadata: Metadata = { title: "How it works · Rentin' ToRentino" };
 
 const LOOP = [
   ["Search", "Flag listings as legit, suspicious or a scam. Rent far below the CMHC area average is a red flag."],

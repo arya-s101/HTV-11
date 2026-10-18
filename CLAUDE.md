@@ -1,4 +1,4 @@
-# ToRento — Hack the Valley 11
+# Rentin' ToRentino — Hack the Valley 11
 
 ## Goal
 

@@ -68,7 +68,7 @@ real ones. Here every listing is labelled "Fictional listing", and the footer ex
 - A test caught a float bug: the 30% budget for $80k came out as $1,999.99. Fixed with integer math.
 - Browser smoke test: a full 5-round game, the final summary, phone width, `/explore`, and no console errors.
 
-## Pivot 2: PRD "ToRento" (newmessage.txt, 2026-10-17 ~00:45 Toronto)
+## Pivot 2: PRD "Rentin' ToRentino" (newmessage.txt, 2026-10-17 ~00:45 Toronto)
 
 Replaced the listing-pick game with the PRD's 8-bit life sim, Tier 1 only. The old game, `/explore` and the API routes were removed
 because the old game scored picking the cheapest listing, which breaks PRD §5. They remain in git history (`first commit`).
@@ -200,9 +200,9 @@ because the old game scored picking the cheapest listing, which breaks PRD §5. 
 - **Profile:** Quick start (name, look, age, career) plus "Tell us more" (`src/components/ProfileForm.tsx`), saved on the device with a Clear button. Workplace uses the r5py travel-time snapshot (derived), schedule changes trip counts, an income band is a `player_input` field. Pets add the no-pets clause; newcomers get the no-credit-history question. Headscarf, turban and kufi sprite options (cosmetic). Identity fields never change numbers (tested). An optional Extended event shows a landlord asking an unfair question (OHRC-sourced, random, labelled not legal advice).
 - **Multiplayer (feature flag):** `src/multiplayer/` + `src/components/Multiplayer.tsx` + `firestore.rules`. Not yet run against a live Firebase project or the rules emulator (needs a project and Java). Known limitations: host client computes scores; no scheduled cleanup function (rooms are treated as expired after 2 hours); room size is checked client-side.
 
-## 2026-10-17: Read aloud (PRD v5, TTS.txt) and the ToRento name
+## 2026-10-17: Read aloud (PRD v5, TTS.txt) and the Rentin' ToRentino name
 
-- Site renamed **ToRento**; host renamed **Dominic ToRento** ("Ask Dominic" lifeline).
+- Site renamed **Rentin' ToRentino**; host renamed **Dominic ToRento** ("Ask Dominic" lifeline).
 - `src/narrator/`: `Narrator` interface, `WebSpeechNarrator` (browser speechSynthesis; the only code that touches it), `NullNarrator` (unsupported/no English voice), `pronounce.ts` (TTC, CMHC, LTB, 311, money, percent, A/C, "+ hydro"; strips emoji), settings store.
 - Question screens (listings, viewing checks, documents, lease clauses, move-in, events, level of government, scam report, move-out) read their lines, then "A: …, B: …" options with an outline highlight. Typewriter lines start with their utterance; the next waits for the voice, with a safety timeout (length × 90 ms + 1.5 s). Answering, Skip, tapping past, Settings, leaving the screen and hiding the tab all cancel speech. Replay button and R re-read.
 - Settings: Read aloud (default on), Read options, voice (en-CA → en-US → en-GB → any English, local voices first), speed (0.85/1.05/1.25), Test voice; a Read aloud toggle on the welcome screen. Music ducks to ~30% while speaking; master mute silences the voice; speech is unlocked on the first tap.

@@ -16,7 +16,7 @@ export function SiteHeader() {
       <div className="container nav">
         <Link href="/" className="brand">
           <span>
-            ToRento
+            Rentin&apos; ToRentino
             <small>working title</small>
           </span>
         </Link>

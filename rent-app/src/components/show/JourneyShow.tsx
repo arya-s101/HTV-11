@@ -533,7 +533,7 @@ export function NarratorControls() {
         <input type="checkbox" checked={n.readOptions} disabled={!n.on} onChange={(e) => setNarratorSettings({ readOptions: e.target.checked })} /> Read options
       </label>
       {eleven ? (
-        <p className="small">Voice: Dominic (ElevenLabs).</p>
+        <p className="small">Voice: Dominic ToRento (ElevenLabs).</p>
       ) : (
       <label className="slider">
         <span>Voice</span>

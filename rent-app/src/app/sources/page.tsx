@@ -3,7 +3,7 @@ import evidenceJson from "../../../data/game/evidence.json";
 import { ELECTION_HUB, FARES, LEVERS } from "@/game/data";
 import { CONTENT, CONTENT_DISCLAIMER } from "@/game/journey";
 
-export const metadata: Metadata = { title: "Data & sources · ToRento" };
+export const metadata: Metadata = { title: "Data & sources · Rentin' ToRentino" };
 
 const ONTARIO_RIGHTS = { title: "Government of Ontario: Renting in Ontario: your rights", url: "https://www.ontario.ca/page/renting-ontario-your-rights" };
 

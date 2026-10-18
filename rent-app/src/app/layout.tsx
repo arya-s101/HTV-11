@@ -10,7 +10,7 @@ const body = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600", "700"], 
 
 export const metadata: Metadata = {
   // Working title; rename after the core loop works (PRD).
-  title: "ToRento",
+  title: "Rentin' ToRentino",
   description: "An 8-bit life sim about Toronto rental tradeoffs, which public levers shape them, and one sourced question to ask municipal candidates.",
 };
 

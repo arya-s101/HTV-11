@@ -133,12 +133,9 @@ export function CharacterCreator(props: {
   profile: Profile;
   setProfile: (p: Profile) => void;
   clearProfile: () => void;
-  difficulty: Difficulty;
-  setDifficulty: (d: Difficulty) => void;
 }) {
-  const { character, setCharacter, profile, setProfile, clearProfile, difficulty, setDifficulty } = props;
+  const { character, setCharacter, profile, setProfile, clearProfile } = props;
   const [minAge, maxAge] = [MIN_AGE, MAX_AGE];
-  const suggested: Difficulty | null = profile.renting === "first" ? "easy" : profile.renting === "before" ? "normal" : null;
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
   const plan = planLife(character.startAge);
@@ -227,18 +224,6 @@ export function CharacterCreator(props: {
             <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
           </fieldset>
 
-          <fieldset className="paper group">
-            <legend>Game</legend>
-            <DifficultyPicker value={difficulty} onChange={setDifficulty} />
-            {suggested && suggested !== difficulty && (
-              <p className="small">
-                Suggested for {profile.renting === "first" ? "first-time renters" : "experienced renters"}: {DIFFICULTY_INFO[suggested].label}.{" "}
-                <button className="btn ghost small" onClick={() => setDifficulty(suggested)}>
-                  Use it
-                </button>
-              </p>
-            )}
-          </fieldset>
 
           <details className="paper group tell-more">
             <summary className="pixel">Tell us more (optional)</summary>
