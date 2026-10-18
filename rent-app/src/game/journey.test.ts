@@ -57,11 +57,11 @@ describe("phase 1: search", () => {
     expect(scams.some((l) => (belowBenchmark(l.rentCents, l.benchmarkCents) ?? 0) >= 0.4)).toBe(true);
     expect(scams.every((l) => l.redFlags.includes("scam-below-market"))).toBe(true);
   });
-  it("Base shows 3 listings: 2 legit and 1 scam that the CMHC benchmark gives away, for any seed", () => {
+  it("Base shows 5 listings: the 4 real places and 1 scam that the CMHC benchmark gives away, for any seed", () => {
     for (const seed of [1, 2, 3, DEMO_SEED, 99]) {
       const ls = listingsFor(firstJob, "easy", seed, MODES.base.listings);
-      expect(ls).toHaveLength(3);
-      expect(ls.filter((l) => l.answer === "legit")).toHaveLength(2);
+      expect(ls).toHaveLength(5);
+      expect(ls.filter((l) => l.answer === "legit").map((l) => l.offerId).sort()).toEqual(firstJob.offers.map((o) => o.id).sort());
       const scam = ls.find((l) => l.answer === "scam")!;
       expect(belowBenchmark(scam.rentCents, scam.benchmarkCents)).toBeGreaterThanOrEqual(0.4);
     }

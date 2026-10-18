@@ -5,12 +5,10 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import { Sprite } from "@/components/pixel";
-import { ProfileForm } from "@/components/ProfileForm";
 import { PRESETS, presetProfession } from "@/game/career";
 import { STAGES } from "@/game/data";
 import { MAX_AGE, MIN_AGE, planLife, stageForAge } from "@/game/life";
 import { money } from "@/game/outcome";
-import type { Profile } from "@/game/profile";
 import { DIFFICULTY_INFO } from "@/game/score";
 import { ACCESSORIES, HAIR_COLOR, HAIR_STYLES, OUTFIT_COLOR, OUTFITS, SKIN, type Appearance, type Character } from "@/game/sprite";
 import type { Difficulty, PlayableStage } from "@/game/types";
@@ -130,11 +128,8 @@ function ProfessionPicker({ character, setCharacter, llm }: { character: Charact
 export function CharacterCreator(props: {
   character: Character;
   setCharacter: SetCharacter;
-  profile: Profile;
-  setProfile: (p: Profile) => void;
-  clearProfile: () => void;
 }) {
-  const { character, setCharacter, profile, setProfile, clearProfile } = props;
+  const { character, setCharacter } = props;
   const [minAge, maxAge] = [MIN_AGE, MAX_AGE];
   const a = character.appearance;
   const setA = (patch: Partial<Appearance>) => setCharacter({ ...character, appearance: { ...a, ...patch } });
@@ -223,12 +218,6 @@ export function CharacterCreator(props: {
             <Swatches label="Outfit colour" colors={OUTFIT_COLOR} value={a.outfitColor} onPick={(i) => setA({ outfitColor: i })} />
             <Choices label="Accessory" options={ACCESSORIES} value={a.accessory} onPick={(v) => setA({ accessory: v })} />
           </fieldset>
-
-
-          <details className="paper group tell-more">
-            <summary className="pixel">Tell us more (optional)</summary>
-            <ProfileForm profile={profile} onChange={setProfile} onClear={clearProfile} />
-          </details>
         </div>
       </section>
     </div>

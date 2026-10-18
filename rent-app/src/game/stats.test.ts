@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import statsJson from "../../data/stats.json";
-import { MODES } from "../config/modes";
+import { EVIDENCE, STAGES } from "./data";
 import { DEMO_SEED, J } from "./journey";
 import { planRun, TEMPLATES } from "./questions";
 import { formatStat, statFor, STATS } from "./stats";
+
+const firstJobNeighbourhoods = STAGES.find((s) => s.id === "first-job")!.offers!.map((o) => o.neighbourhoodId);
 
 describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
   it("no card shows an illustrative or unknown value", () => {
@@ -36,7 +38,7 @@ describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
     expect(statFor("no-such-question", [])).toBeNull();
   });
   it("every Base question with a sourced stat has a card", () => {
-    const base = ["listing:legit", "listing:scam", "verify", ...MODES.base.offerIds!.map((o) => `choose:${o}`), "movein", ...planRun(DEMO_SEED, "base").events.flatMap((id) => [`event:${id}:action`, `event:${id}:level`])];
+    const base = ["listing:legit", "listing:scam", "verify", ...firstJobNeighbourhoods.map((id) => `choose:nb:${id}`), "movein", ...planRun(DEMO_SEED, "base").events.flatMap((id) => [`event:${id}:action`, `event:${id}:level`])];
     for (const q of base) expect(statFor(q, []), q).not.toBeNull();
   });
   it("cards point at questions that exist", () => {
@@ -50,7 +52,7 @@ describe("stat cards (PRD v3 Change 4): real, sourced numbers only", () => {
       "movein",
       ...J.lease.clauses.map((c) => `lease:${c.id}`),
       ...TEMPLATES.filter((t) => t.round === "live").flatMap((t) => [`event:${t.id}:action`, `event:${t.id}:level`]),
-      ...["s1-a", "s1-b", "s1-c", "s2-a", "s2-b", "s2-c"].map((o) => `choose:${o}`),
+      ...Object.keys(EVIDENCE).map((id) => `choose:nb:${id}`),
     ]);
     for (const c of STATS) expect(known, c.question_id).toContain(c.question_id);
   });

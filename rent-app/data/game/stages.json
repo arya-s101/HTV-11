@@ -18,6 +18,40 @@
       "label": "Extra fees (laundry, parking, deposits)"
     }
   ],
+  "verifyDecoys": [
+    {
+      "id": "decoy-views",
+      "label": "How many people viewed the listing"
+    },
+    {
+      "id": "decoy-photos",
+      "label": "Whether the photos look professional"
+    },
+    {
+      "id": "decoy-cabinets",
+      "label": "The colour of the kitchen cabinets"
+    },
+    {
+      "id": "decoy-fridge",
+      "label": "The brand of the fridge"
+    },
+    {
+      "id": "decoy-lobby",
+      "label": "How fancy the lobby furniture is"
+    },
+    {
+      "id": "decoy-weekend",
+      "label": "Whether the ad went up on a weekend"
+    },
+    {
+      "id": "decoy-emoji",
+      "label": "How many emojis the ad uses"
+    },
+    {
+      "id": "decoy-social",
+      "label": "The building's social media followers"
+    }
+  ],
   "stages": [
     {
       "id": "student",
@@ -380,6 +414,49 @@
                 "mode": "subway",
                 "label": "Subway to Union",
                 "minutes": 22
+              }
+            ]
+          }
+        },
+        {
+          "id": "s2-d",
+          "title": "Basement 1-bedroom",
+          "neighbourhoodId": 171,
+          "unitType": "1-bedroom",
+          "cmhcBedroom": "1br",
+          "rentCents": 145000,
+          "utilities": {
+            "status": "illustrative",
+            "includedInRent": true,
+            "note": "Utilities included"
+          },
+          "commuteMinutes": 35,
+          "unknowns": [
+            "commute-timing"
+          ],
+          "reveal": {
+            "id": "commute-timing",
+            "headline": "Your shifts aren't the morning peak",
+            "text": "The 35-minute figure is for a weekday morning. In this scenario two of your weekly shifts end at 11 p.m., and the illustrative trip home then takes 55 minutes.",
+            "extraMonthlyCents": 0,
+            "lines": [
+              "Surprise: two of your shifts end at 11 p.m.",
+              "That trip home takes about 55 minutes."
+            ]
+          },
+          "presentation": {
+            "listingText": "Cozy basement 1-bed in a house, separate entrance. $1,450/month, utilities included. About 35 minutes to downtown by subway.",
+            "finePrint": "Bsmt 1BR, sep. ent. $1,450/mo all-incl. Transit est. for AM peak only.",
+            "routeLegs": [
+              {
+                "mode": "walk",
+                "label": "Walk to station",
+                "minutes": 8
+              },
+              {
+                "mode": "subway",
+                "label": "Subway to Union",
+                "minutes": 27
               }
             ]
           }

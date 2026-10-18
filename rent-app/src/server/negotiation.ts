@@ -3,6 +3,7 @@
 import "server-only";
 import negotiationJson from "../../data/game/negotiation.json";
 import { evidenceFor, isPlayable, STAGES } from "@/game/data";
+import { rollStage } from "@/game/locations";
 import { openingLine, replay, scriptedMessage, validateLlm, type NegotiationConfig, type OfferFacts, type Reply } from "@/game/negotiate";
 import type { Difficulty, PlayableStage } from "@/game/types";
 import { fallbackReasonFor, geminiJson, hasGeminiKey } from "./gemini";
@@ -11,9 +12,11 @@ export const LEGAL_HELP = negotiationJson.legalHelp;
 const CONFIGS = negotiationJson.offers as Record<string, NegotiationConfig>;
 const BEDROOM_WORDS: Record<string, string> = { studio: "bachelor units", "1br": "1-bedroom units", "2br": "2-bedroom units" };
 
-export function lookup(stageId: string, offerId: string) {
-  const stage = STAGES.find((s) => s.id === stageId);
-  if (!stage || !isPlayable(stage)) return null;
+export function lookup(stageId: string, offerId: string, seed?: number) {
+  const base = STAGES.find((s) => s.id === stageId);
+  if (!base || !isPlayable(base)) return null;
+  // Same seeded location and rent the player sees (src/game/locations.ts).
+  const stage = seed === undefined ? (base as PlayableStage) : rollStage(base as PlayableStage, seed);
   const offer = (stage as PlayableStage).offers.find((o) => o.id === offerId);
   const cfg = CONFIGS[offerId];
   if (!offer || !cfg) return null;
@@ -105,11 +108,12 @@ export async function negotiate(args: {
   stageId: string;
   offerId: string;
   difficulty: Difficulty;
+  seed?: number;
   transcript: Turn[];
   mode: "auto" | "scripted";
   callModel?: typeof callGemini;
 }): Promise<NegotiateResult | null> {
-  const found = lookup(args.stageId, args.offerId);
+  const found = lookup(args.stageId, args.offerId, args.seed);
   if (!found) return null;
   const { cfg, facts } = found;
   const playerMessages = args.transcript.filter((t) => t.role === "player").map((t) => t.text);

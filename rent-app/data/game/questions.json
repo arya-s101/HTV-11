@@ -718,6 +718,41 @@
         "Sleek condo living for {rent}/month plus hydro. Concierge and gym."
       ],
       "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
+    },
+    "s2-d": {
+      "scenario_brief": "A rental ad for a cozy basement one-bedroom in a house with a separate entrance, at {rent} a month with utilities included. Viewings are offered.",
+      "required_features": [
+        {
+          "id": "price",
+          "keywords": [
+            "{rent}"
+          ]
+        },
+        {
+          "id": "included",
+          "keywords": [
+            "utilities included",
+            "all-inclusive",
+            "all inclusive",
+            "bills included",
+            "everything included"
+          ]
+        },
+        {
+          "id": "basement",
+          "keywords": [
+            "basement",
+            "lower level",
+            "lower-level"
+          ]
+        }
+      ],
+      "fallback_scenarios": [
+        "Cozy basement one-bedroom, separate entrance. {rent}/month, utilities included. Viewings any evening.",
+        "Bright basement one-bedroom in a house. All-inclusive at {rent}/month. Come take a look.",
+        "Basement one-bedroom with its own door. {rent}/month, bills included. Viewings this week."
+      ],
+      "reviewed_by": "Drafted by Claude (AI) from content.json sources, 2026-10-17; team to verify before launch"
     }
   }
 }

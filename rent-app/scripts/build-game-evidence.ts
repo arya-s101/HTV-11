@@ -1,4 +1,4 @@
-// Builds data/game/evidence.json: REAL Toronto observations for every neighbourhood used by a game offer.
+// Builds data/game/evidence.json: REAL Toronto observations for every neighbourhood a game offer can use.
 // Inputs: data/game/stages.json (which neighbourhoods/bedrooms), data/snapshots/*.json, data/raw/nbhd-profiles-2021.xlsx.
 // Run: npm run build:evidence
 import { createHash } from "node:crypto";
@@ -41,6 +41,14 @@ for (const s of stages.stages) for (const o of s.offers ?? []) {
   wanted.get(o.neighbourhoodId)!.add(o.cmhcBedroom);
 }
 
+// Every neighbourhood whose CMHC zone publishes a 1-bedroom average, so games can draw fresh locations (randomized per seed).
+for (const nb of nbSnap.neighbourhoods as { id: number; zoneCode: string }[]) {
+  const zone = cmhc.zones.find((z: { zoneCode: string }) => z.zoneCode === nb.zoneCode);
+  if (!zone?.inCityOfToronto || zone.benchmarks["1br"]?.vacant?.suppressed !== false) continue;
+  if (!wanted.has(nb.id)) wanted.set(nb.id, new Set());
+  wanted.get(nb.id)!.add("1br");
+}
+
 const BEDROOM_LABEL: Record<string, string> = { studio: "bachelor (studio)", "1br": "1-bedroom", "2br": "2-bedroom", "3br+": "3+ bedroom" };
 const neighbourhoods: Record<string, unknown> = {};
 
@@ -49,7 +57,9 @@ for (const [id, bedrooms] of wanted) {
   if (!nb) throw new Error(`Neighbourhood ${id} not in snapshot`);
   const col = idRow.findIndex((v) => Number(v) === id);
   if (col < 1) throw new Error(`Neighbourhood ${id} not in profiles`);
-  if (String(rows[0][col]).trim() !== nb.name) throw new Error(`Profile name mismatch for ${id}: ${rows[0][col]} vs ${nb.name}`);
+  // Names differ only in punctuation across the two City files (e.g. "O`Connor Parkview" vs "O'Connor-Parkview").
+  const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (norm(String(rows[0][col])) !== norm(nb.name)) throw new Error(`Profile name mismatch for ${id}: ${rows[0][col]} vs ${nb.name}`);
   const zone = cmhc.zones.find((z: { zoneCode: string }) => z.zoneCode === nb.zoneCode);
   const cellRef = (r: number) => `hd2021_census_profile!${XLSX.utils.encode_cell({ r: r - 1, c: col })}`;
   const geo = `Neighbourhood 158-model #${id} (${nb.name})`;

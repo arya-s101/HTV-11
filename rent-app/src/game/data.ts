@@ -7,6 +7,8 @@ import type { CmhcTable, Lever, NeighbourhoodEvidence, PlayableStage, Stage, Ver
 
 export const STAGES = stagesJson.stages as Stage[];
 export const VERIFY_ITEMS = stagesJson.verifyItems as { id: VerifyItemId; label: string }[];
+/** Plausible-sounding checks that never change cost, commute or rent rules (Pick Your Place decoys). */
+export const VERIFY_DECOYS = stagesJson.verifyDecoys as { id: string; label: string }[];
 export const LEVERS = leversJson.levers as Lever[];
 export const FARES = leversJson.fares;
 export const ELECTION_HUB = leversJson.electionHub;

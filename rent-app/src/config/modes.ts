@@ -30,8 +30,9 @@ export const MODES: Record<Mode, ModeConfig> = {
     blurb: "About 4 minutes. The vital lessons, plus haggling.",
     // Haggling is the flagship feature, so Base includes it; the first-month numbers follow the deal (move-in).
     rounds: ["search", "viewing", "negotiate", "movein", "live", "report"],
-    listings: { legit: 2, bad: 1, scamsOnly: true },
-    offerIds: ["s2-a", "s2-b"],
+    // Five listings: the four real places plus one scam. The player then picks from the four real ones.
+    listings: { legit: 4, bad: 1, scamsOnly: true },
+    offerIds: null,
     scamReport: false,
     viewingQuestions: 0,
     revealIn: "movein",
@@ -43,7 +44,7 @@ export const MODES: Record<Mode, ModeConfig> = {
     label: "Extended game",
     blurb: "About 10 minutes. All eight phases, with haggling.",
     rounds: ["search", "viewing", "apply", "negotiate", "lease", "movein", "live", "moveout", "report"],
-    listings: { legit: 2, bad: 2, scamsOnly: false },
+    listings: { legit: 4, bad: 1, scamsOnly: false },
     offerIds: null,
     scamReport: true,
     viewingQuestions: 3,

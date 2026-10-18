@@ -3,7 +3,9 @@
 import contentJson from "../../data/game/content.json";
 import journeyJson from "../../data/game/journey.json";
 import { MODES, type ModeConfig } from "../config/modes";
-import { evidenceFor } from "./data";
+import { evidenceFor, VERIFY_DECOYS, VERIFY_ITEMS } from "./data";
+import { rollListing } from "./locations";
+import { rng, shuffle, sub } from "./random";
 import type { Difficulty, PlayableStage } from "./types";
 
 // ---------- content ----------
@@ -31,30 +33,8 @@ export function content(id: string): ContentItem {
 export const J = journeyJson;
 export type Level = keyof typeof journeyJson.levels;
 
-// ---------- seeded RNG ----------
-export function rng(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function shuffle<T>(xs: T[], r: () => number): T[] {
-  const a = [...xs];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(r() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-/** A sub-seed per phase, so one phase's choices don't change another's draw. */
-const sub = (seed: number, salt: string) => {
-  let h = seed >>> 0;
-  for (const ch of salt) h = Math.imul(h ^ ch.charCodeAt(0), 2654435761) >>> 0;
-  return h;
-};
+// Seeded RNG lives in src/game/random.ts; re-exported for existing callers.
+export { rng, shuffle, sub } from "./random";
 export const DEMO_SEED = 2026;
 export const newSeed = () => Math.floor(Math.random() * 1_000_000) + 1;
 
@@ -91,15 +71,13 @@ export function listingsFor(stage: PlayableStage, d: Difficulty, seed: number, p
                 ? offer.presentation.listingText
                 : `${offer.title}, $${(offer.rentCents / 100).toLocaleString("en-CA")} a month. ${offer.utilities.includedInRent ? "Most bills are taken care of." : "Some bills are yours to sort out."} Viewings by arrangement.`,
         }
-      : {
-          title: l.title!,
-          neighbourhoodId: l.neighbourhoodId!,
-          cmhcBedroom: l.cmhcBedroom!,
-          rentCents: l.rentCents!,
-          text: l.text![d],
-        };
+      : rollListing(
+          { id: l.id, title: l.title!, neighbourhoodId: l.neighbourhoodId!, cmhcBedroom: l.cmhcBedroom!, rentCents: l.rentCents!, text: l.text![d] },
+          seed,
+          stage.offers.map((o) => o.neighbourhoodId),
+        );
     const ev = evidenceFor(base.neighbourhoodId);
-    return { id: l.id, answer: l.answer as Flag, offerId: l.offerId, redFlags: l.redFlags, benchmarkCents: ev.cmhcRent[base.cmhcBedroom]?.value ?? null, ...base };
+    return { ...base, id: l.id, answer: l.answer as Flag, offerId: l.offerId, redFlags: l.redFlags, benchmarkCents: ev.cmhcRent[base.cmhcBedroom]?.value ?? null };
   });
   // A run shows a few legit listings and a few bad ones, always including at least one scam.
   const r = rng(sub(seed, "search"));
@@ -203,4 +181,23 @@ export function reportCard(r: JourneyResult): { lines: ReportLine[]; readiness: 
   ];
   const readiness = Math.round((lines.reduce((a, l) => a + l.score, 0) / lines.length) * 100);
   return { lines, readiness };
+}
+
+// ---------- Pick Your Place: what to double-check ----------
+export interface VerifyOption {
+  id: string;
+  label: string;
+  /** False for a decoy: something that never changes what you pay, your trip or your rent rules. */
+  real: boolean;
+}
+
+/** Three real checks (always covering the surprises these places hide) and two decoys, shuffled per game. */
+export function verifyOptions(offers: { reveal: { id: string } }[], seed: number): VerifyOption[] {
+  const r = rng(sub(seed, "verify"));
+  const needed = [...new Set(offers.map((o) => o.reveal.id))];
+  const rest = shuffle(VERIFY_ITEMS.filter((v) => !needed.includes(v.id)), r).map((v) => v.id);
+  const realIds = [...needed, ...rest].slice(0, Math.max(3, needed.length));
+  const real = VERIFY_ITEMS.filter((v) => realIds.includes(v.id)).map((v) => ({ ...v, real: true }));
+  const decoys = shuffle(VERIFY_DECOYS, r).slice(0, 2).map((v) => ({ ...v, real: false }));
+  return shuffle([...real, ...decoys], r);
 }

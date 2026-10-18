@@ -17,7 +17,7 @@ import { DEMO_SEED, listingsFor, newSeed } from "@/game/journey";
 import Link from "next/link";
 import { loadCharacter, loadDifficulty, saveDifficulty } from "@/game/character-store";
 import { DifficultyPicker } from "@/components/CharacterCreator";
-import { loadProfile, saveProfile, scenarioProfile, WORKPLACES, type Profile } from "@/game/profile";
+import { clearProfile, saveProfile, scenarioProfile, WORKPLACES, type Profile } from "@/game/profile";
 import { loadRecent, planIds, planRun, rememberGame, type RunPlan, type ScenarioMap } from "@/game/questions";
 import { ELECTION_HUB, STAGES } from "@/game/data";
 import { money } from "@/game/outcome";
@@ -63,9 +63,9 @@ export default function Game() {
     const rounds = SHOW.rounds as Record<string, { title: string; intro: string[] }>;
     narrator().prefetch([...SHOW.welcome, `Round 1: ${rounds.search.title}.`, ...rounds.search.intro]);
     const c = loadCharacter();
-    const p = loadProfile();
+    // The "Tell us more" profile was removed; forget anything saved by older versions so it can't quietly tailor numbers.
+    clearProfile();
     setSaved(c);
-    setProfile(p);
     setDifficulty(loadDifficulty());
     if (c) setCharacter(c);
     const s = newSeed();
@@ -75,8 +75,8 @@ export default function Game() {
     const next = new URLSearchParams(window.location.search).get("play");
     if (c && (next === "base" || next === "extended" || next === "party")) {
       window.history.replaceState(null, "", "/");
-      startGame(next, c, s, p);
-    } else prepare("base", s, { character: c ?? character, profile: p });
+      startGame(next, c, s, {});
+    } else prepare("base", s, { character: c ?? character, profile: {} });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

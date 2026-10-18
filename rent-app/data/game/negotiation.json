@@ -96,6 +96,22 @@
           "monetary": false
         }
       ]
+    },
+    "s2-d": {
+      "landlord": "Lena, the homeowner",
+      "persona": "A cheerful homeowner who lives upstairs with her kids, wants a quiet, friendly tenant downstairs, and is happy to be flexible for the right person.",
+      "concessions": [
+        {
+          "id": "move-in-flex",
+          "label": "Move-in date that suits you",
+          "monetary": false
+        },
+        {
+          "id": "storage",
+          "label": "A storage spot in the garage",
+          "monetary": false
+        }
+      ]
     }
   },
   "legalHelp": {

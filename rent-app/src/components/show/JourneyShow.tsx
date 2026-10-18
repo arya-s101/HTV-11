@@ -6,13 +6,14 @@
 import { Icon, type IconName } from "@/components/icons";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MODES, SKIPPABLE_AFTER_BASE, type Mode, type RoundId } from "@/config/modes";
-import { ELECTION_HUB, evidenceFor, VERIFY_ITEMS } from "@/game/data";
-import { belowBenchmark, content, disputedDefect, J, judgeListing, leaseFor, listingsFor, reportCard, type Flag, type JourneyResult, type Level, type Listing } from "@/game/journey";
+import { ELECTION_HUB, evidenceFor } from "@/game/data";
+import { rollStage } from "@/game/locations";
+import { AFFORDABLE_PCT, placeVerdict, STRETCH_PCT, type PlaceVerdict } from "@/game/verdict";
+import { belowBenchmark, verifyOptions, content, disputedDefect, J, judgeListing, leaseFor, listingsFor, reportCard, type Flag, type JourneyResult, type Level, type Listing } from "@/game/journey";
 import { levelCorrect, template, type PlannedQuestion, type QuestionTemplate, type RunPlan, type ScenarioMap } from "@/game/questions";
 import type { Profile } from "@/game/profile";
 import { fill } from "@/game/scenario";
 import { tailorStage } from "@/game/tailor";
-import { ProfileForm } from "../ProfileForm";
 import { narrator, setNarratorSettings, useNarratorSettings, useNarratorSupported, usingElevenLabs } from "@/narrator";
 import { consequence, money } from "@/game/outcome";
 import { buildCityQuestion, buildQuestion, type DraftQuestion } from "@/game/question";
@@ -148,7 +149,9 @@ export function JourneyShow(props: {
 }
 
 function Show(props: Parameters<typeof JourneyShow>[0]) {
-  const { stage, age, character, difficulty, seed, mode, carry, plan, scriptedLandlord, onReplay, onQuit, onExtended, party } = props;
+  // Fresh real neighbourhoods every game, from the seed (same for everyone in a multiplayer room).
+  const stage = useMemo(() => rollStage(props.stage, props.seed), [props.stage, props.seed]);
+  const { age, character, difficulty, seed, mode, carry, plan, scriptedLandlord, onReplay, onQuit, onExtended, party } = props;
   const cfg = MODES[mode];
   const [skipPlayed, setSkipPlayed] = useState(false);
   const rounds = cfg.rounds.filter((r) => !(skipPlayed && SKIPPABLE_AFTER_BASE.includes(r)));
@@ -160,7 +163,6 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
   const armed = useRef<Partial<Record<LifelineId, () => void>>>({});
   const [armedKeys, setArmedKeys] = useState<LifelineId[]>([]);
   const [showSettings, setShowSettings] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [shake, setShake] = useState(false);
   const [tally, setTally] = useState<Record<Outcome, number>>({ correct: 0, wrong: 0, skipped: 0 });
   const count = useCallback((o: Outcome) => setTally((t) => ({ ...t, [o]: t[o] + 1 })), []);
@@ -282,25 +284,11 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
             <button className="btn ghost small" onClick={() => (narrator().cancel(), setShowSettings(!showSettings))} aria-expanded={showSettings}>
               <Icon name="gear" /> Settings
             </button>
-            <button className="btn ghost small" onClick={() => setShowProfile(true)} aria-haspopup="dialog">
-              <Icon name="user" /> Profile
-            </button>
             <button className="btn ghost small" onClick={onQuit}>
               Quit
             </button>
           </div>
           {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
-          {showProfile && (
-            <div className="why-overlay" onClick={() => setShowProfile(false)}>
-              <div className="drawer profile-drawer" role="dialog" aria-modal="true" aria-label="Your profile" onClick={(e) => e.stopPropagation()}>
-                <ProfileForm profile={props.profile} onChange={props.onProfile} onClear={() => props.onProfile({})} />
-                <p className="note">Changes apply to numbers from the next screen on. Scenes already written stay as they are.</p>
-                <button className="btn small" autoFocus onClick={() => setShowProfile(false)}>
-                  Done
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="round-strip" aria-label="Rounds">
@@ -384,6 +372,7 @@ function Show(props: Parameters<typeof JourneyShow>[0]) {
           {round === "negotiate" && !intro && offer && (
             <NegotiateRound
               stageId={stage.id}
+              seed={seed}
               offer={offer}
               difficulty={difficulty}
               scripted={scriptedLandlord}
@@ -799,10 +788,15 @@ function PickRound(props: {
   onDone: (offerId: string, verify: VerifyItemId[], viewing?: { right: number; total: number }) => void;
 }) {
   const { stage, character, offers, difficulty, questions, revealHere, onWrong, onDone } = props;
-  const { values, profile } = useRun();
+  const { values, profile, plan } = useRun();
+  const { right } = useShow();
   const tailored = useMemo(() => tailorStage(stage, profile), [stage, profile]);
-  const [step, setStep] = useState<"verify" | "choose" | "questions" | "reveal">("verify");
-  const [verify, setVerify] = useState<VerifyItemId[]>([]);
+  const [step, setStep] = useState<"verify" | "checked" | "choose" | "questions" | "reveal">("verify");
+  // Three real checks and two decoys: picking everything isn't a strategy.
+  const options = useMemo(() => verifyOptions(offers, plan.seed), [offers, plan.seed]);
+  const [picked, setPicked] = useState<string[]>([]);
+  const verify = options.filter((o) => o.real && picked.includes(o.id)).map((o) => o.id as VerifyItemId);
+  const decoysPicked = options.filter((o) => !o.real && picked.includes(o.id));
   const [offerId, setOfferId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const finish = (id: string, viewing?: { right: number; total: number }) => onDone(id, verify, viewing);
@@ -810,31 +804,58 @@ function PickRound(props: {
   if (step === "verify")
     return (
       <div className="beat">
-        <Host lines={["Before you look: what will you double-check?", "Pick any. Then choose a place."]} onDone={() => setReady(true)} />
+        <Host lines={["Before you look: what will you double-check?", "Some of these matter. Some don't."]} onDone={() => setReady(true)} />
         <div className="choices n4 toggles">
-          {VERIFY_ITEMS.map((v) => (
-            <button key={v.id} className={`btn choice-big ${verify.includes(v.id) ? "picked" : ""}`} disabled={!ready} aria-pressed={verify.includes(v.id)} onClick={() => setVerify(verify.includes(v.id) ? verify.filter((x) => x !== v.id) : [...verify, v.id])}>
-              <Icon name={verify.includes(v.id) ? "checkbox-on" : "checkbox"} /> {v.label}
+          {options.map((v) => (
+            <button key={v.id} className={`btn choice-big ${picked.includes(v.id) ? "picked" : ""}`} disabled={!ready} aria-pressed={picked.includes(v.id)} onClick={() => setPicked(picked.includes(v.id) ? picked.filter((x) => x !== v.id) : [...picked, v.id])}>
+              <Icon name={picked.includes(v.id) ? "checkbox-on" : "checkbox"} /> {v.label}
             </button>
           ))}
         </div>
         <div className="choices">
-          <button className="btn big" disabled={!ready} onClick={() => (setReady(false), setStep("choose"))}>
-            See the places <Icon name="chevron-right" />
+          <button
+            className="btn big"
+            disabled={!ready}
+            onClick={() => {
+              setReady(false);
+              if (!picked.length) return setStep("choose");
+              if (!decoysPicked.length) right(PTS.answer);
+              setStep("checked");
+            }}
+          >
+            Lock it in <Icon name="chevron-right" />
           </button>
         </div>
         <div className="skip-row">
-          <SkipButton disabled={!ready} onSkip={() => (setVerify([]), setReady(false), setStep("choose"))} />
+          <SkipButton disabled={!ready} onSkip={() => (setPicked([]), setReady(false), setStep("choose"))} />
         </div>
       </div>
     );
+
+  if (step === "checked") {
+    const missedReal = options.filter((o) => o.real && !picked.includes(o.id)).length;
+    return (
+      <Reveal
+        ok={!decoysPicked.length}
+        headline={decoysPicked.length ? `${decoysPicked.length} decoy${decoysPicked.length > 1 ? "s" : ""}` : "No decoys!"}
+        lines={
+          decoysPicked.length
+            ? [...decoysPicked.map((d) => `${d.label} won't change your cost or trip.`), "Check what affects money, time or your rent."].slice(0, 3)
+            : [`Every pick affects money, time or your rent.${missedReal ? ` You skipped ${missedReal} that matter.` : ""}`]
+        }
+        points={decoysPicked.length ? 0 : PTS.answer}
+        onNext={() => setStep("choose")}
+        nextLabel={<>See the places <Icon name="chevron-right" /></>}
+      />
+    );
+  }
 
   if (step === "choose")
     return (
       <div className="beat">
         <Host
           lines={[
-            `${offers.length === 2 ? "Two" : "Three"} places. Each trades money, time and unknowns.`,
+            `${["Two", "Three", "Four", "Five"][offers.length - 2] ?? offers.length} real places. Each trades money, time and unknowns.`,
             ...(values.place ? [`You want ${values.place} nearby: check the map before you pick.`] : []),
             "Which one do you take?",
           ]}
@@ -941,7 +962,7 @@ function MonthReveal({ stage, character, offer, terms, verify, onDone }: { stage
   const c = consequence({ character, stage, offerId: offer.id, revealed: step === "surprise", terms, profile });
   const incomeField = c.fields.find((f) => f.label.startsWith("Monthly income"))!;
   const field = (label: string) => c.fields.find((f) => f.label.startsWith(label))!;
-  const [statCard, toSurprise] = useStatGate(`choose:${offer.id}`, () => setStep("surprise"));
+  const [statCard, toSurprise] = useStatGate(`choose:nb:${offer.neighbourhoodId}`, () => setStep("surprise"));
   const flagged = verify.includes(offer.reveal.id);
   const { right } = useShow();
   const awarded = useRef(false);
@@ -1071,7 +1092,7 @@ function ApplyRound({ onWrong, onWalk, onDone }: { onWrong: () => void; onWalk: 
 
 // =====================================================================
 // Haggle Time (Extended, optional; the only round that can call the LLM)
-function NegotiateRound({ stageId, offer, difficulty, scripted, rivalDelta, onDone }: { stageId: string; offer: Offer; difficulty: Difficulty; scripted: boolean; rivalDelta: number; onDone: (t?: NegotiatedTerms) => void }) {
+function NegotiateRound({ stageId, seed, offer, difficulty, scripted, rivalDelta, onDone }: { stageId: string; seed: number; offer: Offer; difficulty: Difficulty; scripted: boolean; rivalDelta: number; onDone: (t?: NegotiatedTerms) => void }) {
   const [mode, setMode] = useState<"ask" | "chat">("ask");
   const [ready, setReady] = useState(false);
   if (rivalDelta > 0)
@@ -1089,6 +1110,7 @@ function NegotiateRound({ stageId, offer, difficulty, scripted, rivalDelta, onDo
     return (
       <Negotiation
         stageId={stageId}
+        seed={seed}
         offer={offer}
         difficulty={difficulty}
         scripted={scripted}
@@ -1366,6 +1388,59 @@ function MoveOutRound({ photos, seed, questionId, onWrong, onDone }: { photos: b
 
 // =====================================================================
 // Finale
+/** Your place, explained: each check with its real numbers, then the verdict. Big text, read aloud. Not scored. */
+function PlaceReview({ v, onDone }: { v: PlaceVerdict; onDone: () => void }) {
+  const [k, setK] = useState(0);
+  const [ready, setReady] = useState(false);
+  const last = k >= v.checks.length;
+  const check = v.checks[k];
+  const tone = last ? (v.grade === "great" ? "good" : v.grade === "risky" ? "bad" : "") : check.tight ? "" : check.good ? "good" : "bad";
+  const headline = last ? v.headline : check.title;
+  useEffect(() => {
+    play(tone === "good" ? "correct" : tone === "bad" ? "wrong" : "reveal");
+  }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  const next = () => {
+    setReady(false);
+    if (last) onDone();
+    else setK(k + 1);
+  };
+  return (
+    <div className="beat" key={k}>
+      <div className="beat-head">
+        <span className="pixel small">{last ? "Your place: the verdict" : `Your place, check ${k + 1} of ${v.checks.length}`}</span>
+      </div>
+      <div className={`reveal ${tone}`}>
+        <div className="reveal-big pixel" role="status">
+          {!last && <Icon name={check.good ? "check" : "close"} />} {headline}
+        </div>
+        {!last && check.stats.length > 0 && (
+          <div className="counters">
+            {check.stats.map((x) => (
+              <Counter key={x.label} label={x.label} value={x.value} format={(n) => (x.unit === "%" ? `${n.toFixed(1)}%` : money(Math.round(n)))} f={x.f} />
+            ))}
+          </div>
+        )}
+        <LinePlayer key={k} lines={last ? v.lines : check.lines} onDone={() => setReady(true)} big narrate preface={[headline]} />
+        <div className="reveal-actions">
+          {last && (
+            <Why
+              extra={
+                <p>
+                  Three checks: housing cost against the usual {AFFORDABLE_PCT}% of income ({STRETCH_PCT}%+ is a stretch), rent against CMHC&apos;s area average, and whether you flagged the hidden surprise.
+                  This explains your pick; it doesn&apos;t change your score.
+                </p>
+              }
+            />
+          )}
+          <button className="btn big" disabled={!ready} onClick={next} autoFocus={ready}>
+            {last ? "Show my report card" : "Next"} <Icon name="chevron-right" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ReportRound(props: {
   stage: PlayableStage;
   character: Character;
@@ -1386,7 +1461,7 @@ function ReportRound(props: {
   const { plan } = useRun();
   const events = plan.events;
   const { score, lifelines, addPoints, tally } = useShow();
-  const [step, setStep] = useState<"drum" | "card" | "civic">("drum");
+  const [step, setStep] = useState<"drum" | "place" | "card" | "civic">("drum");
   const [pickQ, setPickQ] = useState(0);
   const [copied, setCopied] = useState("");
   const bonusGiven = useRef(false);
@@ -1454,7 +1529,8 @@ function ReportRound(props: {
   }
   const toExtended = () => onExtended({ scams: result.scams, photos: result.photos, played: Object.keys(plan.questions) });
 
-  if (step === "drum") return <Reveal ok={null} headline="The results are in…" lines={["Drumroll, please!"]} onNext={() => setStep("card")} nextLabel={<>Show me! <Icon name="chevron-right" /></>} />;
+  if (step === "drum") return <Reveal ok={null} headline="The results are in…" lines={["Drumroll, please!"]} onNext={() => setStep("place")} nextLabel={<>Show me! <Icon name="chevron-right" /></>} />;
+  if (step === "place") return <PlaceReview v={placeVerdict(c, offer, res.verify, !!terms?.utilitiesIncluded)} onDone={() => setStep("card")} />;
 
   if (step === "card")
     return (

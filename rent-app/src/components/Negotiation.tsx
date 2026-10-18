@@ -44,10 +44,12 @@ export function Negotiation(props: {
   offer: Offer;
   difficulty: Difficulty;
   scripted: boolean;
+  /** The game seed: the server re-rolls the same location and rent (src/game/locations.ts). */
+  seed?: number;
   onAccept: (terms: NegotiatedTerms) => void;
   onWalk: () => void;
 }) {
-  const { stageId, offer, difficulty, scripted, onAccept, onWalk } = props;
+  const { stageId, offer, difficulty, scripted, seed, onAccept, onWalk } = props;
   const [landlord, setLandlord] = useState("The landlord");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [last, setLast] = useState<ServerReply | null>(null);
@@ -57,14 +59,14 @@ export function Negotiation(props: {
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`/api/negotiate?stageId=${stageId}&offerId=${offer.id}`)
+    fetch(`/api/negotiate?stageId=${stageId}&offerId=${offer.id}${seed !== undefined ? `&seed=${seed}` : ""}`)
       .then((r) => r.json())
       .then((d) => {
         setLandlord(d.landlord);
         setTurns([{ role: "landlord", text: d.opening, source: "scripted" }]);
       })
       .catch(() => setError("Couldn't reach the landlord. You can still sign at the listed terms."));
-  }, [stageId, offer.id]);
+  }, [stageId, offer.id, seed]);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
@@ -86,6 +88,7 @@ export function Negotiation(props: {
           stageId,
           offerId: offer.id,
           difficulty,
+          seed,
           mode: scripted ? "scripted" : "auto",
           transcript: next.map(({ role, text }) => ({ role, text })),
         }),

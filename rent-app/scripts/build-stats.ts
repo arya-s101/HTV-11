@@ -110,13 +110,11 @@ const cityTenant30: Field = {
   status: "derived",
   source_ref: `Tenant-weighted average of rows ${ROW_TENANT_30} (%) using row ${ROW_TENANTS} (tenant households), sheet hd2021_census_profile`,
 };
-const stages = JSON.parse(readFileSync("data/game/stages.json", "utf8"));
-for (const s of stages.stages)
-  for (const o of s.offers ?? []) {
-    const nb = evidence.neighbourhoods[o.neighbourhoodId];
-    if (nb?.tenantShelter30?.status !== "measured") continue;
-    add([`choose:${o.id}`], { group: `tenant30:${o.neighbourhoodId}`, label: "Tenant households spending 30%+ of income on housing", stat: nb.tenantShelter30, stat_label: nb.name, compare_to: cityTenant30, compare_label: "All of Toronto" });
-  }
+// Places move to a fresh neighbourhood each game (src/game/locations.ts), so every neighbourhood gets its card.
+for (const [id, nb] of Object.entries(evidence.neighbourhoods as Record<string, { name: string; tenantShelter30: Field }>)) {
+  if (nb.tenantShelter30?.status !== "measured") continue;
+  add([`choose:nb:${id}`], { group: `tenant30:${id}`, label: "Tenant households spending 30%+ of income on housing", stat: nb.tenantShelter30, stat_label: nb.name, compare_to: cityTenant30, compare_label: "All of Toronto" });
+}
 
 // ---------- RentSafeTO apartment building evaluations (City of Toronto open data) ----------
 const RENTSAFE_URL = "https://open.toronto.ca/dataset/apartment-building-evaluation/";
